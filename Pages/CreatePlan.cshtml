@@ -9,10 +9,10 @@
   <div class="mb-4 d-flex justify-content-between align-items-center">
     <div>
       <h1 class="fs-4 fw-bold mb-1">Create Production Plan</h1>
-      <p class="text-secondary small mb-0">Configure a new manufacturing output.</p>
+      <p class="text-secondary small mb-0">Configure output and manually add materials to calculate costs.</p>
     </div>
-    <a asp-page="/Production" class="btn btn-primary fw-semibold text-white text-decoration-none">
-      <i class="fa-solid fa-plus me-1"></i> Back to List
+    <a asp-page="/Production" class="btn btn-outline-secondary btn-sm fw-semibold text-decoration-none">
+      <i class="fa-solid fa-arrow-left me-1"></i> Back to List
     </a>
   </div>
 
@@ -43,8 +43,8 @@
         <div class="row g-4 mb-4 pb-4 border-bottom">
           <div class="col-12">
             <label class="form-label fw-semibold small text-dark mb-1">Plan Name</label>
-            <input type="text" id="inputPlanName" class="form-control bg-light"
-                   placeholder="e.g. Q3 Valve Run - Batch A" required>
+            <input type="text" id="inputPlanName" class="form-control bg-light" placeholder="e.g. Q3 Denim Pant Run"
+                   required>
           </div>
 
           <div class="col-md-6">
@@ -61,91 +61,209 @@
             </div>
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-6">
             <label class="form-label fw-semibold small text-dark mb-1">Target Quantity</label>
-            <input type="number" id="inputQty" class="form-control bg-light" value="0" min="1" required>
+            <input type="number" id="inputQty" class="form-control border-primary shadow-sm" value="0" min="1" required>
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-6">
             <label class="form-label fw-semibold small text-dark mb-1">Unit of Measure</label>
             <div class="input-icon-wrapper">
               <select id="inputUOM" class="form-select bg-light">
                 <option>Pieces (pcs)</option>
-                <option>Kilograms (kg)</option>
-                <option>Meters (m)</option>
               </select>
-              <i class="fa-solid fa-chevron-down icon-right fs-6"></i>
-            </div>
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label fw-semibold small text-dark mb-1">Workstation / Location</label>
-            <div class="input-icon-wrapper">
-              <select id="inputLocation" class="form-select bg-light">
-                <option>Assembly Line 1</option>
-                <option>Cutting Floor A</option>
-              </select>
-              <i class="fa-solid fa-chevron-down icon-right fs-6"></i>
             </div>
           </div>
         </div>
 
         <div class="mb-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="fs-6 fw-bold mb-0">Required Materials</h3>
-            <button type="button" class="btn btn-outline-secondary btn-sm px-3 fw-semibold">
+            <h3 class="fs-6 fw-bold mb-0">Material & Cost Calculation</h3>
+            <button type="button" id="btnAddMaterial" class="btn btn-outline-primary btn-sm px-3 fw-semibold">
               <i class="fa-solid fa-plus me-1"></i> Add Material
             </button>
           </div>
-          <div class="table-responsive border rounded-3 bg-light p-3 text-center text-secondary small">
-            <i class="fa-solid fa-boxes-stacked fs-4 mb-2 d-block"></i>
-            Material requirements will be calculated after saving the plan.
+
+          <div class="table-responsive border rounded-3 mb-3">
+            <table class="table table-borderless table-hover align-middle mb-0">
+              <thead class="table-light border-bottom">
+                <tr>
+                  <th class="text-secondary text-uppercase fw-semibold" style="font-size: 0.75rem; width: 35%;">Material
+                    Name</th>
+                    <th class="text-secondary text-uppercase fw-semibold" style="font-size: 0.75rem; width: 20%;">Qty Per
+                      Unit</th>
+                      <th class="text-secondary text-uppercase fw-semibold" style="font-size: 0.75rem; width: 20%;">Cost Per
+                        Unit (Rs.)</th>
+                        <th class="text-secondary text-uppercase fw-semibold text-primary text-end pe-4"
+                            style="font-size: 0.75rem; width: 25%;">Total Cost</th>
+                      </tr>
+                    </thead>
+                    <tbody id="bomTableBody">
+                      <tr id="bomEmptyState">
+                        <td colspan="4" class="text-center text-secondary py-4 bg-light">
+                          <i class="fa-solid fa-boxes-stacked fs-4 mb-2 d-block text-muted"></i>
+                          Click "Add Material" to start building your production costs.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                  <div
+                    class="bg-primary-subtle border border-primary text-primary px-4 py-3 rounded-3 shadow-sm d-flex align-items-center gap-3">
+                    <span class="fw-semibold">Estimated Run Cost:</span>
+                    <span class="fs-4 fw-bold" id="totalRunCost">Rs. 0.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+                <button type="submit" class="btn btn-success px-4 py-2 fw-semibold shadow-sm">
+                  <i class="fa-solid fa-floppy-disk me-1"></i> Save Production Plan
+                </button>
+              </div>
+            </form>
+
           </div>
         </div>
-
-        <div class="d-flex justify-content-end">
-          <button type="submit" class="btn btn-success px-4 py-2 fw-semibold">
-            <i class="fa-solid fa-floppy-disk me-1"></i> Save Production Plan
-          </button>
-        </div>
-      </form>
-
-    </div>
-  </div>
-</div>
+      </div>
 
 @section Scripts {
   <script>
-    document.getElementById('createPlanForm').addEventListener('submit', function (e) {
-      e.preventDefault(); // Stop standard form submission
+      const inputQty = document.getElementById('inputQty');
+      const bomTableBody = document.getElementById('bomTableBody');
+      const bomEmptyState = document.getElementById('bomEmptyState');
+      const btnAddMaterial = document.getElementById('btnAddMaterial');
+      const totalRunCostDisplay = document.getElementById('totalRunCost');
 
-      // 1. Gather data
-      const planBasis = document.querySelector('input[name="planBasis"]:checked').value;
-      const planName = document.getElementById('inputPlanName').value;
-      const startDate = document.getElementById('inputStartDate').value;
-      const endDate = document.getElementById('inputEndDate').value;
-      const qty = document.getElementById('inputQty').value;
-      const uom = document.getElementById('inputUOM').value;
-
-      // 2. Create the plan object
-      const newPlan = {
-        id: Date.now(),
-        name: planName,
-        basis: planBasis,
-        targetQty: `${qty} ${uom.split(' ')[0]}`,
-        timeline: `${startDate} to ${endDate}`,
-        status: 'Draft'
+      // Format currency as Rs. with South Asian comma placement
+      const formatCurrency = (amount) => {
+          return 'Rs. ' + amount.toLocaleString('en-NP', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       };
 
-      // 3. Fetch existing plans from LocalStorage (or create empty array)
-      let existingPlans = JSON.parse(localStorage.getItem('productionPlans')) || [];
+      // Calculate and update the grand total at the bottom
+      function updateGrandTotal() {
+          let grandTotal = 0;
+          const costElements = document.querySelectorAll('.material-row-total');
 
-      // 4. Add the new plan and save back to LocalStorage
-      existingPlans.push(newPlan);
-      localStorage.setItem('productionPlans', JSON.stringify(existingPlans));
+          costElements.forEach(el => {
+              // Pull the raw numerical data we saved in dataset.value
+              grandTotal += parseFloat(el.dataset.value || 0);
+          });
 
-      // 5. Redirect back to the Production List page
-      window.location.href = '/Production';
-    });
+          totalRunCostDisplay.innerText = formatCurrency(grandTotal);
+      }
+
+      // Calculate the specific total for a single row
+      function recalculateRow(rowElement) {
+          const targetQty = parseFloat(inputQty.value) || 0;
+          const qtyPerUnit = parseFloat(rowElement.querySelector('.input-qty').value) || 0;
+          const costPerUnit = parseFloat(rowElement.querySelector('.input-cost').value) || 0;
+
+          const totalInput = rowElement.querySelector('.material-row-total');
+
+          // UX FIX: If Target Qty is 0, tell the user why it's not calculating!
+          if (targetQty === 0) {
+              totalInput.value = "Set Target Qty ↑";
+              totalInput.dataset.value = 0;
+          } else {
+              // Formula: Target Production Quantity * Qty Required for 1 Unit * Cost of 1 Unit of Material
+              const rowTotal = targetQty * qtyPerUnit * costPerUnit;
+              totalInput.value = rowTotal.toLocaleString('en-NP', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+              totalInput.dataset.value = rowTotal;
+          }
+
+          updateGrandTotal();
+      }
+
+      // If the user changes the Target Quantity, update EVERY row in the table
+      inputQty.addEventListener('input', function() {
+          const allRows = document.querySelectorAll('.bom-manual-row');
+          allRows.forEach(row => recalculateRow(row));
+      });
+
+      // --- MANUAL ADDITION LOGIC ---
+      btnAddMaterial.addEventListener('click', function() {
+          bomEmptyState.style.display = 'none';
+
+          const tr = document.createElement('tr');
+          tr.className = 'bom-manual-row border-bottom bg-white';
+
+          tr.innerHTML = `
+              <td class="py-3 ps-2 align-middle">
+                  <input type="text" class="form-control form-control-sm" placeholder="e.g. Raw Denim" required>
+              </td>
+              <td class="py-3 align-middle">
+                  <input type="number" step="any" class="form-control form-control-sm input-qty" placeholder="e.g. 2" required>
+              </td>
+              <td class="py-3 align-middle">
+                  <input type="number" step="any" class="form-control form-control-sm input-cost" placeholder="e.g. 1250" required>
+              </td>
+              <td class="py-3 text-end pe-4 align-middle">
+                  <div class="d-flex align-items-center justify-content-end gap-2">
+                      <div class="input-group input-group-sm flex-grow-1">
+                          <span class="input-group-text bg-light text-muted border-end-0">Rs.</span>
+                          <input type="text" class="form-control material-row-total text-end fw-bold text-primary border-start-0 bg-white" placeholder="0.00" readonly data-value="0">
+                      </div>
+                      <button type="button" class="btn btn-sm text-danger" onclick="removeRow(this)" title="Remove">
+                          <i class="fa-solid fa-trash"></i>
+                      </button>
+                  </div>
+              </td>
+          `;
+
+          // Attach listeners to this specific new row
+          const qtyInput = tr.querySelector('.input-qty');
+          const costInput = tr.querySelector('.input-cost');
+
+          // These are the listeners that trigger the math when you type!
+          qtyInput.addEventListener('input', () => recalculateRow(tr));
+          costInput.addEventListener('input', () => recalculateRow(tr));
+
+          bomTableBody.appendChild(tr);
+
+          // Force a calculation immediately so it shows "Set Target Qty" if needed
+          recalculateRow(tr);
+      });
+
+      // Remove row function
+      window.removeRow = function(buttonElement) {
+          buttonElement.closest('tr').remove();
+
+          // Check if table is empty
+          if (document.querySelectorAll('.bom-manual-row').length === 0) {
+              bomEmptyState.style.display = 'table-row';
+          }
+
+          updateGrandTotal(); // Recalculate without the deleted row
+      }
+
+      // --- SAVE LOGIC ---
+      document.getElementById('createPlanForm').addEventListener('submit', function (e) {
+          e.preventDefault();
+
+          const planBasis = document.querySelector('input[name="planBasis"]:checked').value;
+          const planName = document.getElementById('inputPlanName').value;
+          const startDate = document.getElementById('inputStartDate').value;
+          const endDate = document.getElementById('inputEndDate').value;
+          const qty = document.getElementById('inputQty').value;
+          const uom = document.getElementById('inputUOM').value;
+
+          const newPlan = {
+              id: Date.now(),
+              name: planName,
+              basis: planBasis,
+              targetQty: `${qty} ${uom.split(' ')[0]}`,
+              timeline: `${startDate} to ${endDate}`,
+              status: 'Draft'
+          };
+
+          let existingPlans = JSON.parse(localStorage.getItem('productionPlans')) || [];
+          existingPlans.push(newPlan);
+          localStorage.setItem('productionPlans', JSON.stringify(existingPlans));
+
+          window.location.href = '/Production';
+      });
   </script>
 }
