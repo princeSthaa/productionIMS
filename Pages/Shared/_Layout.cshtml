@@ -34,8 +34,7 @@
       <nav class="top-nav">
         <a asp-page="/Index">Dashboard</a>
 
-        <a asp-page="/Production/Index"
-           class="@(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Production") == true ? "active" : "")">
+        <a asp-page="/Production">
           Production
         </a>
 
@@ -46,19 +45,20 @@
         <a asp-page="/Analytics/Index">
           Analytics
         </a>
+        <a asp-page="/Privacy">Privacy</a>
       </nav>
     </div>
 
     <!-- RIGHT SIDE -->
     <div class="topbar-right">
 
-      <div class="search-box">
+      @* <div class="search-box">
         <span class="material-symbols-outlined">
           search
         </span>
 
         <input type="text" placeholder="Search..." />
-      </div>
+      </div> *@
 
       <button class="icon-btn">
         <span class="material-symbols-outlined">

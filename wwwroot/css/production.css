@@ -1,0 +1,25 @@
+body {
+  background-color: #f4f5f8;
+}
+
+.max-w-1200 {
+  max-width: 1200px;
+}
+
+.input-icon-wrapper {
+  position: relative;
+}
+
+.input-icon-wrapper .icon-right {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+}
+
+.input-icon-wrapper select {
+  appearance: none;
+  padding-right: 30px;
+}
