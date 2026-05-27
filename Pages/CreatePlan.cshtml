@@ -1,0 +1,151 @@
+@page
+@model CreatePlan
+@{
+  ViewData["Title"] = "Create Plan";
+}
+<h1>@ViewData["Title"]</h1>
+
+<div id="formView" class="container-fluid max-w-1200 mx-auto">
+  <div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+      <h1 class="fs-4 fw-bold mb-1">Create Production Plan</h1>
+      <p class="text-secondary small mb-0">Configure a new manufacturing output.</p>
+    </div>
+    <a asp-page="/Production" class="btn btn-primary fw-semibold text-white text-decoration-none">
+      <i class="fa-solid fa-plus me-1"></i> Back to List
+    </a>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-body p-4">
+
+      <form id="createPlanForm">
+        <div class="mb-4 pb-4 border-bottom">
+          <label class="form-label fw-bold text-dark mb-3">Plan Basis</label>
+          <div class="d-flex gap-4">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="planBasis" id="basisDemand" value="Customer Demand"
+                     checked>
+              <label class="form-check-label fw-semibold text-secondary" for="basisDemand">
+                <i class="fa-solid fa-cart-shopping me-1"></i> Customer Demand
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="planBasis" id="basisInhouse"
+                     value="In-house Production">
+              <label class="form-check-label fw-semibold text-secondary" for="basisInhouse">
+                <i class="fa-solid fa-industry me-1"></i> In-house Production
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4 mb-4 pb-4 border-bottom">
+          <div class="col-12">
+            <label class="form-label fw-semibold small text-dark mb-1">Plan Name</label>
+            <input type="text" id="inputPlanName" class="form-control bg-light"
+                   placeholder="e.g. Q3 Valve Run - Batch A" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small text-dark mb-1">Start Date</label>
+            <div class="input-icon-wrapper">
+              <input type="date" id="inputStartDate" class="form-control bg-light" required>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small text-dark mb-1">End Date</label>
+            <div class="input-icon-wrapper">
+              <input type="date" id="inputEndDate" class="form-control bg-light" required>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small text-dark mb-1">Target Quantity</label>
+            <input type="number" id="inputQty" class="form-control bg-light" value="0" min="1" required>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small text-dark mb-1">Unit of Measure</label>
+            <div class="input-icon-wrapper">
+              <select id="inputUOM" class="form-select bg-light">
+                <option>Pieces (pcs)</option>
+                <option>Kilograms (kg)</option>
+                <option>Meters (m)</option>
+              </select>
+              <i class="fa-solid fa-chevron-down icon-right fs-6"></i>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small text-dark mb-1">Workstation / Location</label>
+            <div class="input-icon-wrapper">
+              <select id="inputLocation" class="form-select bg-light">
+                <option>Assembly Line 1</option>
+                <option>Cutting Floor A</option>
+              </select>
+              <i class="fa-solid fa-chevron-down icon-right fs-6"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="fs-6 fw-bold mb-0">Required Materials</h3>
+            <button type="button" class="btn btn-outline-secondary btn-sm px-3 fw-semibold">
+              <i class="fa-solid fa-plus me-1"></i> Add Material
+            </button>
+          </div>
+          <div class="table-responsive border rounded-3 bg-light p-3 text-center text-secondary small">
+            <i class="fa-solid fa-boxes-stacked fs-4 mb-2 d-block"></i>
+            Material requirements will be calculated after saving the plan.
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <button type="submit" class="btn btn-success px-4 py-2 fw-semibold">
+            <i class="fa-solid fa-floppy-disk me-1"></i> Save Production Plan
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    document.getElementById('createPlanForm').addEventListener('submit', function (e) {
+      e.preventDefault(); // Stop standard form submission
+
+      // 1. Gather data
+      const planBasis = document.querySelector('input[name="planBasis"]:checked').value;
+      const planName = document.getElementById('inputPlanName').value;
+      const startDate = document.getElementById('inputStartDate').value;
+      const endDate = document.getElementById('inputEndDate').value;
+      const qty = document.getElementById('inputQty').value;
+      const uom = document.getElementById('inputUOM').value;
+
+      // 2. Create the plan object
+      const newPlan = {
+        id: Date.now(),
+        name: planName,
+        basis: planBasis,
+        targetQty: `${qty} ${uom.split(' ')[0]}`,
+        timeline: `${startDate} to ${endDate}`,
+        status: 'Draft'
+      };
+
+      // 3. Fetch existing plans from LocalStorage (or create empty array)
+      let existingPlans = JSON.parse(localStorage.getItem('productionPlans')) || [];
+
+      // 4. Add the new plan and save back to LocalStorage
+      existingPlans.push(newPlan);
+      localStorage.setItem('productionPlans', JSON.stringify(existingPlans));
+
+      // 5. Redirect back to the Production List page
+      window.location.href = '/Production';
+    });
+  </script>
+}
