@@ -1,4 +1,9 @@
 ﻿<!DOCTYPE html>
+@{
+  var currentPage = Convert.ToString(ViewContext.RouteData.Values["page"]) ?? string.Empty;
+  string IsActive(string pagePrefix) => currentPage.StartsWith(pagePrefix, StringComparison.OrdinalIgnoreCase) ? "active" : string.Empty;
+}
+
 <html lang="en" class="light">
 
 <head>
@@ -19,6 +24,7 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+  @await RenderSectionAsync("Styles", required: false)
 </head>
 
 <body class="app-body">
@@ -32,20 +38,20 @@
       </a>
 
       <nav class="top-nav">
-        <a asp-page="/Index">Dashboard</a>
+        <a asp-page="/Index" class='@IsActive("/Index")'>Dashboard</a>
 
-        <a asp-page="/Production">
+        <a asp-page="/Production" class='@IsActive("/Production")'>
           Production
         </a>
 
-        <a asp-page="/Warehouse/Index">
+        <a asp-page="/Warehouse/Index" class='@IsActive("/Warehouse")'>
           Warehouse
         </a>
 
-        <a asp-page="/Analytics/Index">
+        <a asp-page="/Analytics/Index" class='@IsActive("/Analytics")'>
           Analytics
         </a>
-        <a asp-page="/Privacy">Privacy</a>
+        <a asp-page="/Privacy" class='@IsActive("/Privacy")'>Privacy</a>
       </nav>
     </div>
 
