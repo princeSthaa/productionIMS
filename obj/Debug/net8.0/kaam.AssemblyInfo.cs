@@ -13,11 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("kaam")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-<<<<<<< HEAD
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+21804ac60c5600addaa927d19bf59d122122e780")]
-=======
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+795d35737e55d0cb85d85f20004981e38d4f1a9f")]
->>>>>>> 1ed090055acd832cac09670897a698e88d8d4f79
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ac0ee802580fb7e6212c18ec1e3f3d78da5db219")]
 [assembly: System.Reflection.AssemblyProductAttribute("kaam")]
 [assembly: System.Reflection.AssemblyTitleAttribute("kaam")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
