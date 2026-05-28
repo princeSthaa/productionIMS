@@ -1,0 +1,77 @@
+@page
+@model kaam.Pages.Warehouse.IndexModel
+@{
+    ViewData["Title"] = "Warehouse";
+}
+
+@section Scripts {
+    <script type="module" src="~/js/warehouse/warehouse.js" asp-append-version="true"></script>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/warehouse/warehouse.css" asp-append-version="true" />
+}
+
+<section class="warehouse-page" data-warehouse-app data-template-url="@Url.Content("~/html/warehouse/module-panel.html")">
+    <div class="warehouse-hero">
+        <div>
+            <span class="warehouse-eyebrow">IMS Warehouse Control</span>
+            <h1 class="warehouse-title">Warehouse</h1>
+            <p class="warehouse-subtitle">
+                Raw materials, finished goods, locations, transfers, damage control, purchase demand, and dispatch tracking.
+            </p>
+        </div>
+        <div class="warehouse-hero-actions">
+            <button class="btn btn-light btn-sm fw-semibold" type="button" data-action="open-module" data-module-id="receive-materials">
+                <span class="material-symbols-outlined" aria-hidden="true">inventory</span>
+                Receive
+            </button>
+            <button class="btn btn-dark btn-sm fw-semibold" type="button" data-action="open-module" data-module-id="issue-materials">
+                <span class="material-symbols-outlined" aria-hidden="true">forklift</span>
+                Issue
+            </button>
+        </div>
+    </div>
+
+    <div class="warehouse-flow" aria-label="Warehouse flow">
+        <span>Supplier</span>
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        <strong>Warehouse</strong>
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        <span>Factory</span>
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        <strong>Warehouse</strong>
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        <span>Outlet / Customer</span>
+    </div>
+
+    <div class="row g-3" data-kpi-grid></div>
+
+    <div class="warehouse-workspace">
+        <aside class="warehouse-sidebar">
+            <div class="warehouse-sidebar-head">
+                <span class="material-symbols-outlined" aria-hidden="true">warehouse</span>
+                <span>Modules</span>
+            </div>
+            <div class="nav nav-pills warehouse-module-nav" data-module-nav role="tablist" aria-label="Warehouse modules"></div>
+        </aside>
+
+        <div class="warehouse-main">
+            <div class="warehouse-toolbar">
+                <div class="input-group input-group-sm warehouse-search">
+                    <span class="input-group-text bg-white">
+                        <span class="material-symbols-outlined" aria-hidden="true">search</span>
+                    </span>
+                    <input class="form-control" type="search" placeholder="Search stock, batch, location" data-warehouse-search>
+                </div>
+                <select class="form-select form-select-sm warehouse-filter" data-stock-type-filter aria-label="Stock type filter">
+                    <option value="all">All stock</option>
+                    <option value="Raw Material">Raw materials</option>
+                    <option value="Finished Goods">Finished goods</option>
+                </select>
+            </div>
+
+            <div data-module-panel></div>
+        </div>
+    </div>
+</section>
