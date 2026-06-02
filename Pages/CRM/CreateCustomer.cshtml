@@ -1,0 +1,104 @@
+@page
+@model CreateCustomer
+@{
+  ViewData["Title"] = "Add Customer";
+  Layout = "_SidebarLayout";
+}
+
+<!-- Link your custom CSS file if you have a specific one for customers, or reuse the app's main CSS -->
+<link rel="stylesheet" href="~/css/customers.css" asp-append-version="true" />
+
+<div class="pp-page">
+
+  <!-- Page Header -->
+  <div class="pp-page-header">
+    <div>
+      <h1>Add New Customer</h1>
+      <p>Register a new client, wholesaler, or retail contact.</p>
+    </div>
+
+    <div class="pp-header-actions">
+      <a asp-page="/CRM/Index" class="btn btn-light">
+        &larr; Back to List
+      </a>
+    </div>
+  </div>
+
+  <!-- Add Customer Form -->
+  <div class="pp-card">
+    <div class="pp-card-header">
+      <div>
+        <h2>Customer Details</h2>
+        <p>Please fill out the required information below.</p>
+      </div>
+    </div>
+
+    <div class="card-body" style="padding: 20px;">
+      <form method="post" id="addCustomerForm">
+
+        <!-- Use a grid layout similar to your filters for two-column design -->
+        <div class="pp-filter-grid" style="grid-template-columns: repeat(2, 1fr); gap: 20px;">
+
+          <!-- Basic Information -->
+          <div class="form-group">
+            <label for="CustomerName">Full Name <span class="text-danger">*</span></label>
+            <input type="text" id="CustomerName" name="CustomerName" class="form-control"
+                   placeholder="e.g. Ram Shrestha" required />
+          </div>
+
+          <div class="form-group">
+            <label for="CompanyName">Company / Business Name</label>
+            <input type="text" id="CompanyName" name="CompanyName" class="form-control"
+                   placeholder="e.g. Everest Garments Pvt. Ltd." />
+          </div>
+
+          <div class="form-group">
+            <label for="Email">Email Address</label>
+            <input type="email" id="Email" name="Email" class="form-control" placeholder="contact@example.com" />
+          </div>
+
+          <div class="form-group">
+            <label for="Phone">Phone Number <span class="text-danger">*</span></label>
+            <input type="tel" id="Phone" name="Phone" class="form-control" placeholder="e.g. 98XXXXXXXX" required />
+          </div>
+
+          <div class="form-group">
+            <label for="PanVatNo">PAN / VAT Number</label>
+            <input type="text" id="PanVatNo" name="PanVatNo" class="form-control" placeholder="9-digit PAN/VAT" />
+          </div>
+
+          <div class="form-group">
+            <label for="CustomerType">Customer Type</label>
+            <select id="CustomerType" name="CustomerType" class="form-control">
+              <option value="Retail">Retail</option>
+              <option value="Wholesale">Wholesale</option>
+              <option value="Distributor">Distributor</option>
+              <option value="Export">Export</option>
+            </select>
+          </div>
+
+          <!-- Address spans full width -->
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label for="Address">Full Address</label>
+            <textarea id="Address" name="Address" class="form-control" rows="3"
+                      placeholder="Street, City, Province"></textarea>
+          </div>
+
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions" style="margin-top: 30px; display: flex; gap: 15px; justify-content: flex-end;">
+          <button type="reset" class="btn btn-light">Clear</button>
+          <button type="submit" class="btn btn-primary">Save Customer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<!-- Scripts section for client-side validation if needed -->
+@section Scripts {
+  <partial name="_ValidationScriptsPartial" />
+  <script src="~/js/customer-create.js" asp-append-version="true"></script>
+}

@@ -6,8 +6,6 @@
   Layout = "_SidebarLayout";
 }
 
-<link rel="stylesheet" href="~/css/production-plans.css" asp-append-version="true" />
-<link href="https://nepalidatepicker.sajanmaharjan.com.np/v5/nepali.datepicker/css/nepali.datepicker.v5.0.6.min.css" rel="stylesheet" type="text/css"/>
 
 <div class="pp-page">
 
@@ -155,30 +153,3 @@
 <script src="~/js/app.js" asp-append-version="true"></script>
 <script src="~/data/mock-production-plans.js" asp-append-version="true"></script>
 <script src="~/js/production-plan-index.js" asp-append-version="true"></script>
-<script src="https://nepalidatepicker.sajanmaharjan.com.np/v5/nepali.datepicker/js/nepali.datepicker.v5.0.6.min.js"
-        type="text/javascript"></script>
-        <script>
-document.addEventListener("DOMContentLoaded", function() {
-    // 1. Select your input elements
-    var fromDateInput = document.getElementById("fromDateFilter");
-    var toDateInput = document.getElementById("toDateFilter");
-
-    // 2. Create your configuration object
-    var datePickerOptions = {
-        miniEnglishDates: true
-        // You can add other options here later, comma-separated, like:
-        // ndpYear: true,
-        // ndpMonth: true
-    };
-
-    // 3. Pass the options object into the initialization functions
-    if (fromDateInput) {
-        fromDateInput.nepaliDatePicker(datePickerOptions);
-    }
-
-    if (toDateInput) {
-        toDateInput.nepaliDatePicker(datePickerOptions);
-    }
-});
-</script>
-
