@@ -1,369 +1,367 @@
 @page
 @model Kaam.Pages.New.CreateCustomerModel
 @{
-    ViewData["Title"] = "Create Customer Production Plan";
+  ViewData["Title"] = "Create Customer Production Plan";
 }
 
 <link rel="stylesheet" href="~/css/plan.css" asp-append-version="true" />
 
 <div class="pp-page customer-order-page">
 
-    <div class="pp-page-header">
-        <div>
-            <h1>Create Customer Order Plan</h1>
-            <p>Browse ready customer orders, check materials in bulk, and add selected items to a production plan.</p>
-        </div>
-
-        <div class="pp-header-actions">
-            <a asp-page="/Production/Create" class="btn btn-light">
-                Change Demand Type
-            </a>
-
-            <a asp-page="/Production/Index" class="btn btn-light">
-                Back to Plans
-            </a>
-        </div>
+  <div class="pp-page-header">
+    <div>
+      <h1>Create Customer Order Plan</h1>
+      <p>Browse ready customer orders, check materials in bulk, and add selected items to a production plan.</p>
     </div>
 
-    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
-    {
-        <div class="alert alert-success">@Model.SuccessMessage</div>
-    }
+    <div class="pp-header-actions">
+      <a asp-page="/Production/Create" class="btn btn-light">
+        Change Demand Type
+      </a>
 
-    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-    {
-        <div class="alert alert-danger">@Model.ErrorMessage</div>
-    }
+      <a asp-page="/Production/Index" class="btn btn-light">
+        Back to Plans
+      </a>
+    </div>
+  </div>
 
-    <form method="post" id="productionPlanForm">
+  @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+  {
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+  }
 
-        <input asp-for="DemandType" type="hidden" value="Customer Order" />
-        <input asp-for="SelectedDraftJson" type="hidden" id="selectedDraftJson" />
+  @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+  {
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+  }
 
-        <section class="pp-card catalog-hero-card">
-            <div class="catalog-hero-content">
-                <div>
-                    <span class="catalog-eyebrow">Customer Order Catalog</span>
-                    <h2>Ready Orders for Production Planning</h2>
-                <!--    <p>
+  <form method="post" id="productionPlanForm">
+
+    <input asp-for="DemandType" type="hidden" value="Customer Order" />
+    <input asp-for="SelectedDraftJson" type="hidden" id="selectedDraftJson" />
+
+    <section class="pp-card catalog-hero-card">
+      <div class="catalog-hero-content">
+        <div>
+          <span class="catalog-eyebrow">Customer Order Catalog</span>
+          <h2>Ready Orders for Production Planning</h2>
+          <!--    <p>
                         Select customer order items like an internal e-commerce catalog.
                         View product image, size breakdown, delivery date, and material status before adding to plan.
                     </p> -->
-                </div>
-
-                <div class="catalog-hero-stats">
-                    <div>
-                        <span>Selected Items</span>
-                        <strong id="selectedItemCount">0</strong>
-                    </div>
-                    <div>
-                        <span>Total Quantity</span>
-                        <strong id="selectedTotalQty">0</strong>
-                    </div>
-                    <div>
-                        <span>Earliest Delivery</span>
-                        <strong id="selectedEarliestDelivery">-</strong>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="pp-card catalog-filter-card">
-            <div class="catalog-filter-grid">
-                <div class="form-group">
-                    <label for="catalogSearch">Search Order</label>
-                    <input type="text"
-                           id="catalogSearch"
-                           class="form-control"
-                           placeholder="Search customer, order no, product, phone, location..." />
-                </div>
-
-                <div class="form-group">
-                    <label for="customerTypeFilter">Customer Type</label>
-                    <select id="customerTypeFilter" class="form-control">
-                        <option value="">All Types</option>
-                        <option value="School">School</option>
-                        <option value="Retailer">Retailer</option>
-                        <option value="Business Customer">Business Customer</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="priorityFilter">Priority</label>
-                    <select id="priorityFilter" class="form-control">
-                        <option value="">All Priorities</option>
-                        <option value="Urgent">Urgent</option>
-                        <option value="Normal">Normal</option>
-                        <option value="Seasonal">Seasonal</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="catalogSort">Sort By</label>
-                    <select id="catalogSort" class="form-control">
-                        <option value="deliveryDate">Nearest Delivery Date</option>
-                        <option value="customerName">Customer Name</option>
-                        <option value="quantityHigh">Quantity High to Low</option>
-                        <option value="priority">Priority</option>
-                    </select>
-                </div>
-            </div>
-        </section>
-
-        <div class="catalog-layout">
-
-            <main class="catalog-main">
-                <div class="catalog-section-header">
-                    <div>
-                        <h2>Customer Order Items</h2>
-                        <p>Click View Details to inspect size chart, measurements, and material requirements.</p>
-                    </div>
-                </div>
-
-                <div id="customerOrderCatalogGrid" class="customer-order-catalog-grid">
-                    <div class="empty-cell">
-                        Loading customer orders...
-                    </div>
-                </div>
-            </main>
-
-            <aside class="plan-basket-panel">
-                <div class="plan-basket-header">
-                    <div>
-                        <h2>Production Plan Basket</h2>
-                        <p>Selected items to convert into production plan.</p>
-                    </div>
-                </div>
-
-                <div id="planBasketItems" class="plan-basket-items">
-                    <div class="basket-empty-state">
-                        No items added yet.
-                    </div>
-                </div>
-
-                <div class="plan-basket-summary">
-                    <div>
-                        <span>Total Items</span>
-                        <strong id="basketTotalItems">0</strong>
-                    </div>
-                    <div>
-                        <span>Total Qty</span>
-                        <strong id="basketTotalQty">0</strong>
-                    </div>
-                    <div>
-                        <span>Earliest Delivery</span>
-                        <strong id="basketEarliestDelivery">-</strong>
-                    </div>
-                    <div>
-                        <span>Material Status</span>
-                        <strong id="basketMaterialStatus">Not checked</strong>
-                    </div>
-                </div>
-
-                <div class="basket-actions">
-                    <button type="button" class="btn btn-outline full-width" id="checkBulkMaterialBtn">
-                        Check Materials in Bulk
-                    </button>
-
-                    <button type="submit" name="ActionType" value="Create" class="btn btn-primary full-width">
-                        Create Production Plan
-                    </button>
-
-                    <button type="button" class="btn btn-danger-light full-width" id="clearBasketBtn">
-                        Clear Basket
-                    </button>
-                </div>
-            </aside>
-
         </div>
 
-        <section class="pp-card bulk-material-card">
-            <div class="pp-card-header">
-                <div>
-                    <h2>Bulk Material Requirement</h2>
-                    <p>Material requirement is calculated from all selected production plan items.</p>
-                </div>
-            </div>
+        <div class="catalog-hero-stats">
+          <div>
+            <span>Selected Items</span>
+            <strong id="selectedItemCount">0</strong>
+          </div>
+          <div>
+            <span>Total Quantity</span>
+            <strong id="selectedTotalQty">0</strong>
+          </div>
+          <div>
+            <span>Earliest Delivery</span>
+            <strong id="selectedEarliestDelivery">-</strong>
+          </div>
+        </div>
+      </div>
+    </section>
 
-            <div class="pp-table-wrapper">
-                <table class="pp-table">
-                    <thead>
-                        <tr>
-                            <th>Material Code</th>
-                            <th>Material Name</th>
-                            <th>Material Type</th>
-                            <th>Required Qty</th>
-                            <th>Available Qty</th>
-                            <th>Shortage Qty</th>
-                            <th>Unit</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="bulkMaterialBody">
-                        <tr>
-                            <td colspan="8" class="empty-cell">
-                                Add items to production plan basket, then click Check Materials in Bulk.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+    <section class="pp-card catalog-filter-card">
+      <div class="catalog-filter-grid">
+        <div class="form-group">
+          <label for="catalogSearch">Search Order</label>
+          <input type="text" id="catalogSearch" class="form-control"
+                 placeholder="Search customer, order no, product, phone, location..." />
+        </div>
 
-    </form>
+        <div class="form-group">
+          <label for="customerTypeFilter">Customer Type</label>
+          <select id="customerTypeFilter" class="form-control">
+            <option value="">All Types</option>
+            <option value="School">School</option>
+            <option value="Retailer">Retailer</option>
+            <option value="Business Customer">Business Customer</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="priorityFilter">Priority</label>
+          <select id="priorityFilter" class="form-control">
+            <option value="">All Priorities</option>
+            <option value="Urgent">Urgent</option>
+            <option value="Normal">Normal</option>
+            <option value="Seasonal">Seasonal</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="catalogSort">Sort By</label>
+          <select id="catalogSort" class="form-control">
+            <option value="deliveryDate">Nearest Delivery Date</option>
+            <option value="customerName">Customer Name</option>
+            <option value="quantityHigh">Quantity High to Low</option>
+            <option value="priority">Priority</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <div class="catalog-layout">
+
+      <main class="catalog-main">
+        <div class="catalog-section-header">
+          <div>
+            <h2>Customer Order Items</h2>
+            <p>Click View Details to inspect size chart, measurements, and material requirements.</p>
+          </div>
+        </div>
+
+        <div id="customerOrderCatalogGrid" class="customer-order-catalog-grid">
+          <div class="empty-cell">
+            Loading customer orders...
+          </div>
+        </div>
+      </main>
+
+      <aside class="plan-basket-panel">
+        <div class="plan-basket-header">
+          <div>
+            <h2>Production Plan Basket</h2>
+            <p>Selected items to convert into production plan.</p>
+          </div>
+        </div>
+
+        <div id="planBasketItems" class="plan-basket-items">
+          <div class="basket-empty-state">
+            No items added yet.
+          </div>
+        </div>
+
+        <div class="plan-basket-summary">
+          <div>
+            <span>Total Items</span>
+            <strong id="basketTotalItems">0</strong>
+          </div>
+          <div>
+            <span>Total Qty</span>
+            <strong id="basketTotalQty">0</strong>
+          </div>
+          <div>
+            <span>Earliest Delivery</span>
+            <strong id="basketEarliestDelivery">-</strong>
+          </div>
+          <div>
+            <span>Material Status</span>
+            <strong id="basketMaterialStatus">Not checked</strong>
+          </div>
+        </div>
+
+        <div class="basket-actions">
+          <button type="button" class="btn btn-outline full-width" id="checkBulkMaterialBtn">
+            Check Materials in Bulk
+          </button>
+
+          <button type="submit" name="ActionType" value="Create" class="btn btn-primary full-width">
+            Create Production Plan
+          </button>
+
+          <button type="button" class="btn btn-danger-light full-width" id="clearBasketBtn">
+            Clear Basket
+          </button>
+        </div>
+      </aside>
+
+    </div>
+
+    <section class="pp-card bulk-material-card">
+      <div class="pp-card-header">
+        <div>
+          <h2>Bulk Material Requirement</h2>
+          <p>Material requirement is calculated from all selected production plan items.</p>
+        </div>
+      </div>
+
+      <div class="pp-table-wrapper">
+        <table class="pp-table">
+          <thead>
+            <tr>
+              <th>Material Code</th>
+              <th>Material Name</th>
+              <th>Material Type</th>
+              <th>Required Qty</th>
+              <th>Available Qty</th>
+              <th>Shortage Qty</th>
+              <th>Unit</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="bulkMaterialBody">
+            <tr>
+              <td colspan="8" class="empty-cell">
+                Add items to production plan basket, then click Check Materials in Bulk.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </form>
 </div>
 
 <div class="pp-modal hidden" id="orderDetailModal">
-    <div class="pp-modal-backdrop" data-close-modal="orderDetailModal"></div>
+  <div class="pp-modal-backdrop" data-close-modal="orderDetailModal"></div>
 
-    <div class="pp-modal-panel large order-detail-modal-panel">
-        <div class="pp-modal-header">
-            <div>
-                <h2 id="detailProductName">Order Detail</h2>
-                <p id="detailOrderSubtitle">View customer order, size chart, measurements, and production information.</p>
-            </div>
+  <div class="pp-modal-panel large order-detail-modal-panel">
+    <div class="pp-modal-header">
+      <div>
+        <h2 id="detailProductName">Order Detail</h2>
+        <p id="detailOrderSubtitle">View customer order, size chart, measurements, and production information.</p>
+      </div>
 
-            <button type="button" class="modal-close-btn" data-close-modal="orderDetailModal">×</button>
-        </div>
-
-        <div class="pp-modal-body">
-            <div class="order-detail-layout">
-
-                <div class="order-detail-media">
-                    <img id="detailProductImage" src="/images/placeholder-product.png" alt="Product image" />
-
-                    <div class="order-detail-thumbnail-row">
-                        <div>
-                            <span>Customer</span>
-                            <strong id="detailCustomerName">-</strong>
-                        </div>
-                        <div>
-                            <span>Order No</span>
-                            <strong id="detailOrderNo">-</strong>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="order-detail-info">
-                    <div class="detail-badge-row">
-                        <span id="detailCustomerType" class="customer-type">-</span>
-                        <span id="detailPriority" class="priority-badge">-</span>
-                        <span id="detailDeliveryBadge" class="customer-delivery-normal">-</span>
-                    </div>
-
-                    <h3 id="detailItemName">-</h3>
-
-                    <div class="detail-info-grid">
-                        <div>
-                            <span>Quantity</span>
-                            <strong id="detailQuantity">-</strong>
-                        </div>
-                        <div>
-                            <span>Delivery Date</span>
-                            <strong id="detailDeliveryDate">-</strong>
-                        </div>
-                        <div>
-                            <span>Color / Variant</span>
-                            <strong id="detailVariant">-</strong>
-                        </div>
-                        <div>
-                            <span>Delivery Location</span>
-                            <strong id="detailDeliveryLocation">-</strong>
-                        </div>
-                    </div>
-
-                    <div class="detail-note-box">
-                        <span>Production Notes</span>
-                        <p id="detailProductionNotes">-</p>
-                    </div>
-
-                    <button type="button" class="btn btn-primary full-width" id="addDetailToPlanBtn">
-                        Add to Production Plan
-                    </button>
-                </div>
-
-            </div>
-
-            <div class="order-detail-tabs">
-                <section class="detail-section">
-                    <div class="detail-section-header">
-                        <h3>Size Breakdown</h3>
-                        <p>Quantity required per size.</p>
-                    </div>
-
-                    <div class="pp-table-wrapper">
-                        <table class="pp-table compact-table">
-                            <thead>
-                                <tr>
-                                    <th>Size</th>
-                                    <th>Quantity</th>
-                                </tr>
-                            </thead>
-                            <tbody id="detailSizeBreakdownBody">
-                                <tr>
-                                    <td colspan="2" class="empty-cell">No size data.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <section class="detail-section">
-                    <div class="detail-section-header">
-                        <h3>Measurement Chart</h3>
-                        <p>Specification used by production team.</p>
-                    </div>
-
-                    <div class="pp-table-wrapper">
-                        <table class="pp-table compact-table">
-                            <thead>
-                                <tr>
-                                    <th>Size</th>
-                                    <th>Chest</th>
-                                    <th>Shoulder</th>
-                                    <th>Sleeve</th>
-                                    <th>Length</th>
-                                    <th>Unit</th>
-                                </tr>
-                            </thead>
-                            <tbody id="detailMeasurementBody">
-                                <tr>
-                                    <td colspan="6" class="empty-cell">No measurement data.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <section class="detail-section full-detail-section">
-                    <div class="detail-section-header">
-                        <h3>Material Requirement Preview</h3>
-                        <p>Calculated only for this order item.</p>
-                    </div>
-
-                    <div class="pp-table-wrapper">
-                        <table class="pp-table compact-table">
-                            <thead>
-                                <tr>
-                                    <th>Material</th>
-                                    <th>Required</th>
-                                    <th>Available</th>
-                                    <th>Shortage</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="detailMaterialBody">
-                                <tr>
-                                    <td colspan="5" class="empty-cell">No material data.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-            </div>
-
-        </div>
+      <button type="button" class="modal-close-btn" data-close-modal="orderDetailModal">×</button>
     </div>
+
+    <div class="pp-modal-body">
+      <div class="order-detail-layout">
+
+        <div class="order-detail-media">
+          <img id="detailProductImage" src="/images/placeholder-product.png" alt="Product image" />
+
+          <div class="order-detail-thumbnail-row">
+            <div>
+              <span>Customer</span>
+              <strong id="detailCustomerName">-</strong>
+            </div>
+            <div>
+              <span>Order No</span>
+              <strong id="detailOrderNo">-</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-detail-info">
+          <div class="detail-badge-row">
+            <span id="detailCustomerType" class="customer-type">-</span>
+            <span id="detailPriority" class="priority-badge">-</span>
+            <span id="detailDeliveryBadge" class="customer-delivery-normal">-</span>
+          </div>
+
+          <h3 id="detailItemName">-</h3>
+
+          <div class="detail-info-grid">
+            <div>
+              <span>Quantity</span>
+              <strong id="detailQuantity">-</strong>
+            </div>
+            <div>
+              <span>Delivery Date</span>
+              <strong id="detailDeliveryDate">-</strong>
+            </div>
+            <div>
+              <span>Color / Variant</span>
+              <strong id="detailVariant">-</strong>
+            </div>
+            <div>
+              <span>Delivery Location</span>
+              <strong id="detailDeliveryLocation">-</strong>
+            </div>
+          </div>
+
+          <div class="detail-note-box">
+            <span>Production Notes</span>
+            <p id="detailProductionNotes">-</p>
+          </div>
+
+          <button type="button" class="btn btn-primary full-width" id="addDetailToPlanBtn">
+            Add to Production Plan
+          </button>
+        </div>
+
+      </div>
+
+      <div class="order-detail-tabs">
+        <section class="detail-section">
+          <div class="detail-section-header">
+            <h3>Size Breakdown</h3>
+            <p>Quantity required per size.</p>
+          </div>
+
+          <div class="pp-table-wrapper">
+            <table class="pp-table compact-table" style="min-width: 245px ; width: auto; max-width: 900px;">
+              <thead>
+                <tr>
+                  <th style="width: 50%; white-space: nowrap;">Size</th>
+                  <th style="width: 50%; white-space: nowrap;">Quantity</th>
+                </tr>
+              </thead>
+              <tbody id="detailSizeBreakdownBody">
+                <tr>
+                  <td colspan="2" class="empty-cell">No size data.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="detail-section">
+          <div class="detail-section-header">
+            <h3>Measurement Chart</h3>
+            <p>Specification used by production team.</p>
+          </div>
+
+          <div class="pp-table-wrapper">
+            <table class="pp-table compact-table" style="min-width: 245px ; width: stretch; max-width: 900px;"> 
+              <thead>
+                <tr>
+                  <th style="width: 16.6666667%; white-space: nowrap;">Size</th>
+                  <th style="width: 16.6666667%; white-space: nowrap;">Chest</th>
+                  <th style="width: 16.6666667%; white-space: nowrap;">Shoulder</th>
+                  <th style="width: 16.6666667%; white-space: nowrap;">Sleeve</th>
+                  <th style="width: 16.6666667%; white-space: nowrap;">Length</th>
+                  <th style="width: 16.6666667%; white-space: nowrap;">Unit</th>
+                </tr>
+              </thead>
+              <tbody id="detailMeasurementBody">
+                <tr>
+                  <td colspan="6" class="empty-cell">No measurement data.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="detail-section full-detail-section">
+          <div class="detail-section-header">
+            <h3>Material Requirement Preview</h3>
+            <p>Calculated only for this order item.</p>
+          </div>
+
+          <div class="pp-table-wrapper">
+            <table class="pp-table compact-table">
+              <thead>
+                <tr>
+                  <th>Material</th>
+                  <th>Required</th>
+                  <th>Available</th>
+                  <th>Shortage</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="detailMaterialBody">
+                <tr>
+                  <td colspan="5" class="empty-cell">No material data.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 <script src="~/js/app.js" asp-append-version="true"></script>
