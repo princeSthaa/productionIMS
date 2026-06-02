@@ -617,6 +617,15 @@
 }
 
 /* =========================
+   Nepali Date Card
+========================= */
+
+/* Fix for Nepali Datepicker appearing behind other elements */
+#ndp-nepali-box {
+    z-index: 9999 !important;
+}
+
+/* =========================
    RESPONSIVE
 ========================= */
 
