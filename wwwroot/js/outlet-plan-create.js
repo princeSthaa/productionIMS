@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const catalogItems = window.outletDemandCatalogData || window.outletDemands || [];
     const materials = window.materialMasterData || window.materials || window.materialsData || [];
     const bomData = window.bomMasterData || window.bomData || window.boms || [];
+    const products = window.productMasterData || window.products || window.productsData || [];
 
     let selectedPlanItems = [];
     let activeDetailItem = null;
@@ -14,16 +15,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const catalogGrid = document.getElementById("outletDemandCatalogGrid");
 
     const selectedDraftJson = document.getElementById("selectedOutletDraftJson");
-
-    const selectedItemCount = document.getElementById("outletSelectedItemCount");
-    const selectedTotalQty = document.getElementById("outletSelectedTotalQty");
-    const selectedEarliestDate = document.getElementById("outletSelectedEarliestDate");
-
-    const basketTotalItems = document.getElementById("outletBasketTotalItems");
-    const basketTotalQty = document.getElementById("outletBasketTotalQty");
-    const basketEarliestDate = document.getElementById("outletBasketEarliestDate");
-    const basketMaterialStatus = document.getElementById("outletBasketMaterialStatus");
-    const planBasketItems = document.getElementById("outletPlanBasketItems");
 
     const checkBulkMaterialBtn = document.getElementById("checkOutletBulkMaterialBtn");
     const clearBasketBtn = document.getElementById("clearOutletBasketBtn");
@@ -87,7 +78,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                selectedDraftJson.value = JSON.stringify(selectedPlanItems);
+                if (selectedDraftJson) {
+                    selectedDraftJson.value = JSON.stringify(selectedPlanItems);
+                }
             });
         }
     }
@@ -308,6 +301,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         renderDetailSizeGaps(item);
+        renderOutletMeasurementChart(item);
         renderDetailMaterials(item);
 
         if (outletDetailModal) {
@@ -335,6 +329,130 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
         }).join("");
     }
+
+    function renderOutletMeasurementChart(item) {
+    const body = document.getElementById("outletDetailMeasurementBody");
+    if (!body) return;
+
+    const product = getProductForItem(item);
+
+    let measurements =
+        item.measurementChart ||
+        item.measurements ||
+        item.sizeMeasurements ||
+        product.measurementChart ||
+        product.measurements ||
+        product.sizeMeasurements ||
+        [];
+
+    if (!measurements.length) {
+        measurements = buildFallbackMeasurements(item, product);
+    }
+
+    if (!measurements.length) {
+        body.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty-cell">No measurement data.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    body.innerHTML = measurements.map(function (row) {
+        return `
+            <tr>
+                <td><strong>${escapeHtml(row.size || row.Size || "-")}</strong></td>
+                <td>${escapeHtml(row.chest || row.Chest || "-")}</td>
+                <td>${escapeHtml(row.shoulder || row.Shoulder || "-")}</td>
+                <td>${escapeHtml(row.sleeve || row.Sleeve || "-")}</td>
+                <td>${escapeHtml(row.length || row.Length || "-")}</td>
+                <td>${escapeHtml(row.unit || row.Unit || "inch")}</td>
+            </tr>
+        `;
+    }).join("");
+}
+
+function buildFallbackMeasurements(item, product) {
+    const sizesFromGap = Array.isArray(item.sizeGaps)
+        ? item.sizeGaps.map(function (row) {
+            return row.size;
+        })
+        : [];
+
+    const sizes =
+        sizesFromGap.length
+            ? sizesFromGap
+            : product.sizes || item.sizes || ["S", "M", "L", "XL"];
+
+    const productName = String(item.productName || product.productName || product.name || "").toLowerCase();
+
+    return sizes.map(function (size) {
+        return getDefaultMeasurementByType(size, productName);
+    });
+}
+
+function getDefaultMeasurementByType(size, productName) {
+    const upperSize = String(size || "").toUpperCase();
+
+    const shirtMeasurements = {
+        XS: { chest: 32, shoulder: 13.5, sleeve: 21, length: 24 },
+        S: { chest: 34, shoulder: 14, sleeve: 22, length: 25 },
+        M: { chest: 36, shoulder: 15, sleeve: 23, length: 26 },
+        L: { chest: 38, shoulder: 16, sleeve: 24, length: 27 },
+        XL: { chest: 40, shoulder: 17, sleeve: 25, length: 28 },
+        XXL: { chest: 42, shoulder: 18, sleeve: 26, length: 29 }
+    };
+
+    const poloMeasurements = {
+        XS: { chest: 34, shoulder: 14, sleeve: 7, length: 24 },
+        S: { chest: 36, shoulder: 15, sleeve: 7.5, length: 25 },
+        M: { chest: 38, shoulder: 16, sleeve: 8, length: 26 },
+        L: { chest: 40, shoulder: 17, sleeve: 8.5, length: 27 },
+        XL: { chest: 42, shoulder: 18, sleeve: 9, length: 28 },
+        XXL: { chest: 44, shoulder: 19, sleeve: 9.5, length: 29 }
+    };
+
+    const trouserMeasurements = {
+        XS: { chest: "-", shoulder: "-", sleeve: "-", length: 37 },
+        S: { chest: "-", shoulder: "-", sleeve: "-", length: 38 },
+        M: { chest: "-", shoulder: "-", sleeve: "-", length: 39 },
+        L: { chest: "-", shoulder: "-", sleeve: "-", length: 40 },
+        XL: { chest: "-", shoulder: "-", sleeve: "-", length: 41 },
+        XXL: { chest: "-", shoulder: "-", sleeve: "-", length: 42 }
+    };
+
+    let selected = shirtMeasurements;
+
+    if (productName.includes("polo") || productName.includes("t-shirt") || productName.includes("tshirt")) {
+        selected = poloMeasurements;
+    }
+
+    if (productName.includes("trouser") || productName.includes("pant")) {
+        selected = trouserMeasurements;
+    }
+
+    if (productName.includes("hoodie")) {
+        selected = {
+            XS: { chest: 36, shoulder: 15, sleeve: 22, length: 25 },
+            S: { chest: 38, shoulder: 16, sleeve: 23, length: 26 },
+            M: { chest: 40, shoulder: 17, sleeve: 24, length: 27 },
+            L: { chest: 42, shoulder: 18, sleeve: 25, length: 28 },
+            XL: { chest: 44, shoulder: 19, sleeve: 26, length: 29 },
+            XXL: { chest: 46, shoulder: 20, sleeve: 27, length: 30 }
+        };
+    }
+
+    const row = selected[upperSize] || selected.M;
+
+    return {
+        size: upperSize,
+        chest: row.chest,
+        shoulder: row.shoulder,
+        sleeve: row.sleeve,
+        length: row.length,
+        unit: "inch"
+    };
+}
 
     function renderDetailMaterials(item) {
         const body = document.getElementById("outletDetailMaterialBody");
@@ -397,7 +515,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function renderBasket() {
-        if (!planBasketItems) return;
+        if (!document.getElementById("outletPlanBasketItems")) return;
+
+        const planBasketItems = document.getElementById("outletPlanBasketItems");
 
         if (!selectedPlanItems.length) {
             planBasketItems.innerHTML = `
@@ -518,6 +638,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             itemBomRows.forEach(function (bom) {
                 const material = getMaterialById(bom.materialId);
+
                 const requiredQty =
                     Number(item.suggestedQty || 0) *
                     Number(bom.qtyPerUnit || 0) *
@@ -585,6 +706,20 @@ document.addEventListener("DOMContentLoaded", function () {
             unit: material.unit || material.uom || material.Unit || "pcs",
             availableQty: Number(material.availableQty || material.currentStock || material.stock || material.AvailableQty || 0)
         };
+    }
+
+    function getProductForItem(item) {
+        const product = products.find(function (productItem) {
+            const productId = productItem.id || productItem.productId || productItem.ProductId || "";
+            const productCode = productItem.productCode || productItem.code || productItem.ProductCode || "";
+            const productName = productItem.productName || productItem.name || productItem.ProductName || "";
+
+            return String(productId) === String(item.productId) ||
+                String(productCode) === String(item.productCode) ||
+                String(productName).toLowerCase() === String(item.productName).toLowerCase();
+        });
+
+        return product || {};
     }
 
     function getItemMaterialPreview(item) {
@@ -655,7 +790,9 @@ document.addEventListener("DOMContentLoaded", function () {
             priority: item.priority || "Normal",
             materialStatus: item.materialStatus || "Unchecked",
             planningNotes: item.planningNotes || "No planning notes.",
-            sizeGaps: item.sizeGaps || []
+
+            sizeGaps: item.sizeGaps || [],
+            measurementChart: item.measurementChart || item.measurements || item.sizeMeasurements || []
         };
     }
 
