@@ -1,20 +1,23 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Kaam.Pages.New
+namespace Kaam.Pages.Production
 {
-    public class IndexModel : PageModel
+  public class IndexModel : PageModel
+  {
+    private void LoadProductionMenu()
     {
-        public string PageTitle { get; set; } = "Production Plans";
+      ViewData["SidebarTitle"] = "Production Menu";
 
-        public string PageSubtitle { get; set; } =
-            "View, filter, and manage garment production plans.";
-
-        public void OnGet()
-        {
-            // For now this page uses mock JavaScript data from:
-            // wwwroot/data/mock-production-plans.js
-            //
-            // Later, database/service logic can be added here.
-        }
+      ViewData["SidebarLinks"] = new List<(string Name, string Url, string Icon)>
+            {
+                ("Overview", "/Production/Index", "dashboard"),
+                ("Create Plan", "/Production/Create", "add_circle")
+            };
     }
+
+    public void OnGet()
+    {
+      LoadProductionMenu();
+    }
+  }
 }
