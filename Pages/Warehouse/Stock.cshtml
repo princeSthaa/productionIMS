@@ -1,0 +1,64 @@
+@page
+@model kaam.Pages.Warehouse.StockModel
+@{
+    ViewData["Title"] = "Stock";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/warehouse/warehouse.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/warehouse/stock.js" asp-append-version="true"></script>
+}
+
+<section class="warehouse-page">
+    <div class="page-header">
+        <div>
+            <h1>Stock</h1>
+            <p>View raw materials, finished goods, locations, and stock status.</p>
+        </div>
+
+        <a class="btn btn-secondary btn-sm" asp-page="/Warehouse/Index">Back to Dashboard</a>
+    </div>
+
+    <div class="warehouse-toolbar">
+        <input class="form-control form-control-sm" type="search" placeholder="Search item, SKU, location" id="stockSearch" />
+
+        <select class="form-select form-select-sm" id="stockTypeFilter">
+            <option value="all">All Stock</option>
+            <option value="Raw Material">Raw Material</option>
+            <option value="Finished Goods">Finished Goods</option>
+        </select>
+    </div>
+
+    <div class="table-responsive warehouse-table-wrap">
+        <table class="table table-hover align-middle warehouse-table" id="stockTable">
+            <thead>
+                <tr>
+                    <th>SKU</th>
+                    <th>Item</th>
+                    <th>Type</th>
+                    <th>Quantity</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.StockItems)
+                {
+                    <tr>
+                        <td>@item.Sku</td>
+                        <td>@item.Name</td>
+                        <td>@item.Type</td>
+                        <td>@item.Quantity @item.Uom</td>
+                        <td>@item.Location</td>
+                        <td>
+                            <span class="badge text-bg-@item.StatusClass">@item.Status</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

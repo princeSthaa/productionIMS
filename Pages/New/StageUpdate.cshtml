@@ -1,0 +1,266 @@
+@page "{id?}"
+@model Kaam.Pages.New.StageUpdateModel
+@{
+    ViewData["Title"] = "Update Production Stage";
+}
+
+<link rel="stylesheet" href="~/css/production-plans.css" asp-append-version="true" />
+
+<div class="pp-page">
+
+    <!-- Page Header -->
+    <div class="pp-page-header">
+        <div>
+            <h1>Update Production Stage</h1>
+            <p>Update actual progress for cutting, stitching, finishing, quality check, and packing.</p>
+        </div>
+
+        <div class="pp-header-actions">
+            <a asp-page="/new/Details" asp-route-id="@Model.PlanId" class="btn btn-light">
+                View Details
+            </a>
+
+            <a asp-page="/new/Index" class="btn btn-light">
+                Back to Plans
+            </a>
+        </div>
+    </div>
+
+    <input type="hidden" id="selectedPlanId" value="@Model.PlanId" />
+
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">
+            @Model.SuccessMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            @Model.ErrorMessage
+        </div>
+    }
+
+    <!-- Plan Summary -->
+    <section class="pp-card">
+        <div class="pp-card-header">
+            <div>
+                <h2 id="stagePlanNo">Loading...</h2>
+                <p id="stagePlanSubtitle">Loading production plan stage information...</p>
+            </div>
+
+            <span id="stagePlanStatusBadge" class="status-badge">
+                Loading
+            </span>
+        </div>
+
+        <div class="pp-detail-summary-grid">
+            <div class="summary-box">
+                <span>Demand Type</span>
+                <strong id="stageDemandType">-</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Source Name</span>
+                <strong id="stageSourceName">-</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Product</span>
+                <strong id="stageProductName">-</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Total Quantity</span>
+                <strong id="stageTotalQuantity">-</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Planned Start</span>
+                <strong id="stagePlannedStart">-</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Planned Completion</span>
+                <strong id="stagePlannedCompletion">-</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Required Date</span>
+                <strong id="stageRequiredDate">-</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Current Stage</span>
+                <strong id="stageCurrentStage">-</strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stage Progress Strip -->
+    <section class="pp-card">
+        <div class="pp-card-header">
+            <div>
+                <h2>Stage Progress</h2>
+                <p>Track the current progress of the production plan.</p>
+            </div>
+        </div>
+
+        <div class="stage-progress-strip" id="stageProgressStrip">
+            Loading stage progress...
+        </div>
+    </section>
+
+    <!-- Stage Update Form -->
+    <form method="post" id="stageUpdateForm">
+
+        <input asp-for="PlanId" type="hidden" />
+        <input asp-for="PlanNo" type="hidden" id="planNoInput" />
+        <input asp-for="SelectedStageName" type="hidden" id="selectedStageNameInput" />
+
+        <section class="pp-card">
+            <div class="pp-card-header">
+                <div>
+                    <h2>Update Stage</h2>
+                    <p>Select a production stage and enter actual progress details.</p>
+                </div>
+            </div>
+
+            <div class="form-grid three-col">
+                <div class="form-group">
+                    <label asp-for="SelectedStageId">Stage</label>
+                    <select asp-for="SelectedStageId" id="stageDropdown" class="form-control">
+                        <option value="">Select Stage</option>
+                    </select>
+                    <span asp-validation-for="SelectedStageId" class="field-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="StageStatus">Stage Status</label>
+                    <select asp-for="StageStatus" id="stageStatus" class="form-control">
+                        <option value="">Select Status</option>
+                        <option value="Not Started">Not Started</option>
+                        <option value="Ready">Ready</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="On Hold">On Hold</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                    <span asp-validation-for="StageStatus" class="field-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Planned Date</label>
+                    <input type="text" id="stagePlannedDateRange" class="form-control" value="-" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ActualStartDate">Actual Start Date</label>
+                    <input asp-for="ActualStartDate" type="date" id="actualStartDate" class="form-control" />
+                    <span asp-validation-for="ActualStartDate" class="field-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ActualEndDate">Actual End Date</label>
+                    <input asp-for="ActualEndDate" type="date" id="actualEndDate" class="form-control" />
+                    <span asp-validation-for="ActualEndDate" class="field-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Actual Duration</label>
+                    <input type="text" id="actualDuration" class="form-control" value="0 days" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="CompletedQty">Completed Qty</label>
+                    <input asp-for="CompletedQty" type="number" min="0" id="completedQty" class="form-control" />
+                    <span asp-validation-for="CompletedQty" class="field-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="RejectedQty">Rejected Qty</label>
+                    <input asp-for="RejectedQty" type="number" min="0" id="rejectedQty" class="form-control" />
+                    <span asp-validation-for="RejectedQty" class="field-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Total Processed</label>
+                    <input type="text" id="totalProcessedQty" class="form-control" value="0" readonly />
+                </div>
+
+                <div class="form-group full">
+                    <label asp-for="Remarks">Remarks</label>
+                    <textarea asp-for="Remarks"
+                              id="remarks"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Example: Cutting completed for all M and L sizes. 5 pieces rejected due to fabric defect."></textarea>
+                </div>
+            </div>
+
+            <div id="stageValidationMessage" class="validation-message mt-20">
+                Select a stage to update progress.
+            </div>
+        </section>
+
+        <!-- Stage List -->
+        <section class="pp-card">
+            <div class="pp-card-header">
+                <div>
+                    <h2>Production Stage List</h2>
+                    <p>Review each stage before updating progress.</p>
+                </div>
+            </div>
+
+            <div class="pp-table-wrapper">
+                <table class="pp-table">
+                    <thead>
+                        <tr>
+                            <th>Stage Name</th>
+                            <th>Work Center / Department</th>
+                            <th>Planned Start</th>
+                            <th>Planned End</th>
+                            <th>Actual Start</th>
+                            <th>Actual End</th>
+                            <th>Completed Qty</th>
+                            <th>Rejected Qty</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="stageUpdateTableBody">
+                        <tr>
+                            <td colspan="10" class="empty-cell">
+                                Loading production stages...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Actions -->
+        <div class="pp-action-bar">
+            <button type="submit" name="ActionType" value="SaveStage" class="btn btn-primary">
+                Save Stage Update
+            </button>
+
+            <button type="button" id="clearStageFormBtn" class="btn btn-light">
+                Clear Form
+            </button>
+
+            <a asp-page="/new/Details" asp-route-id="@Model.PlanId" class="btn btn-outline">
+                Cancel
+            </a>
+        </div>
+
+    </form>
+</div>
+
+<script src="~/js/app.js" asp-append-version="true"></script>
+<script src="~/data/mock-production-plans.js" asp-append-version="true"></script>
+<script src="~/data/production-stages.js" asp-append-version="true"></script>
+
+<script src="~/js/production-plan-stage-update.js" asp-append-version="true"></script>

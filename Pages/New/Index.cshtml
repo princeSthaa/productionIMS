@@ -1,0 +1,160 @@
+@page
+@model Kaam.Pages.New.IndexModel
+@{
+    ViewData["Title"] = "Production Plans";
+}
+
+<link rel="stylesheet" href="~/css/production-plans.css" asp-append-version="true" />
+
+<div class="pp-page">
+
+    <!-- Page Header -->
+    <div class="pp-page-header">
+        <div>
+            <h1>Production Plans</h1>
+            <p>View, filter, and manage garment production plans.</p>
+        </div>
+
+        <div class="pp-header-actions">
+            <a asp-page="/new/Create" class="btn btn-primary">
+                + Create Production Plan
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="pp-summary-grid">
+        <div class="pp-summary-card">
+            <span class="summary-label">Total Plans</span>
+            <strong id="totalPlans">0</strong>
+            <small>All production plans</small>
+        </div>
+
+        <div class="pp-summary-card">
+            <span class="summary-label">Draft</span>
+            <strong id="draftPlans">0</strong>
+            <small>Plans not yet confirmed</small>
+        </div>
+
+        <div class="pp-summary-card">
+            <span class="summary-label">In Progress</span>
+            <strong id="inProgressPlans">0</strong>
+            <small>Currently running</small>
+        </div>
+
+        <div class="pp-summary-card">
+            <span class="summary-label">Completed</span>
+            <strong id="completedPlans">0</strong>
+            <small>Finished plans</small>
+        </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="pp-card">
+        <div class="pp-card-header">
+            <div>
+                <h2>Filter Production Plans</h2>
+                <p>Search by product, source, demand type, status, or date range.</p>
+            </div>
+
+            <button type="button" class="btn btn-light" id="resetFiltersBtn">
+                Reset Filters
+            </button>
+        </div>
+
+        <div class="pp-filter-grid">
+            <div class="form-group">
+                <label for="demandTypeFilter">Demand Type</label>
+                <select id="demandTypeFilter" class="form-control">
+                    <option value="">All Demand Types</option>
+                    <option value="Customer Order">Customer Order</option>
+                    <option value="Outlet Replenishment">Outlet Replenishment</option>
+                    <option value="In-house Stock">In-house Stock</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="statusFilter">Status</label>
+                <select id="statusFilter" class="form-control">
+                    <option value="">All Statuses</option>
+                    <option value="Draft">Draft</option>
+                    <option value="Material Check">Material Check</option>
+                    <option value="Cutting">Cutting</option>
+                    <option value="Stitching">Stitching</option>
+                    <option value="Finishing">Finishing</option>
+                    <option value="Quality Check">Quality Check</option>
+                    <option value="Packing">Packing</option>
+                    <option value="Completed">Completed</option>
+                    <option value="On Hold">On Hold</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="fromDateFilter">From Date</label>
+                <input type="date" id="fromDateFilter" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="toDateFilter">To Date</label>
+                <input type="date" id="toDateFilter" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="productSearch">Product Search</label>
+                <input type="text"
+                       id="productSearch"
+                       class="form-control"
+                       placeholder="Search product name..." />
+            </div>
+
+            <div class="form-group">
+                <label for="sourceSearch">Source Search</label>
+                <input type="text"
+                       id="sourceSearch"
+                       class="form-control"
+                       placeholder="Search customer, outlet, warehouse..." />
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="pp-card">
+        <div class="pp-card-header">
+            <div>
+                <h2>Production Plan List</h2>
+                <p id="tableInfoText">Showing production plans from mock data.</p>
+            </div>
+        </div>
+
+        <div class="pp-table-wrapper">
+            <table class="pp-table">
+                <thead>
+                    <tr>
+                        <th>Plan No</th>
+                        <th>Demand Type</th>
+                        <th>Source Name</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Planned Start</th>
+                        <th>Planned Completion</th>
+                        <th>Required Date</th>
+                        <th>Status</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="productionPlansTableBody">
+                    <tr>
+                        <td colspan="10" class="empty-cell">
+                            Loading production plans...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<script src="~/js/app.js" asp-append-version="true"></script>
+<script src="~/data/mock-production-plans.js" asp-append-version="true"></script>
+<script src="~/js/production-plan-index.js" asp-append-version="true"></script>

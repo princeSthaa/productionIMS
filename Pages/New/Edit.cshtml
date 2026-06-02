@@ -1,0 +1,550 @@
+@page "{id?}"
+@model Kaam.Pages.New.EditModel
+@{
+    ViewData["Title"] = "Edit Production Plan";
+}
+
+<link rel="stylesheet" href="~/css/production-plans.css" asp-append-version="true" />
+
+<div class="pp-page">
+
+    <!-- Page Header -->
+    <div class="pp-page-header">
+        <div>
+            <h1>Edit Production Plan</h1>
+            <p>Edit draft production plan details before confirming production.</p>
+        </div>
+
+        <div class="pp-header-actions">
+            <a asp-page="/new/Details" asp-route-id="@Model.PlanId" class="btn btn-light">
+                View Details
+            </a>
+
+            <a asp-page="/new/Index" class="btn btn-light">
+                Back to Plans
+            </a>
+        </div>
+    </div>
+
+    <input type="hidden" id="selectedPlanId" value="@Model.PlanId" />
+
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">
+            @Model.SuccessMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            @Model.ErrorMessage
+        </div>
+    }
+
+    <!-- Non-editable Warning -->
+    <div id="notEditableWarning" class="alert alert-warning hidden">
+        This production plan is not editable because only Draft plans can be edited.
+    </div>
+
+    <form method="post" id="editProductionPlanForm">
+
+        <input asp-for="PlanId" type="hidden" />
+        <input asp-for="CustomerId" type="hidden" id="customerId" />
+        <input asp-for="OutletId" type="hidden" id="outletId" />
+        <input asp-for="Status" type="hidden" id="planStatus" />
+
+        <div class="pp-create-grid">
+
+            <!-- Demand Information -->
+            <section class="pp-card">
+                <div class="pp-card-header">
+                    <div>
+                        <h2>Demand Information</h2>
+                        <p>Update source information for the production plan.</p>
+                    </div>
+                </div>
+
+                <div class="form-grid two-col">
+                    <div class="form-group">
+                        <label asp-for="PlanNo">Plan No</label>
+                        <input asp-for="PlanNo" id="planNo" class="form-control" readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="PlanDate">Plan Date</label>
+                        <input asp-for="PlanDate" type="date" id="planDate" class="form-control" readonly />
+                    </div>
+
+                    <div class="form-group full">
+                        <label asp-for="DemandType">Demand Type</label>
+                        <select asp-for="DemandType" id="demandType" class="form-control editable-field">
+                            <option value="">Select Demand Type</option>
+                            <option value="Customer Order">Customer Order</option>
+                            <option value="Outlet Replenishment">Outlet Replenishment</option>
+                            <option value="In-house Stock">In-house Stock</option>
+                        </select>
+                        <span asp-validation-for="DemandType" class="field-error"></span>
+                    </div>
+                </div>
+
+                <!-- Customer Section -->
+                <div id="customerSection" class="conditional-section hidden">
+                    <div class="section-action-row">
+                        <div>
+                            <h3>Customer Order</h3>
+                            <p>Select customer from customer master data.</p>
+                        </div>
+
+                        <button type="button" class="btn btn-primary editable-action" id="openCustomerModalBtn">
+                            Change Customer
+                        </button>
+                    </div>
+
+                    <div id="selectedCustomerCard" class="selected-info-card hidden">
+                        <div>
+                            <span>Customer Code</span>
+                            <strong id="selectedCustomerCode">-</strong>
+                        </div>
+                        <div>
+                            <span>Customer Name</span>
+                            <strong id="selectedCustomerName">-</strong>
+                        </div>
+                        <div>
+                            <span>Phone</span>
+                            <strong id="selectedCustomerPhone">-</strong>
+                        </div>
+                        <div>
+                            <span>Address</span>
+                            <strong id="selectedCustomerAddress">-</strong>
+                        </div>
+                        <div>
+                            <span>Payment Terms</span>
+                            <strong id="selectedCustomerPaymentTerms">-</strong>
+                        </div>
+                        <div>
+                            <span>Delivery Location</span>
+                            <strong id="selectedCustomerDeliveryLocation">-</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Outlet Section -->
+                <div id="outletSection" class="conditional-section hidden">
+                    <div class="section-action-row">
+                        <div>
+                            <h3>Outlet Replenishment</h3>
+                            <p>Select outlet from outlet master data.</p>
+                        </div>
+
+                        <button type="button" class="btn btn-primary editable-action" id="openOutletModalBtn">
+                            Change Outlet
+                        </button>
+                    </div>
+
+                    <div id="selectedOutletCard" class="selected-info-card hidden">
+                        <div>
+                            <span>Outlet Code</span>
+                            <strong id="selectedOutletCode">-</strong>
+                        </div>
+                        <div>
+                            <span>Outlet Name</span>
+                            <strong id="selectedOutletName">-</strong>
+                        </div>
+                        <div>
+                            <span>Location</span>
+                            <strong id="selectedOutletLocation">-</strong>
+                        </div>
+                        <div>
+                            <span>Manager</span>
+                            <strong id="selectedOutletManager">-</strong>
+                        </div>
+                        <div>
+                            <span>Phone</span>
+                            <strong id="selectedOutletPhone">-</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- In-house Section -->
+                <div id="inHouseSection" class="conditional-section hidden">
+                    <h3>In-house Stock</h3>
+                    <p>Edit internal production reason and warehouse.</p>
+
+                    <div class="form-grid two-col">
+                        <div class="form-group">
+                            <label asp-for="InHouseReason">Reason</label>
+                            <select asp-for="InHouseReason" id="inHouseReason" class="form-control editable-field">
+                                <option value="">Select Reason</option>
+                                <option value="Stock Replenishment">Stock Replenishment</option>
+                                <option value="Seasonal Production">Seasonal Production</option>
+                                <option value="Forecast Demand">Forecast Demand</option>
+                                <option value="Sample Production">Sample Production</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="WarehouseId">Warehouse</label>
+                            <select asp-for="WarehouseId" id="warehouseDropdown" class="form-control editable-field">
+                                <option value="">Select Warehouse</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Product Planning -->
+            <section class="pp-card">
+                <div class="pp-card-header">
+                    <div>
+                        <h2>Product Planning</h2>
+                        <p>Edit product, color, quantity, priority, and output destination.</p>
+                    </div>
+
+                    <span id="editStatusBadge" class="status-badge">
+                        Loading
+                    </span>
+                </div>
+
+                <div class="form-grid two-col">
+                    <div class="form-group full">
+                        <label asp-for="ProductId">Product</label>
+                        <select asp-for="ProductId" id="productDropdown" class="form-control editable-field">
+                            <option value="">Select Product</option>
+                        </select>
+                        <span asp-validation-for="ProductId" class="field-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Variant">Color / Variant</label>
+                        <select asp-for="Variant" id="variantDropdown" class="form-control editable-field">
+                            <option value="">Select Color / Variant</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="TotalQuantity">Total Quantity</label>
+                        <input asp-for="TotalQuantity"
+                               type="number"
+                               min="1"
+                               id="totalQuantity"
+                               class="form-control editable-field"
+                               placeholder="Example: 500" />
+                        <span asp-validation-for="TotalQuantity" class="field-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Priority">Priority</label>
+                        <select asp-for="Priority" id="priority" class="form-control editable-field">
+                            <option value="Normal">Normal</option>
+                            <option value="Urgent">Urgent</option>
+                            <option value="Seasonal">Seasonal</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="OutputDestination">Output Destination</label>
+                        <select asp-for="OutputDestination" id="outputDestination" class="form-control editable-field">
+                            <option value="">Select Destination</option>
+                            <option value="Finished Goods Warehouse">Finished Goods Warehouse</option>
+                            <option value="Customer Dispatch">Customer Dispatch</option>
+                            <option value="Outlet Transfer">Outlet Transfer</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Size Breakdown -->
+        <section class="pp-card">
+            <div class="pp-card-header">
+                <div>
+                    <h2>Size Breakdown</h2>
+                    <p>Update size quantity distribution. Total must match production quantity.</p>
+                </div>
+            </div>
+
+            <div class="size-grid">
+                <div class="form-group">
+                    <label>XS</label>
+                    <input type="number" min="0" name="SizeXS" id="sizeXS" class="form-control size-input editable-field" value="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>S</label>
+                    <input type="number" min="0" name="SizeS" id="sizeS" class="form-control size-input editable-field" value="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>M</label>
+                    <input type="number" min="0" name="SizeM" id="sizeM" class="form-control size-input editable-field" value="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>L</label>
+                    <input type="number" min="0" name="SizeL" id="sizeL" class="form-control size-input editable-field" value="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>XL</label>
+                    <input type="number" min="0" name="SizeXL" id="sizeXL" class="form-control size-input editable-field" value="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>XXL</label>
+                    <input type="number" min="0" name="SizeXXL" id="sizeXXL" class="form-control size-input editable-field" value="0" />
+                </div>
+            </div>
+
+            <div class="calculation-strip">
+                <div>
+                    <span>Total Size Quantity</span>
+                    <strong id="sizeTotal">0</strong>
+                </div>
+
+                <div>
+                    <span>Difference</span>
+                    <strong id="sizeDifference">0</strong>
+                </div>
+
+                <div id="sizeValidationMessage" class="validation-message warning">
+                    Enter total quantity and size breakdown.
+                </div>
+            </div>
+        </section>
+
+        <!-- Planned Dates -->
+        <section class="pp-card">
+            <div class="pp-card-header">
+                <div>
+                    <h2>Planned Dates</h2>
+                    <p>Edit production date plan before the required date.</p>
+                </div>
+            </div>
+
+            <div class="form-grid four-col">
+                <div class="form-group">
+                    <label asp-for="RequiredDate">Required Date</label>
+                    <input asp-for="RequiredDate" type="date" id="requiredDate" class="form-control editable-field" />
+                    <span asp-validation-for="RequiredDate" class="field-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="PlannedStartDate">Planned Start Date</label>
+                    <input asp-for="PlannedStartDate" type="date" id="plannedStartDate" class="form-control editable-field" />
+                    <span asp-validation-for="PlannedStartDate" class="field-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="PlannedCompletionDate">Planned Completion Date</label>
+                    <input asp-for="PlannedCompletionDate" type="date" id="plannedCompletionDate" class="form-control editable-field" />
+                    <span asp-validation-for="PlannedCompletionDate" class="field-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Buffer Days</label>
+                    <input type="text" id="bufferDays" class="form-control" value="0 days" readonly />
+                </div>
+            </div>
+
+            <div id="dateValidationMessage" class="validation-message">
+                Select dates to validate production schedule.
+            </div>
+        </section>
+
+        <!-- Material Requirement Preview -->
+        <section class="pp-card">
+            <div class="pp-card-header">
+                <div>
+                    <h2>Material Requirement Preview</h2>
+                    <p>Recalculated from selected product, quantity, BOM, and material master data.</p>
+                </div>
+
+                <button type="button" class="btn btn-light editable-action" id="checkMaterialBtn">
+                    Check Material Availability
+                </button>
+            </div>
+
+            <div class="pp-table-wrapper">
+                <table class="pp-table">
+                    <thead>
+                        <tr>
+                            <th>Material Code</th>
+                            <th>Material Name</th>
+                            <th>Material Type</th>
+                            <th>Required Qty</th>
+                            <th>Available Qty</th>
+                            <th>Shortage Qty</th>
+                            <th>Unit</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="materialRequirementBody">
+                        <tr>
+                            <td colspan="8" class="empty-cell">
+                                Select product and quantity to preview material requirement.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Production Stages -->
+        <section class="pp-card">
+            <div class="pp-card-header">
+                <div>
+                    <h2>Production Stages</h2>
+                    <p>Default stages are shown for planning reference.</p>
+                </div>
+            </div>
+
+            <div class="pp-table-wrapper">
+                <table class="pp-table">
+                    <thead>
+                        <tr>
+                            <th>Stage Name</th>
+                            <th>Work Center / Department</th>
+                            <th>Planned Start Date</th>
+                            <th>Planned End Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="productionStagesBody">
+                        <tr>
+                            <td colspan="5" class="empty-cell">
+                                Production stages will appear here.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Actions -->
+        <div class="pp-action-bar">
+            <button type="submit" name="ActionType" value="SaveDraft" class="btn btn-primary editable-action">
+                Save Changes
+            </button>
+
+            <button type="button" class="btn btn-outline editable-action" id="checkMaterialBottomBtn">
+                Check Material Availability
+            </button>
+
+            <a asp-page="/new/Details" asp-route-id="@Model.PlanId" class="btn btn-light">
+                Cancel
+            </a>
+        </div>
+
+    </form>
+</div>
+
+<!-- Customer Modal -->
+<div class="pp-modal hidden" id="customerModal">
+    <div class="pp-modal-backdrop" data-close-modal="customerModal"></div>
+
+    <div class="pp-modal-panel large">
+        <div class="pp-modal-header">
+            <div>
+                <h2>Select Customer</h2>
+                <p>Choose customer from mock customer master data.</p>
+            </div>
+
+            <button type="button" class="modal-close-btn" data-close-modal="customerModal">
+                ×
+            </button>
+        </div>
+
+        <div class="pp-modal-body">
+            <div class="form-group">
+                <label for="customerSearch">Search Customer</label>
+                <input type="text" id="customerSearch" class="form-control" placeholder="Search by code, name, phone, address..." />
+            </div>
+
+            <div class="pp-table-wrapper">
+                <table class="pp-table">
+                    <thead>
+                        <tr>
+                            <th>Customer Code</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Phone</th>
+                            <th>Address</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="customerGridBody">
+                        <tr>
+                            <td colspan="6" class="empty-cell">
+                                Loading customers...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Outlet Modal -->
+<div class="pp-modal hidden" id="outletModal">
+    <div class="pp-modal-backdrop" data-close-modal="outletModal"></div>
+
+    <div class="pp-modal-panel large">
+        <div class="pp-modal-header">
+            <div>
+                <h2>Select Outlet</h2>
+                <p>Choose outlet from mock outlet master data.</p>
+            </div>
+
+            <button type="button" class="modal-close-btn" data-close-modal="outletModal">
+                ×
+            </button>
+        </div>
+
+        <div class="pp-modal-body">
+            <div class="form-group">
+                <label for="outletSearch">Search Outlet</label>
+                <input type="text" id="outletSearch" class="form-control" placeholder="Search by code, name, location, manager..." />
+            </div>
+
+            <div class="pp-table-wrapper">
+                <table class="pp-table">
+                    <thead>
+                        <tr>
+                            <th>Outlet Code</th>
+                            <th>Outlet Name</th>
+                            <th>Location</th>
+                            <th>Manager</th>
+                            <th>Phone</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="outletGridBody">
+                        <tr>
+                            <td colspan="6" class="empty-cell">
+                                Loading outlets...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/data/customers.js" asp-append-version="true"></script>
+<script src="~/data/outlets.js" asp-append-version="true"></script>
+<script src="~/data/products.js" asp-append-version="true"></script>
+<script src="~/data/materials.js" asp-append-version="true"></script>
+<script src="~/data/bom.js" asp-append-version="true"></script>
+<script src="~/data/warehouses.js" asp-append-version="true"></script>
+<script src="~/data/production-stages.js" asp-append-version="true"></script>
+<script src="~/data/mock-production-plans.js" asp-append-version="true"></script>
+
+<script src="~/js/production-plan-create.js" asp-append-version="true"></script>
+<script src="~/js/production-plan-edit.js" asp-append-version="true"></script>

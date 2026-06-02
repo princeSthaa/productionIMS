@@ -1,0 +1,1086 @@
+@page
+@model kaam.Pages.Warehouse.VisualizationModel
+@{
+    ViewData["Title"] = "Warehouse Visualization";
+}
+
+<section class="warehouse-visual-page">
+    <div class="page-header">
+        <div>
+            <div class="breadcrumb-line">Inventory <span>›</span> Warehouse Visualization</div>
+            <h1>Warehouse Visualization</h1>
+            <p>Kathmandu Central DC · Visual shelf tracking by floor, room, rack, and shelf.</p>
+        </div>
+
+        <div class="header-actions">
+            <select class="form-select form-select-sm warehouse-select">
+                <option>Kathmandu Central DC</option>
+                <option>Lalitpur Warehouse</option>
+                <option>Biratnagar Warehouse</option>
+            </select>
+            <button class="btn btn-outline-secondary btn-sm" type="button">
+                <span class="material-symbols-outlined">filter_list</span>
+                Filter
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6 col-xl-3 col-xxl">
+            <div class="kpi-card wide">
+                <div class="kpi-icon blue"><span class="material-symbols-outlined">warehouse</span></div>
+                <div class="kpi-body">
+                    <span>Warehouse Capacity</span>
+                    <strong>72%</strong>
+                    <small>Used: 1,440 / 2,000 shelf slots</small>
+                    <div class="progress slim-progress mt-2">
+                        <div class="progress-bar" style="width:72%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3 col-xxl">
+            <div class="kpi-card">
+                <div class="kpi-icon soft"><span class="material-symbols-outlined">apartment</span></div>
+                <div class="kpi-body">
+                    <span>Floors</span>
+                    <strong>2</strong>
+                    <small>Total floors</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3 col-xxl">
+            <div class="kpi-card">
+                <div class="kpi-icon soft"><span class="material-symbols-outlined">meeting_room</span></div>
+                <div class="kpi-body">
+                    <span>Rooms</span>
+                    <strong>8</strong>
+                    <small>Total rooms</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3 col-xxl">
+            <div class="kpi-card">
+                <div class="kpi-icon soft"><span class="material-symbols-outlined">view_in_ar</span></div>
+                <div class="kpi-body">
+                    <span>Racks</span>
+                    <strong>48</strong>
+                    <small>Total racks</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3 col-xxl">
+            <div class="kpi-card success">
+                <div class="kpi-icon green"><span class="material-symbols-outlined">check_circle</span></div>
+                <div class="kpi-body">
+                    <span>Available Shelves</span>
+                    <strong>54</strong>
+                    <small>28% available</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-xl-4">
+            <div class="panel-card h-100">
+                <div class="panel-head">
+                    <div>
+                        <h2>Warehouse Layout</h2>
+                        <p>Occupancy by floor and room</p>
+                    </div>
+                </div>
+
+                <div class="layout-grid">
+                    <button class="layout-room layout-blue active" type="button">
+                        <span class="layout-tag">Floor 1</span>
+                        <strong>Raw Wood Room</strong>
+                        <em>75%</em>
+                        <small>(36 / 48 shelves)</small>
+                    </button>
+
+                    <button class="layout-room layout-green" type="button">
+                        <span class="layout-tag">Floor 1</span>
+                        <strong>Fabric Room</strong>
+                        <em>58%</em>
+                        <small>(28 / 48 shelves)</small>
+                    </button>
+
+                    <button class="layout-room layout-amber" type="button">
+                        <span class="layout-tag">Floor 2</span>
+                        <strong>Packaging Room</strong>
+                        <em>88%</em>
+                        <small>(42 / 48 shelves)</small>
+                    </button>
+
+                    <button class="layout-room layout-purple" type="button">
+                        <span class="layout-tag">Floor 2</span>
+                        <strong>Finished Goods Room</strong>
+                        <em>56%</em>
+                        <small>(27 / 48 shelves)</small>
+                    </button>
+                </div>
+
+                <div class="receiving-strip">Receiving / Shipping</div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="panel-card h-100">
+                <div class="panel-head">
+                    <div>
+                        <h2 id="rackVisualTitle">Floor 1 › Raw Wood Room › Rack 02</h2>
+                        <p>Selected rack shelf utilization</p>
+                    </div>
+                </div>
+
+                <div class="rack-visual-wrap">
+                    <div class="level-labels">
+                        <span>Level 4</span>
+                        <span>Level 3</span>
+                        <span>Level 2</span>
+                        <span>Level 1</span>
+                    </div>
+
+                    <div class="rack-visual">
+                        <div class="rack-frame left"></div>
+                        <div class="rack-frame right"></div>
+
+                        <div class="rack-level">
+                            <button class="shelf-card shelf-high"
+                                    data-floor="Floor 1"
+                                    data-room="Raw Wood Room"
+                                    data-rack="Rack 02"
+                                    data-shelf="Shelf 01"
+                                    data-item="Plywood sheet"
+                                    data-type="Raw Material"
+                                    data-quantity="95 pcs"
+                                    data-capacity="150 pcs"
+                                    data-util="62"
+                                    data-status="In Use">S-01</button>
+                            <button class="shelf-card shelf-high"
+                                    data-floor="Floor 1"
+                                    data-room="Raw Wood Room"
+                                    data-rack="Rack 02"
+                                    data-shelf="Shelf 02"
+                                    data-item="Sal wood"
+                                    data-type="Raw Material"
+                                    data-quantity="360 cft"
+                                    data-capacity="450 cft"
+                                    data-util="80"
+                                    data-status="In Use">S-02</button>
+                            <button class="shelf-card shelf-full active"
+                                    data-floor="Floor 1"
+                                    data-room="Raw Wood Room"
+                                    data-rack="Rack 02"
+                                    data-shelf="Shelf 03"
+                                    data-item="Seasoned teak wood"
+                                    data-type="Raw Material"
+                                    data-quantity="420 cft"
+                                    data-capacity="540 cft"
+                                    data-util="78"
+                                    data-status="In Use">S-03</button>
+                        </div>
+
+                        <div class="rack-level">
+                            <button class="shelf-card shelf-high"
+                                    data-floor="Floor 1"
+                                    data-room="Raw Wood Room"
+                                    data-rack="Rack 02"
+                                    data-shelf="Shelf 04"
+                                    data-item="Cut timber pieces"
+                                    data-type="Raw Material"
+                                    data-quantity="290 cft"
+                                    data-capacity="400 cft"
+                                    data-util="73"
+                                    data-status="In Use">S-04</button>
+                            <button class="shelf-card shelf-medium"
+                                    data-floor="Floor 1"
+                                    data-room="Raw Wood Room"
+                                    data-rack="Rack 02"
+                                    data-shelf="Shelf 05"
+                                    data-item="Wood polish cartons"
+                                    data-type="Raw Material"
+                                    data-quantity="70 boxes"
+                                    data-capacity="160 boxes"
+                                    data-util="44"
+                                    data-status="In Use">S-05</button>
+                            <button class="shelf-card shelf-low"
+                                    data-floor="Floor 1"
+                                    data-room="Raw Wood Room"
+                                    data-rack="Rack 02"
+                                    data-shelf="Shelf 06"
+                                    data-item="Packing labels"
+                                    data-type="Raw Material"
+                                    data-quantity="18 rolls"
+                                    data-capacity="120 rolls"
+                                    data-util="15"
+                                    data-status="Low Stock">S-06</button>
+                        </div>
+
+                        <div class="rack-level">
+                            <button class="shelf-card shelf-medium"
+                                    data-floor="Floor 2"
+                                    data-room="Finished Goods Room"
+                                    data-rack="Rack 06"
+                                    data-shelf="Shelf 01"
+                                    data-item="Finished dining chair"
+                                    data-type="Finished Goods"
+                                    data-quantity="120 pcs"
+                                    data-capacity="220 pcs"
+                                    data-util="55"
+                                    data-status="In Use">S-07</button>
+                            <button class="shelf-card shelf-medium"
+                                    data-floor="Floor 2"
+                                    data-room="Finished Goods Room"
+                                    data-rack="Rack 06"
+                                    data-shelf="Shelf 02"
+                                    data-item="Packed flour 5kg"
+                                    data-type="Finished Goods"
+                                    data-quantity="100 pack"
+                                    data-capacity="150 pack"
+                                    data-util="67"
+                                    data-status="In Use">S-08</button>
+                            <button class="shelf-card shelf-low"
+                                    data-floor="Floor 2"
+                                    data-room="Finished Goods Room"
+                                    data-rack="Rack 06"
+                                    data-shelf="Shelf 03"
+                                    data-item="Water bottle [1L each]"
+                                    data-type="Finished Goods"
+                                    data-quantity="45 pack"
+                                    data-capacity="150 pack"
+                                    data-util="30"
+                                    data-status="Low Stock">S-09</button>
+                        </div>
+
+                        <div class="rack-level">
+                            <button class="shelf-card shelf-high"
+                                    data-floor="Floor 2"
+                                    data-room="Packaging Room"
+                                    data-rack="Rack 01"
+                                    data-shelf="Shelf 01"
+                                    data-item="Printed packaging box"
+                                    data-type="Raw Material"
+                                    data-quantity="1200 pcs"
+                                    data-capacity="1600 pcs"
+                                    data-util="75"
+                                    data-status="In Use">S-10</button>
+                            <button class="shelf-card shelf-high"
+                                    data-floor="Floor 1"
+                                    data-room="Fabric Room"
+                                    data-rack="Rack 05"
+                                    data-shelf="Shelf 01"
+                                    data-item="Cotton fabric roll"
+                                    data-type="Raw Material"
+                                    data-quantity="95 kg"
+                                    data-capacity="180 kg"
+                                    data-util="53"
+                                    data-status="In Use">S-11</button>
+                            <button class="shelf-card shelf-low"
+                                    data-floor="Floor 2"
+                                    data-room="Finished Goods Room"
+                                    data-rack="Rack 08"
+                                    data-shelf="Shelf 01"
+                                    data-item="Bottled product case"
+                                    data-type="Finished Goods"
+                                    data-quantity="32 cases"
+                                    data-capacity="140 cases"
+                                    data-util="23"
+                                    data-status="Low Stock">S-12</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="legend shelf-legend">
+                    <span><i class="dot empty"></i> Empty</span>
+                    <span><i class="dot low"></i> Low (0–30%)</span>
+                    <span><i class="dot medium"></i> Medium (31–70%)</span>
+                    <span><i class="dot high"></i> High (71–100%)</span>
+                    <span><i class="dot full"></i> Full</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="panel-card h-100 selected-card">
+                <div class="panel-head">
+                    <div>
+                        <h2>Shelf Details</h2>
+                        <p>Selected item placement details</p>
+                    </div>
+                    <span id="selectedStatus" class="status-badge success">In Use</span>
+                </div>
+
+                <h3 id="selectedShelfCode">Shelf 03</h3>
+                <div class="selected-main-item" id="selectedItem">Seasoned teak wood</div>
+                <div class="selected-sub" id="selectedItemType">Raw Material</div>
+
+                <div class="detail-grid mt-4">
+                    <div><span>Current Stock</span><strong id="selectedQuantity">420 cft</strong></div>
+                    <div><span>Shelf Capacity</span><strong id="selectedCapacity">540 cft</strong></div>
+                    <div><span>Floor</span><strong id="selectedFloor">Floor 1</strong></div>
+                    <div><span>Room</span><strong id="selectedRoom">Raw Wood Room</strong></div>
+                    <div><span>Rack</span><strong id="selectedRack">Rack 02</strong></div>
+                    <div><span>Shelf</span><strong id="selectedShelf">Shelf 03</strong></div>
+                </div>
+
+                <div class="utilization-box">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Utilization</span>
+                        <strong id="selectedUtil">78%</strong>
+                    </div>
+                    <div class="progress table-progress">
+                        <div id="selectedProgress" class="progress-bar high" style="width:78%"></div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button class="btn btn-outline-primary btn-sm" type="button">
+                        <span class="material-symbols-outlined">receipt_long</span>
+                        View Shelf Transactions
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" type="button">
+                        <span class="material-symbols-outlined">swap_horiz</span>
+                        Transfer From This Shelf
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+        <div class="col-12 col-xl-7">
+            <div class="panel-card h-100">
+                <div class="panel-head">
+                    <div>
+                        <h2>Location Stock Table</h2>
+                        <p>Storage by floor, room, rack, shelf, and item type</p>
+                    </div>
+                    <div class="table-actions">
+                        <input id="locationSearch" class="form-control form-control-sm" type="search" placeholder="Search floor, room, rack, shelf, item, or type..." />
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle warehouse-table" id="locationTable">
+                        <thead>
+                            <tr>
+                                <th>Floor</th>
+                                <th>Room</th>
+                                <th>Rack</th>
+                                <th>Shelf</th>
+                                <th>Item</th>
+                                <th>Type</th>
+                                <th>Quantity</th>
+                                <th>Utilization</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Floor 1</td>
+                                <td>Raw Wood Room</td>
+                                <td>Rack 02</td>
+                                <td><strong>Shelf 03</strong></td>
+                                <td>Seasoned teak wood</td>
+                                <td><span class="type-badge raw">Raw Material</span></td>
+                                <td>420 cft</td>
+                                <td>
+                                    <div class="util-cell">
+                                        <div class="progress table-progress"><div class="progress-bar high" style="width:78%"></div></div>
+                                        <span>78%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Floor 2</td>
+                                <td>Finished Goods Room</td>
+                                <td>Rack 06</td>
+                                <td><strong>Shelf 02</strong></td>
+                                <td>Packed flour 5kg</td>
+                                <td><span class="type-badge finished">Finished Goods</span></td>
+                                <td>100 pack</td>
+                                <td>
+                                    <div class="util-cell">
+                                        <div class="progress table-progress"><div class="progress-bar medium" style="width:67%"></div></div>
+                                        <span>67%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Floor 1</td>
+                                <td>Fabric Room</td>
+                                <td>Rack 05</td>
+                                <td><strong>Shelf 01</strong></td>
+                                <td>Cotton fabric roll</td>
+                                <td><span class="type-badge raw">Raw Material</span></td>
+                                <td>95 kg</td>
+                                <td>
+                                    <div class="util-cell">
+                                        <div class="progress table-progress"><div class="progress-bar medium" style="width:53%"></div></div>
+                                        <span>53%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Floor 2</td>
+                                <td>Finished Goods Room</td>
+                                <td>Rack 08</td>
+                                <td><strong>Shelf 01</strong></td>
+                                <td>Bottled product case</td>
+                                <td><span class="type-badge finished">Finished Goods</span></td>
+                                <td>32 cases</td>
+                                <td>
+                                    <div class="util-cell">
+                                        <div class="progress table-progress"><div class="progress-bar low" style="width:23%"></div></div>
+                                        <span>23%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-5">
+            <div class="panel-card h-100">
+                <div class="panel-head">
+                    <div>
+                        <h2>Low Stock Shelves</h2>
+                        <p>Items below reorder point</p>
+                    </div>
+                </div>
+
+                <div class="low-stock-list">
+                    <div class="low-stock-item">
+                        <div>
+                            <strong>Rack 08 · Shelf 01</strong>
+                            <span>Bottled product case</span>
+                            <small>Finished Goods</small>
+                        </div>
+                        <b>32 CASES</b>
+                    </div>
+                    <div class="low-stock-item">
+                        <div>
+                            <strong>Rack 02 · Shelf 06</strong>
+                            <span>Packing labels</span>
+                            <small>Raw Material</small>
+                        </div>
+                        <b>18 ROLLS</b>
+                    </div>
+                    <div class="low-stock-item">
+                        <div>
+                            <strong>Rack 05 · Shelf 03</strong>
+                            <span>Coffee 250g</span>
+                            <small>Finished Goods</small>
+                        </div>
+                        <b>12 PACK</b>
+                    </div>
+                    <div class="low-stock-item">
+                        <div>
+                            <strong>Rack 04 · Shelf 02</strong>
+                            <span>Sugar 1kg</span>
+                            <small>Finished Goods</small>
+                        </div>
+                        <b>7 PACK</b>
+                    </div>
+                </div>
+
+                <button class="btn btn-link low-stock-link" type="button">View all low stock shelves</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    :root {
+        --primary: #2563eb;
+        --primary-soft: #dbeafe;
+        --green: #16a34a;
+        --green-soft: #dcfce7;
+        --amber: #f59e0b;
+        --amber-soft: #fef3c7;
+        --purple: #8b5cf6;
+        --purple-soft: #ede9fe;
+        --red: #ef4444;
+        --red-soft: #fee2e2;
+        --bg: #f5f7fb;
+        --surface: #ffffff;
+        --surface-soft: #f8fafc;
+        --text: #111827;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+    }
+
+    .warehouse-visual-page {
+        background: var(--bg);
+        color: var(--text);
+        padding: 24px;
+        min-height: 100vh;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .breadcrumb-line {
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .breadcrumb-line span {
+        margin: 0 8px;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 34px;
+        font-weight: 800;
+    }
+
+    .page-header p {
+        margin: 6px 0 0;
+        color: var(--muted);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .warehouse-select,
+    .header-actions .btn,
+    .selected-card .btn {
+        border-radius: 12px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+    }
+
+    .kpi-card,
+    .panel-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+    }
+
+    .kpi-card {
+        padding: 18px;
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        min-height: 120px;
+        height: 100%;
+    }
+
+    .kpi-card.wide {
+        min-height: 120px;
+    }
+
+    .kpi-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+    }
+
+    .kpi-icon span { font-size: 24px; }
+    .kpi-icon.blue { background: var(--primary-soft); color: var(--primary); }
+    .kpi-icon.green { background: var(--green-soft); color: var(--green); }
+    .kpi-icon.soft { background: #f3f4f6; color: #475569; }
+
+    .kpi-body span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .kpi-body strong {
+        display: block;
+        margin-top: 2px;
+        font-size: 36px;
+        font-weight: 800;
+        line-height: 1.1;
+    }
+
+    .kpi-body small {
+        color: var(--muted);
+        display: block;
+        margin-top: 6px;
+    }
+
+    .panel-card {
+        padding: 20px;
+        height: 100%;
+    }
+
+    .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .panel-head h2 {
+        margin: 0;
+        font-size: 21px;
+        font-weight: 800;
+    }
+
+    .panel-head p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+    }
+
+    .slim-progress,
+    .table-progress {
+        height: 9px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: #e5e7eb;
+    }
+
+    .progress-bar { background: var(--primary); }
+    .progress-bar.low { background: var(--green) !important; }
+    .progress-bar.medium { background: var(--amber) !important; }
+    .progress-bar.high { background: var(--primary) !important; }
+    .progress-bar.full { background: var(--red) !important; }
+
+    .layout-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 14px;
+    }
+
+    .layout-room {
+        border-radius: 16px;
+        border: 1px dashed #cbd5e1;
+        padding: 18px;
+        text-align: center;
+        background: #f8fafc;
+        transition: .2s ease;
+    }
+
+    .layout-room:hover,
+    .layout-room.active {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .layout-room strong,
+    .layout-room em,
+    .layout-room small,
+    .layout-room .layout-tag {
+        display: block;
+    }
+
+    .layout-tag {
+        font-size: 12px;
+        font-weight: 700;
+        opacity: .8;
+        margin-bottom: 10px;
+    }
+
+    .layout-room strong {
+        font-size: 16px;
+        font-weight: 800;
+        font-style: normal;
+        margin-bottom: 8px;
+    }
+
+    .layout-room em {
+        font-size: 34px;
+        font-style: normal;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 6px;
+    }
+
+    .layout-room small {
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .layout-blue { background: #eff6ff; color: #1d4ed8; }
+    .layout-green { background: #f0fdf4; color: #15803d; }
+    .layout-amber { background: #fffbeb; color: #d97706; }
+    .layout-purple { background: #f5f3ff; color: #7c3aed; }
+
+    .receiving-strip {
+        border-radius: 12px;
+        background: #f3f4f6;
+        text-align: center;
+        padding: 10px 12px;
+        font-weight: 700;
+        color: #4b5563;
+    }
+
+    .rack-visual-wrap {
+        display: grid;
+        grid-template-columns: 68px 1fr;
+        gap: 12px;
+        align-items: stretch;
+    }
+
+    .level-labels {
+        display: grid;
+        grid-template-rows: repeat(4, 1fr);
+        gap: 12px;
+        padding: 8px 0;
+    }
+
+    .level-labels span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        color: #4b5563;
+        font-weight: 700;
+    }
+
+    .rack-visual {
+        position: relative;
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 14px 18px;
+        display: grid;
+        gap: 12px;
+        overflow: hidden;
+    }
+
+    .rack-frame {
+        position: absolute;
+        top: 10px;
+        bottom: 10px;
+        width: 8px;
+        background: linear-gradient(180deg, #4b5563, #6b7280);
+        border-radius: 999px;
+    }
+
+    .rack-frame.left { left: 12px; }
+    .rack-frame.right { right: 12px; }
+
+    .rack-level {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        position: relative;
+        padding: 8px 14px;
+        border-bottom: 4px solid #6b7280;
+    }
+
+    .rack-level:last-child { border-bottom: 0; }
+
+    .shelf-card {
+        min-height: 58px;
+        border: 0;
+        border-radius: 12px;
+        font-weight: 800;
+        box-shadow: inset 0 -2px 0 rgba(0,0,0,0.08);
+        transition: .2s ease;
+    }
+
+    .shelf-card:hover { transform: translateY(-2px); }
+    .shelf-card.active { outline: 3px solid #1e3a8a; outline-offset: 2px; }
+    .shelf-card.shelf-low { background: #dcfce7; color: #166534; }
+    .shelf-card.shelf-medium { background: #fed7aa; color: #9a3412; }
+    .shelf-card.shelf-high { background: #60a5fa; color: white; }
+    .shelf-card.shelf-full { background: #2563eb; color: white; }
+
+    .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 16px;
+    }
+
+    .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        display: inline-block;
+    }
+
+    .dot.empty { background: #cbd5e1; }
+    .dot.low { background: var(--green); }
+    .dot.medium { background: var(--amber); }
+    .dot.high { background: var(--primary); }
+    .dot.full { background: #1d4ed8; }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .status-badge.success { background: #dcfce7; color: #166534; }
+    .status-badge.warning { background: #fef3c7; color: #92400e; }
+    .status-badge.danger { background: #fee2e2; color: #b91c1c; }
+
+    .selected-card h3 {
+        margin: 0;
+        font-size: 32px;
+        font-weight: 800;
+    }
+
+    .selected-main-item {
+        margin-top: 6px;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .selected-sub {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .detail-grid div {
+        background: var(--surface-soft);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 12px;
+    }
+
+    .detail-grid span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .detail-grid strong {
+        font-size: 14px;
+    }
+
+    .utilization-box {
+        margin-top: 16px;
+        background: var(--surface-soft);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px;
+    }
+
+    .table-actions { width: 300px; }
+    .table-actions input { border-radius: 12px; }
+
+    .warehouse-table thead th {
+        background: #f8fafc;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .warehouse-table tbody td {
+        vertical-align: middle;
+        border-bottom: 1px solid var(--border);
+        font-size: 14px;
+    }
+
+    .type-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .type-badge.raw { background: #eff6ff; color: #1d4ed8; }
+    .type-badge.finished { background: #ecfdf5; color: #047857; }
+
+    .util-cell {
+        display: grid;
+        grid-template-columns: 1fr 42px;
+        gap: 10px;
+        align-items: center;
+        min-width: 140px;
+    }
+
+    .low-stock-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .low-stock-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .low-stock-item:last-child { border-bottom: 0; }
+    .low-stock-item strong,
+    .low-stock-item span,
+    .low-stock-item small { display: block; }
+    .low-stock-item span { color: var(--text); font-size: 14px; margin-top: 3px; }
+    .low-stock-item small { color: var(--muted); margin-top: 3px; }
+    .low-stock-item b { color: #b91c1c; font-size: 14px; white-space: nowrap; }
+
+    .low-stock-link {
+        margin-top: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        padding-left: 0;
+    }
+
+    @@media (max-width: 1399px) {
+        .kpi-body strong { font-size: 30px; }
+    }
+
+    @@media (max-width: 1199px) {
+        .rack-visual-wrap { grid-template-columns: 1fr; }
+        .level-labels {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: 1fr;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .warehouse-visual-page { padding: 16px; }
+        .page-header,
+        .panel-head { flex-direction: column; }
+        .layout-grid,
+        .detail-grid,
+        .rack-level { grid-template-columns: 1fr; }
+        .table-actions { width: 100%; }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const shelves = document.querySelectorAll(".shelf-card");
+        const searchInput = document.getElementById("locationSearch");
+        const rows = document.querySelectorAll("#locationTable tbody tr");
+
+        const selectedShelfCode = document.getElementById("selectedShelfCode");
+        const selectedItem = document.getElementById("selectedItem");
+        const selectedItemType = document.getElementById("selectedItemType");
+        const selectedQuantity = document.getElementById("selectedQuantity");
+        const selectedCapacity = document.getElementById("selectedCapacity");
+        const selectedFloor = document.getElementById("selectedFloor");
+        const selectedRoom = document.getElementById("selectedRoom");
+        const selectedRack = document.getElementById("selectedRack");
+        const selectedShelf = document.getElementById("selectedShelf");
+        const selectedUtil = document.getElementById("selectedUtil");
+        const selectedProgress = document.getElementById("selectedProgress");
+        const selectedStatus = document.getElementById("selectedStatus");
+        const rackVisualTitle = document.getElementById("rackVisualTitle");
+
+        function updateStatusBadge(status) {
+            selectedStatus.className = "status-badge";
+            if (status === "Low Stock") {
+                selectedStatus.classList.add("warning");
+            } else if (status === "Blocked") {
+                selectedStatus.classList.add("danger");
+            } else {
+                selectedStatus.classList.add("success");
+            }
+            selectedStatus.textContent = status;
+        }
+
+        function updateProgress(util) {
+            const value = parseInt(util, 10) || 0;
+            selectedProgress.style.width = value + "%";
+            selectedProgress.className = "progress-bar";
+
+            if (value <= 30) {
+                selectedProgress.classList.add("low");
+            } else if (value <= 70) {
+                selectedProgress.classList.add("medium");
+            } else if (value < 100) {
+                selectedProgress.classList.add("high");
+            } else {
+                selectedProgress.classList.add("full");
+            }
+        }
+
+        shelves.forEach(function (shelf) {
+            shelf.addEventListener("click", function () {
+                shelves.forEach(function (item) { item.classList.remove("active"); });
+                shelf.classList.add("active");
+
+                const floor = shelf.dataset.floor;
+                const room = shelf.dataset.room;
+                const rack = shelf.dataset.rack;
+                const shelfName = shelf.dataset.shelf;
+                const item = shelf.dataset.item;
+                const type = shelf.dataset.type;
+                const quantity = shelf.dataset.quantity;
+                const capacity = shelf.dataset.capacity;
+                const util = shelf.dataset.util;
+                const status = shelf.dataset.status;
+
+                selectedShelfCode.textContent = shelfName;
+                selectedItem.textContent = item;
+                selectedItemType.textContent = type;
+                selectedQuantity.textContent = quantity;
+                selectedCapacity.textContent = capacity;
+                selectedFloor.textContent = floor;
+                selectedRoom.textContent = room;
+                selectedRack.textContent = rack;
+                selectedShelf.textContent = shelfName;
+                selectedUtil.textContent = util + "%";
+                rackVisualTitle.textContent = floor + " › " + room + " › " + rack;
+
+                updateStatusBadge(status);
+                updateProgress(util);
+            });
+        });
+
+        if (searchInput) {
+            searchInput.addEventListener("input", function () {
+                const query = searchInput.value.toLowerCase();
+                rows.forEach(function (row) {
+                    row.style.display = row.innerText.toLowerCase().includes(query) ? "" : "none";
+                });
+            });
+        }
+    });
+</script>

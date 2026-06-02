@@ -1,0 +1,146 @@
+@page
+@model Kaam.Pages.New.CreateInHouseModel
+@{
+    ViewData["Title"] = "Create In-house Production Plan";
+}
+
+<link rel="stylesheet" href="~/css/plan.css" asp-append-version="true" />
+
+<div class="pp-page">
+
+    <div class="pp-page-header">
+        <div>
+            <h1>Create In-house Stock Plan</h1>
+            <p>Plan garment production for internal warehouse stock.</p>
+        </div>
+
+        <div class="pp-header-actions">
+            <a asp-page="/New/Create" class="btn btn-light">Change Demand Type</a>
+            <a asp-page="/New/Index" class="btn btn-light">Back to Plans</a>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">@Model.SuccessMessage</div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    <form method="post" id="productionPlanForm">
+
+        <input asp-for="DemandType" type="hidden" id="demandType" value="In-house Stock" />
+
+        <div class="pp-create-grid">
+
+            <section class="pp-card">
+                <div class="pp-card-header">
+                    <div>
+                        <h2>In-house Stock Information</h2>
+                        <p>Select reason and warehouse for internal production.</p>
+                    </div>
+                </div>
+
+                <div class="form-grid two-col">
+                    <div class="form-group">
+                        <label asp-for="PlanNo">Plan No</label>
+                        <input asp-for="PlanNo" class="form-control" readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="PlanDate">Plan Date</label>
+                        <input asp-for="PlanDate" type="date" class="form-control" readonly />
+                    </div>
+                </div>
+
+                <div id="inHouseSection" class="conditional-section">
+                    <h3>In-house Stock</h3>
+                    <p>Create a production plan for internal stock requirement.</p>
+
+                    <div class="form-grid two-col">
+                        <div class="form-group">
+                            <label asp-for="InHouseReason">Reason</label>
+                            <select asp-for="InHouseReason" id="inHouseReason" class="form-control">
+                                <option value="">Select Reason</option>
+                                <option value="Stock Replenishment">Stock Replenishment</option>
+                                <option value="Seasonal Production">Seasonal Production</option>
+                                <option value="Forecast Demand">Forecast Demand</option>
+                                <option value="Sample Production">Sample Production</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="WarehouseId">Warehouse</label>
+                            <select asp-for="WarehouseId" id="warehouseDropdown" class="form-control">
+                                <option value="">Select Warehouse</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="pp-card">
+                <div class="pp-card-header">
+                    <div>
+                        <h2>Product Planning</h2>
+                        <p>Select product, quantity, color, priority, and destination.</p>
+                    </div>
+                </div>
+
+                <div class="form-grid two-col">
+                    <div class="form-group full">
+                        <label asp-for="ProductId">Product</label>
+                        <select asp-for="ProductId" id="productDropdown" class="form-control">
+                            <option value="">Select Product</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Variant">Color / Variant</label>
+                        <select asp-for="Variant" id="variantDropdown" class="form-control">
+                            <option value="">Select Color / Variant</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="TotalQuantity">Total Quantity</label>
+                        <input asp-for="TotalQuantity" type="number" min="1" id="totalQuantity" class="form-control" placeholder="Example: 220" />
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Priority">Priority</label>
+                        <select asp-for="Priority" class="form-control">
+                            <option value="Normal">Normal</option>
+                            <option value="Urgent">Urgent</option>
+                            <option value="Seasonal">Seasonal</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full">
+                        <label asp-for="OutputDestination">Output Destination</label>
+                        <select asp-for="OutputDestination" class="form-control">
+                            <option value="Finished Goods Warehouse">Finished Goods Warehouse</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        @await Html.PartialAsync("_PlanCommonSections")
+
+    </form>
+</div>
+
+<script src="~/js/app.js" asp-append-version="true"></script>
+
+<script src="~/data/warehouses.js" asp-append-version="true"></script>
+<script src="~/data/products.js" asp-append-version="true"></script>
+<script src="~/data/materials.js" asp-append-version="true"></script>
+<script src="~/data/bom.js" asp-append-version="true"></script>
+<script src="~/data/production-stages.js" asp-append-version="true"></script>
+
+<script src="~/js/production-plan-create.js" asp-append-version="true"></script>

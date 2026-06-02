@@ -1,0 +1,94 @@
+@page
+@model Kaam.Pages.New.CreateModel
+@{
+    ViewData["Title"] = "Create Production Plan";
+}
+
+<link rel="stylesheet" href="~/css/plan.css" asp-append-version="true" />
+
+<div class="pp-page">
+
+    <div class="pp-page-header">
+        <div>
+            <h1>Create Production Plan</h1>
+            <p>Choose the type of production demand you want to plan.</p>
+        </div>
+
+        <div class="pp-header-actions">
+            <a asp-page="/New/Index" class="btn btn-light">
+                Back to Plans
+            </a>
+        </div>
+    </div>
+
+    <section class="pp-card">
+        <div class="pp-card-header">
+            <div>
+                <h2>Select Demand Type</h2>
+             <!--   <p>Each demand type has a separate page so the form stays simple and focused.</p> -->
+            </div>
+        </div>
+
+        <div class="demand-choice-grid">
+
+            <div class="demand-choice-card">
+                <div class="demand-icon">👤</div>
+
+                <h3>Customer Order</h3>
+                <p>
+                    Use this when a school, retailer, or business customer has ordered garments.
+                </p>
+
+                <ul>
+                    <li>Select customer from customer master</li>
+                    <li>Show customer delivery and payment details</li>
+                    <li>Plan product, size, materials, and stages</li>
+                </ul>
+
+                <a asp-page="/New/CreateCustomer" class="btn btn-primary">
+                    Start Customer Order Plan
+                </a>
+            </div>
+
+            <div class="demand-choice-card">
+                <div class="demand-icon">🏬</div>
+
+                <h3>Outlet Replenishment</h3>
+                <p>
+                    Use this when your own outlet needs stock replenishment.
+                </p>
+
+                <ul>
+                    <li>Select outlet from outlet master</li>
+                    <li>Show outlet location and manager details</li>
+                    <li>Plan product, size, materials, and transfer</li>
+                </ul>
+
+                <a asp-page="/New/CreateOutlet" class="btn btn-primary">
+                    Start Outlet Plan
+                </a>
+            </div>
+
+            <div class="demand-choice-card">
+                <div class="demand-icon">🏭</div>
+
+                <h3>In-house Stock</h3>
+                <p>
+                    Use this when production is for internal warehouse stock.
+                </p>
+
+                <ul>
+                    <li>Select production reason</li>
+                    <li>Select warehouse</li>
+                    <li>Plan product, size, materials, and storage destination</li>
+                </ul>
+
+                <a asp-page="/New/CreateInHouse" class="btn btn-primary">
+                    Start In-house Plan
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+</div>

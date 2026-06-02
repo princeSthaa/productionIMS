@@ -1,0 +1,426 @@
+@page "{id?}"
+@model Kaam.Pages.New.DetailsModel
+@{
+    ViewData["Title"] = "Production Plan Details";
+}
+
+<link rel="stylesheet" href="~/css/production-plans.css" asp-append-version="true" />
+
+<div class="pp-page">
+
+    <!-- Page Header -->
+    <div class="pp-page-header">
+        <div>
+            <h1>Production Plan Details</h1>
+            <p>View production plan summary, materials, stages, size breakdown, and activity.</p>
+        </div>
+
+        <div class="pp-header-actions">
+            <a asp-page="/new/Index" class="btn btn-light">
+                Back to Plans
+            </a>
+
+            <a id="editPlanBtn" asp-page="/new/Edit" asp-route-id="@Model.PlanId" class="btn btn-primary">
+                Edit Plan
+            </a>
+
+            <a id="stageUpdateBtn" asp-page="/new/StageUpdate" asp-route-id="@Model.PlanId" class="btn btn-outline">
+                Update Stage
+            </a>
+        </div>
+    </div>
+
+    <input type="hidden" id="selectedPlanId" value="@Model.PlanId" />
+
+    <!-- Summary Section -->
+    <section class="pp-card">
+        <div class="pp-card-header">
+            <div>
+                <h2 id="detailsPlanNo">Loading...</h2>
+                <p id="detailsPlanSubtitle">Loading production plan information...</p>
+            </div>
+
+            <span id="detailsStatusBadge" class="status-badge">
+                Loading
+            </span>
+        </div>
+
+        <div class="pp-detail-summary-grid">
+            <div class="summary-box">
+                <span>Demand Type</span>
+                <strong id="summaryDemandType">-</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Source Name</span>
+                <strong id="summarySourceName">-</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Product</span>
+                <strong id="summaryProduct">-</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Total Quantity</span>
+                <strong id="summaryQuantity">-</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Planned Start</span>
+                <strong id="summaryStartDate">-</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Planned Completion</span>
+                <strong id="summaryCompletionDate">-</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Required Date</span>
+                <strong id="summaryRequiredDate">-</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Priority</span>
+                <strong id="summaryPriority">-</strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tabs -->
+    <section class="pp-card">
+        <div class="pp-tabs">
+            <button type="button" class="pp-tab active" data-tab="overviewTab">
+                Overview
+            </button>
+
+            <button type="button" class="pp-tab" data-tab="materialsTab">
+                Materials
+            </button>
+
+            <button type="button" class="pp-tab" data-tab="stagesTab">
+                Stages
+            </button>
+
+            <button type="button" class="pp-tab" data-tab="sizesTab">
+                Size Breakdown
+            </button>
+
+            <button type="button" class="pp-tab" data-tab="activityTab">
+                Activity
+            </button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overviewTab" class="pp-tab-panel active">
+
+            <div class="pp-section-grid two-col">
+
+                <!-- Demand Information -->
+                <div class="detail-panel">
+                    <h3>Demand Information</h3>
+
+                    <div class="detail-list">
+                        <div>
+                            <span>Plan No</span>
+                            <strong id="overviewPlanNo">-</strong>
+                        </div>
+
+                        <div>
+                            <span>Plan Date</span>
+                            <strong id="overviewPlanDate">-</strong>
+                        </div>
+
+                        <div>
+                            <span>Demand Type</span>
+                            <strong id="overviewDemandType">-</strong>
+                        </div>
+
+                        <div>
+                            <span>Source Name</span>
+                            <strong id="overviewSourceName">-</strong>
+                        </div>
+
+                        <div>
+                            <span>Output Destination</span>
+                            <strong id="overviewOutputDestination">-</strong>
+                        </div>
+
+                        <div>
+                            <span>Status</span>
+                            <strong id="overviewStatus">-</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Information -->
+                <div class="detail-panel">
+                    <h3>Product Information</h3>
+
+                    <div class="product-detail-card">
+                        <div class="product-image-box">
+                            <img id="productImage" src="/images/products/placeholder.png" alt="Product image" />
+                        </div>
+
+                        <div class="detail-list">
+                            <div>
+                                <span>Product Code</span>
+                                <strong id="productCode">-</strong>
+                            </div>
+
+                            <div>
+                                <span>Product Name</span>
+                                <strong id="productName">-</strong>
+                            </div>
+
+                            <div>
+                                <span>Category</span>
+                                <strong id="productCategory">-</strong>
+                            </div>
+
+                            <div>
+                                <span>Color / Variant</span>
+                                <strong id="productVariant">-</strong>
+                            </div>
+
+                            <div>
+                                <span>Total Quantity</span>
+                                <strong id="productQuantity">-</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Source Details -->
+            <div class="detail-panel mt-20">
+                <h3 id="sourceDetailTitle">Source Details</h3>
+
+                <div id="sourceDetailGrid" class="selected-info-card">
+                    <div>
+                        <span>Code</span>
+                        <strong id="sourceCode">-</strong>
+                    </div>
+
+                    <div>
+                        <span>Name</span>
+                        <strong id="sourceDetailName">-</strong>
+                    </div>
+
+                    <div>
+                        <span>Phone / Contact</span>
+                        <strong id="sourcePhone">-</strong>
+                    </div>
+
+                    <div>
+                        <span>Location</span>
+                        <strong id="sourceLocation">-</strong>
+                    </div>
+
+                    <div>
+                        <span>Extra Info</span>
+                        <strong id="sourceExtra">-</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Details -->
+            <div class="detail-panel mt-20">
+                <h3>Planning Dates</h3>
+
+                <div class="pp-detail-summary-grid">
+                    <div class="summary-box">
+                        <span>Plan Date</span>
+                        <strong id="datePlanDate">-</strong>
+                    </div>
+
+                    <div class="summary-box">
+                        <span>Planned Start</span>
+                        <strong id="dateStartDate">-</strong>
+                    </div>
+
+                    <div class="summary-box">
+                        <span>Planned Completion</span>
+                        <strong id="dateCompletionDate">-</strong>
+                    </div>
+
+                    <div class="summary-box">
+                        <span>Required Date</span>
+                        <strong id="dateRequiredDate">-</strong>
+                    </div>
+
+                    <div class="summary-box">
+                        <span>Buffer Days</span>
+                        <strong id="dateBufferDays">-</strong>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Materials Tab -->
+        <div id="materialsTab" class="pp-tab-panel">
+            <div class="pp-card-header inner">
+                <div>
+                    <h2>Material Requirements</h2>
+                    <p>Materials are calculated from BOM and material master mock data.</p>
+                </div>
+            </div>
+
+            <div class="pp-table-wrapper">
+                <table class="pp-table">
+                    <thead>
+                        <tr>
+                            <th>Material Code</th>
+                            <th>Material Name</th>
+                            <th>Material Type</th>
+                            <th>Required Qty</th>
+                            <th>Available Qty</th>
+                            <th>Shortage Qty</th>
+                            <th>Unit</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="detailsMaterialBody">
+                        <tr>
+                            <td colspan="8" class="empty-cell">
+                                Loading material requirements...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Stages Tab -->
+        <div id="stagesTab" class="pp-tab-panel">
+            <div class="pp-card-header inner">
+                <div>
+                    <h2>Production Stage Progress</h2>
+                    <p>Default garment production stages and current progress.</p>
+                </div>
+            </div>
+
+            <div class="stage-progress-strip" id="stageProgressStrip">
+                Loading stage progress...
+            </div>
+
+            <div class="pp-table-wrapper mt-20">
+                <table class="pp-table">
+                    <thead>
+                        <tr>
+                            <th>Stage Name</th>
+                            <th>Work Center / Department</th>
+                            <th>Planned Start</th>
+                            <th>Planned End</th>
+                            <th>Actual Start</th>
+                            <th>Actual End</th>
+                            <th>Completed Qty</th>
+                            <th>Rejected Qty</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="detailsStagesBody">
+                        <tr>
+                            <td colspan="9" class="empty-cell">
+                                Loading production stages...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Size Breakdown Tab -->
+        <div id="sizesTab" class="pp-tab-panel">
+            <div class="pp-card-header inner">
+                <div>
+                    <h2>Size Breakdown</h2>
+                    <p>Quantity distribution by garment size.</p>
+                </div>
+            </div>
+
+            <div class="size-summary-grid">
+                <div class="size-box">
+                    <span>XS</span>
+                    <strong id="sizeXS">0</strong>
+                </div>
+
+                <div class="size-box">
+                    <span>S</span>
+                    <strong id="sizeS">0</strong>
+                </div>
+
+                <div class="size-box">
+                    <span>M</span>
+                    <strong id="sizeM">0</strong>
+                </div>
+
+                <div class="size-box">
+                    <span>L</span>
+                    <strong id="sizeL">0</strong>
+                </div>
+
+                <div class="size-box">
+                    <span>XL</span>
+                    <strong id="sizeXL">0</strong>
+                </div>
+
+                <div class="size-box">
+                    <span>XXL</span>
+                    <strong id="sizeXXL">0</strong>
+                </div>
+            </div>
+
+            <div class="calculation-strip mt-20">
+                <div>
+                    <span>Total Size Quantity</span>
+                    <strong id="detailsSizeTotal">0</strong>
+                </div>
+
+                <div>
+                    <span>Plan Quantity</span>
+                    <strong id="detailsPlanQuantity">0</strong>
+                </div>
+
+                <div id="detailsSizeMessage" class="validation-message">
+                    Loading size validation...
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Tab -->
+        <div id="activityTab" class="pp-tab-panel">
+            <div class="pp-card-header inner">
+                <div>
+                    <h2>Activity</h2>
+                    <p>Mock activity timeline for this production plan.</p>
+                </div>
+            </div>
+
+            <div class="activity-timeline" id="activityTimeline">
+                <div class="activity-item">
+                    <span class="activity-dot"></span>
+                    <div>
+                        <strong>Plan created</strong>
+                        <p>Production plan was created as a mock activity.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+</div>
+
+
+
+<script src="~/js/app.js" asp-append-version="true"></script>
+<script src="~/data/mock-production-plans.js" asp-append-version="true"></script>
+<script src="~/data/production-stages.js" asp-append-version="true"></script>
+
+<script src="~/js/production-plan-details.js" asp-append-version="true"></script>

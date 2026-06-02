@@ -214,7 +214,7 @@ function renderReceiveMaterials(receipts) {
             { label: "Received quantity", type: "number", value: "100", size: 2 },
             { label: "Accepted quantity", type: "number", value: "95", size: 2 },
             { label: "Rejected quantity", type: "number", value: "5", size: 2 },
-            { label: "Storage bin", type: "select", options: ["F1 / Zone B / Bin C-07", "F1 / Zone C / Bin H-18", "F2 / Zone D / Bin P-02"], size: 2 }
+            { label: "Storage shelf", type: "select", options: ["F1 / Zone B / Shelf F-01", "F1 / Zone C / Shelf H-04", "F2 / Zone D / Shelf P-02"], size: 2 }
         ])}
         <div class="alert alert-success d-none mt-3" data-save-alert>Mock receiving draft saved on this screen.</div>
         ${table(["GRN", "Supplier", "Item", "Expected", "Accepted / Rejected", "Location", "Status"], rows)}
@@ -240,7 +240,7 @@ function renderIssueMaterials(requests) {
             { label: "Production plan", type: "select", options: ["PP-001", "PP-002", "PP-003"], size: 3 },
             { label: "Material", type: "select", options: ["Cotton fabric roll", "Seasoned teak wood", "Printed packaging box"], size: 3 },
             { label: "Issue quantity", type: "number", value: "50", size: 2 },
-            { label: "From location", type: "select", options: ["F1 / Zone B / Bin C-07", "F1 / Zone A / Bin B-12", "F2 / Zone D / Bin P-02"], size: 4 }
+            { label: "From shelf", type: "select", options: ["F1 / Zone B / Shelf F-01", "F1 / Zone A / Shelf W-03", "F2 / Zone D / Shelf P-02"], size: 4 }
         ])}
         <div class="alert alert-success d-none mt-3" data-save-alert>Mock factory issue draft saved on this screen.</div>
         ${table(["Request", "Factory", "Item", "Requested", "Issued", "From", "Approved By", "Status"], rows)}
@@ -268,10 +268,10 @@ function renderLocations(locations) {
     const rows = locations.map((location) => `
         <tr>
             <td><strong>${escapeHtml(location.floor)}</strong><span>${escapeHtml(location.room)}</span></td>
-            <td>${escapeHtml(location.zone)}</td>
-            <td>${escapeHtml(location.rack)}</td>
-            <td>${escapeHtml(location.shelf)}</td>
-            <td>${escapeHtml(location.bin)}</td>
+            
+            <td><strong>${escapeHtml(location.shelf)}</strong></td>
+            <td>${escapeHtml(location.shelfType || "General shelf")}</td>
+            
             <td>${escapeHtml(location.item)}</td>
             <td>${escapeHtml(location.qty)}</td>
             <td>
@@ -283,7 +283,7 @@ function renderLocations(locations) {
         </tr>
     `);
 
-    return table(["Floor / Room", "Zone", "Rack", "Shelf", "Bin", "Item", "Quantity", "Utilization"], rows);
+    return table(["Floor / Room", "Shelf", "Shelf Type", "Item", "Quantity", "Utilization"], rows);
 }
 
 function renderTransfers(transfers) {
@@ -303,8 +303,8 @@ function renderTransfers(transfers) {
         ${renderMockForm("Stock transfer draft", [
             { label: "Item", type: "select", options: ["Cotton fabric roll", "Packed flour 5kg", "Finished dining chair"], size: 3 },
             { label: "Quantity", type: "text", value: "40 kg", size: 2 },
-            { label: "From", type: "select", options: ["Rack 05 / Bin C-07", "QC Area", "F2 / Zone F / Bin FG-03"], size: 3 },
-            { label: "To", type: "select", options: ["Factory staging / Bin S-02", "F2 / Zone G / Bin FG-11", "Dispatch Bay 1"], size: 4 }
+            { label: "From", type: "select", options: ["Shelf F-01", "QC Area", "F2 / Zone F / Shelf FG-02"], size: 3 },
+            { label: "To", type: "select", options: ["Factory staging / Shelf S-02", "F2 / Zone G / Shelf FG-01", "Dispatch Bay 1"], size: 4 }
         ])}
         <div class="alert alert-success d-none mt-3" data-save-alert>Mock transfer draft saved on this screen.</div>
         ${table(["Transfer", "Item", "Qty", "From", "To", "Reason", "Status"], rows)}

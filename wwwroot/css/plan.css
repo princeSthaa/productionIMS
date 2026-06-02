@@ -1,0 +1,1493 @@
+/* =========================
+   DEMAND TYPE SELECTION PAGE
+========================= */
+
+.demand-choice-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.demand-choice-card {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    transition: 0.2s ease;
+}
+
+.demand-choice-card:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.demand-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+
+    background: var(--primary-soft);
+    color: var(--primary);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1.55rem;
+}
+
+.demand-choice-card h3 {
+    color: var(--text);
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.demand-choice-card p {
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.demand-choice-card ul {
+    padding-left: 18px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 8px;
+}
+
+.demand-choice-card li {
+    margin-bottom: 2px;
+}
+
+.demand-choice-card .btn {
+    margin-top: auto;
+}
+
+/* =========================
+   CREATE CUSTOMER / OUTLET / IN-HOUSE PAGES
+========================= */
+
+.plan-type-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 7px 12px;
+    border-radius: 999px;
+
+    background: var(--primary-soft);
+    color: var(--primary);
+
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+.plan-form-note {
+    margin-top: 14px;
+    padding: 12px 14px;
+
+    background: #f9fafb;
+    border: 1px dashed var(--border-strong);
+    border-radius: 12px;
+
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.plan-source-card {
+    margin-top: 18px;
+    padding: 16px;
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #f9fafb;
+}
+
+.plan-source-card h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.plan-source-card p {
+    margin-top: 4px;
+    color: var(--muted);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1100px) {
+    .demand-choice-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   CUSTOMER ORDER CATALOG PAGE
+========================================================= */
+
+.customer-order-page {
+    max-width: 1440px;
+}
+
+.catalog-hero-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.catalog-hero-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 28px;
+}
+
+.catalog-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.catalog-hero-content h2 {
+    margin: 0;
+    font-size: 28px;
+    color: #111827;
+}
+
+.catalog-hero-content p {
+    margin: 8px 0 0;
+    max-width: 720px;
+    color: #64748b;
+}
+
+.catalog-hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 130px);
+    gap: 12px;
+}
+
+.catalog-hero-stats div {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.catalog-hero-stats span,
+.plan-basket-summary span,
+.catalog-meta-grid span,
+.detail-info-grid span,
+.order-detail-thumbnail-row span,
+.detail-note-box span {
+    display: block;
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 4px;
+}
+
+.catalog-hero-stats strong,
+.plan-basket-summary strong,
+.catalog-meta-grid strong,
+.detail-info-grid strong,
+.order-detail-thumbnail-row strong {
+    display: block;
+    color: #111827;
+    font-size: 15px;
+}
+
+.catalog-filter-card {
+    position: sticky;
+    top: 82px;
+    z-index: 20;
+}
+
+.catalog-filter-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 220px 180px 220px;
+    gap: 16px;
+    align-items: end;
+}
+
+.catalog-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 22px;
+    align-items: start;
+    margin-top: 22px;
+}
+
+.catalog-main {
+    min-width: 0;
+}
+
+.catalog-section-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.catalog-section-header h2,
+.plan-basket-header h2 {
+    margin: 0;
+    color: #111827;
+}
+
+.catalog-section-header p,
+.plan-basket-header p {
+    margin: 4px 0 0;
+    color: #64748b;
+}
+
+.customer-order-catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.customer-order-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.customer-order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.10);
+}
+
+.customer-order-card.selected {
+    border-color: #2563eb;
+    box-shadow: 0 14px 34px rgba(37, 99, 235, 0.16);
+}
+
+.customer-order-image-wrap {
+    position: relative;
+    height: 220px;
+    background: #f1f5f9;
+}
+
+.customer-order-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.catalog-status-chip {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #047857;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+}
+
+.catalog-status-chip.added {
+    color: #1d4ed8;
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.customer-order-card-body {
+    padding: 18px;
+}
+
+.catalog-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.customer-code {
+    font-size: 12px;
+    font-weight: 700;
+    color: #2563eb;
+    background: #eff6ff;
+    padding: 6px 10px;
+    border-radius: 999px;
+}
+
+.customer-order-card-body h3 {
+    margin: 0;
+    color: #111827;
+    font-size: 19px;
+}
+
+.catalog-customer-name {
+    margin: 5px 0 14px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.catalog-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 12px;
+}
+
+.catalog-mini-status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0;
+}
+
+.customer-delivery-warning,
+.customer-delivery-normal,
+.material-shortage,
+.material-ok,
+.priority-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.customer-delivery-warning {
+    color: #b45309;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+}
+
+.customer-delivery-normal {
+    color: #047857;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+}
+
+.material-shortage {
+    color: #b91c1c;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+}
+
+.material-ok {
+    color: #047857;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+}
+
+.priority-urgent {
+    color: #b91c1c;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+}
+
+.priority-normal {
+    color: #1d4ed8;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+}
+
+.priority-seasonal {
+    color: #7c2d12;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+}
+
+.catalog-card-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.catalog-card-actions .btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.plan-basket-panel {
+    position: sticky;
+    top: 180px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 22px;
+    padding: 18px;
+    box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08);
+}
+
+.plan-basket-header {
+    margin-bottom: 14px;
+}
+
+.plan-basket-items {
+    display: grid;
+    gap: 10px;
+    max-height: 340px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.basket-empty-state {
+    padding: 22px;
+    text-align: center;
+    color: #64748b;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 16px;
+}
+
+.basket-item {
+    display: grid;
+    grid-template-columns: 58px 1fr 28px;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+}
+
+.basket-item img {
+    width: 58px;
+    height: 58px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: #e5e7eb;
+}
+
+.basket-item strong {
+    display: block;
+    color: #111827;
+    font-size: 13px;
+}
+
+.basket-item span,
+.basket-item small {
+    display: block;
+    color: #64748b;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.basket-remove-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 999px;
+    background: #fee2e2;
+    color: #b91c1c;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.plan-basket-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 16px 0;
+}
+
+.plan-basket-summary div {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 12px;
+}
+
+.basket-actions {
+    display: grid;
+    gap: 10px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.bulk-material-card {
+    margin-top: 24px;
+}
+
+/* =========================
+   ORDER DETAIL MODAL
+========================= */
+
+.order-detail-modal-panel {
+    width: min(1180px, calc(100vw - 40px));
+}
+
+.order-detail-layout {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.order-detail-media img {
+    width: 100%;
+    height: 420px;
+    object-fit: cover;
+    border-radius: 20px;
+    background: #f1f5f9;
+}
+
+.order-detail-thumbnail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.order-detail-thumbnail-row div,
+.detail-info-grid div,
+.detail-note-box {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 12px;
+}
+
+.detail-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.order-detail-info h3 {
+    margin: 0 0 14px;
+    font-size: 26px;
+    color: #111827;
+}
+
+.detail-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.detail-note-box {
+    margin-bottom: 14px;
+}
+
+.detail-note-box p {
+    margin: 0;
+    color: #475569;
+}
+
+.order-detail-tabs {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 18px;
+    margin-top: 24px;
+}
+
+.detail-section {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 16px;
+}
+
+.full-detail-section {
+    grid-column: 1 / -1;
+}
+
+.detail-section-header {
+    margin-bottom: 12px;
+}
+
+.detail-section-header h3 {
+    margin: 0;
+    color: #111827;
+}
+
+.detail-section-header p {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.compact-table th,
+.compact-table td {
+    padding: 10px;
+    font-size: 13px;
+}
+
+/* =========================
+   CUSTOMER ORDER CATALOG RESPONSIVE
+========================= */
+
+@media (max-width: 1180px) {
+    .catalog-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .plan-basket-panel {
+        position: static;
+    }
+
+    .catalog-filter-card {
+        position: static;
+    }
+
+    .catalog-filter-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .catalog-hero-content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .catalog-hero-stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .customer-order-catalog-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .catalog-filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .catalog-hero-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .order-detail-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .order-detail-media img {
+        height: 280px;
+    }
+
+    .order-detail-tabs {
+        grid-template-columns: 1fr;
+    }
+
+    .catalog-card-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   CUSTOMER ORDER CATALOG UI CLEANUP
+   Paste at the very bottom of wwwroot/css/plan.css
+========================================================= */
+
+/* Page spacing */
+.customer-order-page {
+    max-width: 1500px;
+    padding-bottom: 40px;
+}
+
+/* Make filter normal, not floating over cards */
+.catalog-filter-card {
+    position: static !important;
+    top: auto !important;
+    z-index: auto !important;
+    margin-bottom: 22px;
+    padding: 20px 22px;
+    border-radius: 20px;
+}
+
+/* Cleaner filter row */
+.catalog-filter-grid {
+    display: grid;
+    grid-template-columns: minmax(280px, 1.6fr) 210px 180px 220px;
+    gap: 14px;
+    align-items: end;
+}
+
+.catalog-filter-grid .form-group {
+    margin-bottom: 0;
+}
+
+.catalog-filter-grid label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+}
+
+.catalog-filter-grid .form-control {
+    height: 48px;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+/* Better page layout */
+.catalog-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 24px;
+    align-items: start;
+    margin-top: 0;
+}
+
+/* Left catalog area */
+.catalog-section-header {
+    margin-bottom: 14px;
+}
+
+.catalog-section-header h2 {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.catalog-section-header p {
+    font-size: 14px;
+}
+
+/* Make cards less huge and easier to scan */
+.customer-order-catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
+    gap: 18px;
+}
+
+.customer-order-card {
+    border-radius: 18px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+.customer-order-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.10);
+}
+
+/* Product image: smaller and consistent */
+.customer-order-image-wrap {
+    height: 170px;
+    background: #f8fafc;
+}
+
+.customer-order-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 12px;
+    background: #ffffff;
+}
+
+/* Ready chip */
+.catalog-status-chip {
+    top: 12px;
+    right: 12px;
+    padding: 6px 10px;
+    font-size: 11px;
+}
+
+/* Card body */
+.customer-order-card-body {
+    padding: 16px;
+}
+
+.catalog-card-top {
+    margin-bottom: 10px;
+}
+
+.customer-code,
+.priority-badge {
+    font-size: 11px;
+    padding: 5px 9px;
+}
+
+.customer-order-card-body h3 {
+    font-size: 18px;
+    line-height: 1.3;
+    margin-bottom: 4px;
+}
+
+.catalog-customer-name {
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+/* Reduce heavy info box */
+.catalog-meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 10px;
+    border-radius: 14px;
+}
+
+.catalog-meta-grid span {
+    font-size: 11px;
+}
+
+.catalog-meta-grid strong {
+    font-size: 13px;
+}
+
+/* Status badges should not dominate */
+.catalog-mini-status {
+    margin: 12px 0;
+    gap: 6px;
+}
+
+.customer-delivery-warning,
+.customer-delivery-normal,
+.material-shortage,
+.material-ok {
+    min-height: 24px;
+    padding: 4px 9px;
+    font-size: 11px;
+}
+
+/* Buttons cleaner */
+.catalog-card-actions {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.catalog-card-actions .btn {
+    min-height: 42px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Basket: smaller and not oversized */
+.plan-basket-panel {
+    position: sticky;
+    top: 24px;
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.plan-basket-header h2 {
+    font-size: 24px;
+    line-height: 1.15;
+    margin-bottom: 6px;
+}
+
+.plan-basket-header p {
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.plan-basket-items {
+    max-height: 250px;
+}
+
+.basket-empty-state {
+    padding: 18px;
+    font-size: 13px;
+    border-radius: 14px;
+}
+
+/* Basket summary smaller */
+.plan-basket-summary {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 14px 0;
+}
+
+.plan-basket-summary div {
+    padding: 10px;
+    border-radius: 12px;
+}
+
+.plan-basket-summary span {
+    font-size: 11px;
+}
+
+.plan-basket-summary strong {
+    font-size: 14px;
+}
+
+/* Basket buttons */
+.basket-actions .btn {
+    min-height: 44px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Make the hero less tall */
+.catalog-hero-card {
+    padding: 22px;
+    margin-bottom: 18px;
+}
+
+.catalog-hero-content h2 {
+    font-size: 24px;
+}
+
+.catalog-hero-content p {
+    font-size: 14px;
+}
+
+.catalog-hero-stats {
+    grid-template-columns: repeat(3, 115px);
+}
+
+.catalog-hero-stats div {
+    padding: 12px;
+    border-radius: 14px;
+}
+
+.catalog-hero-stats span {
+    font-size: 11px;
+}
+
+.catalog-hero-stats strong {
+    font-size: 16px;
+}
+
+/* Material table spacing */
+.bulk-material-card {
+    margin-top: 24px;
+}
+
+/* Detail modal cleaner */
+.order-detail-modal-panel {
+    max-height: 92vh;
+    overflow-y: auto;
+}
+
+.order-detail-media img {
+    object-fit: contain;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+}
+
+/* Responsive */
+@media (max-width: 1250px) {
+    .catalog-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .plan-basket-panel {
+        position: static;
+        order: -1;
+    }
+
+    .plan-basket-summary {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 1000px) {
+    .catalog-filter-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .customer-order-catalog-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .catalog-hero-content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .catalog-hero-stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .catalog-filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .plan-basket-summary {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .catalog-hero-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .catalog-card-actions {
+        grid-template-columns: 1fr;
+    }
+}
+/* =========================================================
+   CUSTOMER ORDER CATALOG FINAL LAYOUT FIX
+   Paste at the very bottom of wwwroot/css/plan.css
+========================================================= */
+
+/* Make whole content use space better */
+.customer-order-page {
+    max-width: 1560px;
+    margin: 0 auto;
+}
+
+/* Better main layout: wider catalog, smaller basket */
+.catalog-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 24px;
+    align-items: start;
+}
+
+/* Cards should be 3 columns on large screens */
+.customer-order-catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+/* Card should not look too tall */
+.customer-order-card {
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+/* Product image smaller and centered */
+.customer-order-image-wrap {
+    height: 150px;
+    background: #ffffff;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.customer-order-image-wrap img {
+    object-fit: contain;
+    padding: 14px;
+    background: #ffffff;
+}
+
+/* Reduce card body spacing */
+.customer-order-card-body {
+    padding: 14px;
+}
+
+.customer-order-card-body h3 {
+    font-size: 16px;
+    line-height: 1.25;
+}
+
+.catalog-customer-name {
+    font-size: 13px;
+    margin: 4px 0 10px;
+}
+
+/* Make order no + priority smaller */
+.catalog-card-top {
+    margin-bottom: 8px;
+}
+
+.customer-code,
+.priority-badge {
+    font-size: 10.5px;
+    padding: 5px 8px;
+}
+
+/* Compact info grid */
+.catalog-meta-grid {
+    padding: 10px;
+    gap: 8px;
+}
+
+.catalog-meta-grid span {
+    font-size: 10.5px;
+}
+
+.catalog-meta-grid strong {
+    font-size: 12.5px;
+}
+
+/* Compact status row */
+.catalog-mini-status {
+    margin: 10px 0;
+}
+
+.customer-delivery-warning,
+.customer-delivery-normal,
+.material-shortage,
+.material-ok {
+    font-size: 10.5px;
+    min-height: 24px;
+    padding: 4px 8px;
+}
+
+/* Better buttons */
+.catalog-card-actions {
+    gap: 8px;
+}
+
+.catalog-card-actions .btn {
+    min-height: 40px;
+    font-size: 13px;
+    border-radius: 11px;
+}
+
+/* Basket panel more compact */
+.plan-basket-panel {
+    width: 340px;
+    padding: 16px;
+    border-radius: 20px;
+}
+
+.plan-basket-header h2 {
+    font-size: 22px;
+    line-height: 1.2;
+}
+
+.plan-basket-header p {
+    font-size: 13px;
+}
+
+/* Smaller empty state */
+.basket-empty-state {
+    padding: 16px;
+    font-size: 13px;
+}
+
+/* Compact basket summary */
+.plan-basket-summary {
+    gap: 8px;
+}
+
+.plan-basket-summary div {
+    padding: 10px;
+}
+
+.plan-basket-summary span {
+    font-size: 10.5px;
+}
+
+.plan-basket-summary strong {
+    font-size: 14px;
+}
+
+/* Basket buttons */
+.basket-actions .btn {
+    min-height: 42px;
+    font-size: 13.5px;
+}
+
+/* Bulk material table should align below both columns */
+.bulk-material-card {
+    margin-top: 28px;
+}
+
+/* If only one or two cards are visible, keep them small instead of stretching */
+.customer-order-catalog-grid .customer-order-card {
+    max-width: 420px;
+}
+
+/* Medium screens */
+@media (max-width: 1400px) {
+    .customer-order-catalog-grid {
+        grid-template-columns: repeat(2, minmax(280px, 1fr));
+    }
+}
+
+/* Tablet */
+@media (max-width: 1100px) {
+    .catalog-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .plan-basket-panel {
+        width: 100%;
+        position: static;
+    }
+
+    .customer-order-catalog-grid {
+        grid-template-columns: repeat(2, minmax(260px, 1fr));
+    }
+
+    .customer-order-catalog-grid .customer-order-card {
+        max-width: none;
+    }
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+    .customer-order-catalog-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   PRODUCTION PLAN BASKET IMPROVEMENT
+   Paste at the very bottom of wwwroot/css/plan.css
+========================================================= */
+
+.plan-basket-panel {
+    width: 340px;
+    position: sticky;
+    top: 24px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
+    padding: 18px;
+    box-shadow: 0 14px 40px rgba(15, 23, 42, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Header */
+.plan-basket-header {
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.plan-basket-header h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    color: #111827;
+    line-height: 1.2;
+}
+
+.plan-basket-header p {
+    margin: 6px 0 0;
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+/* Selected items area */
+.plan-basket-items {
+    display: grid;
+    gap: 10px;
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+/* Empty state */
+.basket-empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 84px;
+    padding: 18px;
+    text-align: center;
+    color: #64748b;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px dashed #cbd5e1;
+    border-radius: 18px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Basket items */
+.basket-item {
+    display: grid;
+    grid-template-columns: 56px 1fr 28px;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    transition: 0.2s ease;
+}
+
+.basket-item:hover {
+    border-color: #cbd5e1;
+    background: #ffffff;
+}
+
+.basket-item img {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: #e5e7eb;
+    border: 1px solid #e5e7eb;
+}
+
+.basket-item strong {
+    display: block;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.basket-item span {
+    display: block;
+    margin-top: 3px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.basket-item small {
+    display: block;
+    margin-top: 4px;
+    color: #475569;
+    font-size: 11.5px;
+    font-weight: 600;
+}
+
+/* Remove button */
+.basket-remove-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 999px;
+    background: #fee2e2;
+    color: #b91c1c;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s ease;
+}
+
+.basket-remove-btn:hover {
+    background: #fecaca;
+}
+
+/* Summary grid */
+.plan-basket-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.plan-basket-summary div {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 12px;
+    min-height: 76px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.plan-basket-summary span {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.plan-basket-summary strong {
+    display: block;
+    font-size: 15px;
+    color: #111827;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+/* Material status emphasis */
+#basketMaterialStatus {
+    color: #0f172a;
+}
+
+#basketMaterialStatus.material-ok-text {
+    color: #047857;
+}
+
+#basketMaterialStatus.material-shortage-text {
+    color: #b91c1c;
+}
+
+/* Buttons area */
+.basket-actions {
+    display: grid;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.basket-actions .btn {
+    width: 100%;
+    min-height: 46px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Primary action */
+.basket-actions .btn.btn-primary {
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
+}
+
+/* Secondary action */
+.basket-actions .btn.btn-outline {
+    background: #ffffff;
+}
+
+/* Danger action should be softer */
+.basket-actions .btn.btn-danger-light {
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    color: #dc2626;
+}
+
+.basket-actions .btn.btn-danger-light:hover {
+    background: #ffe4e6;
+}
+
+/* Better spacing on long screens */
+.plan-basket-panel > *:last-child {
+    margin-bottom: 0;
+}
+
+/* Scrollbar polish */
+.plan-basket-items::-webkit-scrollbar {
+    width: 8px;
+}
+
+.plan-basket-items::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 999px;
+}
+
+.plan-basket-items::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Tablet / smaller screens */
+@media (max-width: 1100px) {
+    .plan-basket-panel {
+        width: 100%;
+        position: static;
+    }
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+    .plan-basket-summary {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .plan-basket-header h2 {
+        font-size: 20px;
+    }
+}
