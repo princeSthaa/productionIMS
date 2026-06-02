@@ -1,0 +1,758 @@
+document.addEventListener("DOMContentLoaded", function () {
+    const catalogItems = window.outletDemandCatalogData || window.outletDemands || [];
+    const materials = window.materialMasterData || window.materials || window.materialsData || [];
+    const bomData = window.bomMasterData || window.bomData || window.boms || [];
+
+    let selectedPlanItems = [];
+    let activeDetailItem = null;
+
+    const outletSearch = document.getElementById("outletSearch");
+    const outletFilter = document.getElementById("outletFilter");
+    const stockStatusFilter = document.getElementById("stockStatusFilter");
+    const velocityFilter = document.getElementById("velocityFilter");
+    const outletSort = document.getElementById("outletSort");
+    const catalogGrid = document.getElementById("outletDemandCatalogGrid");
+
+    const selectedDraftJson = document.getElementById("selectedOutletDraftJson");
+
+    const selectedItemCount = document.getElementById("outletSelectedItemCount");
+    const selectedTotalQty = document.getElementById("outletSelectedTotalQty");
+    const selectedEarliestDate = document.getElementById("outletSelectedEarliestDate");
+
+    const basketTotalItems = document.getElementById("outletBasketTotalItems");
+    const basketTotalQty = document.getElementById("outletBasketTotalQty");
+    const basketEarliestDate = document.getElementById("outletBasketEarliestDate");
+    const basketMaterialStatus = document.getElementById("outletBasketMaterialStatus");
+    const planBasketItems = document.getElementById("outletPlanBasketItems");
+
+    const checkBulkMaterialBtn = document.getElementById("checkOutletBulkMaterialBtn");
+    const clearBasketBtn = document.getElementById("clearOutletBasketBtn");
+    const bulkMaterialBody = document.getElementById("outletBulkMaterialBody");
+    const productionPlanForm = document.getElementById("outletProductionPlanForm");
+
+    const outletDetailModal = document.getElementById("outletDetailModal");
+    const addDetailToPlanBtn = document.getElementById("addOutletDetailToPlanBtn");
+
+    initialize();
+
+    function initialize() {
+        renderCatalog();
+        renderBasket();
+
+        [outletSearch, outletFilter, stockStatusFilter, velocityFilter, outletSort].forEach(function (element) {
+            if (element) {
+                element.addEventListener("input", renderCatalog);
+                element.addEventListener("change", renderCatalog);
+            }
+        });
+
+        document.querySelectorAll("[data-close-modal]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                const modalId = this.getAttribute("data-close-modal");
+                closeModal(modalId);
+            });
+        });
+
+        if (addDetailToPlanBtn) {
+            addDetailToPlanBtn.addEventListener("click", function () {
+                if (activeDetailItem) {
+                    addToPlan(activeDetailItem.id);
+                    closeModal("outletDetailModal");
+                }
+            });
+        }
+
+        if (checkBulkMaterialBtn) {
+            checkBulkMaterialBtn.addEventListener("click", checkBulkMaterials);
+        }
+
+        if (clearBasketBtn) {
+            clearBasketBtn.addEventListener("click", function () {
+                if (!selectedPlanItems.length) return;
+
+                if (confirm("Clear all selected outlet demand items?")) {
+                    selectedPlanItems = [];
+                    renderBasket();
+                    renderCatalog();
+                    resetBulkMaterialTable();
+                }
+            });
+        }
+
+        if (productionPlanForm) {
+            productionPlanForm.addEventListener("submit", function (event) {
+                if (!selectedPlanItems.length) {
+                    event.preventDefault();
+                    alert("Please add at least one outlet demand item to the production plan.");
+                    return;
+                }
+
+                selectedDraftJson.value = JSON.stringify(selectedPlanItems);
+            });
+        }
+    }
+
+    function renderCatalog() {
+        if (!catalogGrid) return;
+
+        let filtered = catalogItems.map(normalizeOutletDemandItem);
+
+        const searchText = outletSearch ? outletSearch.value.toLowerCase().trim() : "";
+        const outletValue = outletFilter ? outletFilter.value : "";
+        const statusValue = stockStatusFilter ? stockStatusFilter.value : "";
+        const velocityValue = velocityFilter ? velocityFilter.value : "";
+        const sortValue = outletSort ? outletSort.value : "requiredDate";
+
+        if (searchText) {
+            filtered = filtered.filter(function (item) {
+                return item.demandNo.toLowerCase().includes(searchText) ||
+                    item.outletName.toLowerCase().includes(searchText) ||
+                    item.outletLocation.toLowerCase().includes(searchText) ||
+                    item.productName.toLowerCase().includes(searchText) ||
+                    item.productCode.toLowerCase().includes(searchText) ||
+                    item.category.toLowerCase().includes(searchText);
+            });
+        }
+
+        if (outletValue) {
+            filtered = filtered.filter(function (item) {
+                return item.outletName === outletValue;
+            });
+        }
+
+        if (statusValue) {
+            filtered = filtered.filter(function (item) {
+                return item.stockStatus === statusValue;
+            });
+        }
+
+        if (velocityValue) {
+            filtered = filtered.filter(function (item) {
+                return item.salesVelocity === velocityValue;
+            });
+        }
+
+        filtered.sort(function (a, b) {
+            if (sortValue === "stockGapHigh") {
+                return b.stockGap - a.stockGap;
+            }
+
+            if (sortValue === "salesVelocity") {
+                return getVelocityWeight(a.salesVelocity) - getVelocityWeight(b.salesVelocity);
+            }
+
+            if (sortValue === "outletName") {
+                return a.outletName.localeCompare(b.outletName);
+            }
+
+            return new Date(a.requiredDate) - new Date(b.requiredDate);
+        });
+
+        if (!filtered.length) {
+            catalogGrid.innerHTML = `
+                <div class="empty-cell">
+                    No outlet demand items found.
+                </div>
+            `;
+            return;
+        }
+
+        catalogGrid.innerHTML = filtered.map(function (item) {
+            const isSelected = selectedPlanItems.some(function (selected) {
+                return Number(selected.id) === Number(item.id);
+            });
+
+            const materialPreview = getItemMaterialPreview(item);
+            const requiredClass = getDateBadgeClass(item.requiredDate);
+            const stockClass = getStockStatusClass(item.stockStatus);
+            const velocityClass = getVelocityClass(item.salesVelocity);
+
+            return `
+                <article class="customer-order-card outlet-demand-card ${isSelected ? "selected" : ""}">
+                    <div class="customer-order-image-wrap">
+                        <img src="${escapeHtml(item.productImage)}"
+                             alt="${escapeHtml(item.productName)}"
+                             onerror="this.src='/images/placeholder-product.png'" />
+
+                        <span class="catalog-status-chip ${isSelected ? "added" : ""}">
+                            ${isSelected ? "Added" : "Ready"}
+                        </span>
+                    </div>
+
+                    <div class="customer-order-card-body">
+                        <div class="catalog-card-top">
+                            <span class="customer-code">${escapeHtml(item.demandNo)}</span>
+                            <span class="${stockClass}">${escapeHtml(item.stockStatus)}</span>
+                        </div>
+
+                        <h3>${escapeHtml(item.productName)}</h3>
+
+                        <p class="catalog-customer-name">
+                            ${escapeHtml(item.outletName)}
+                        </p>
+
+                        <div class="catalog-meta-grid">
+                            <div>
+                                <span>Current Stock</span>
+                                <strong>${formatNumber(item.currentStock)} pcs</strong>
+                            </div>
+                            <div>
+                                <span>Suggested Qty</span>
+                                <strong>${formatNumber(item.suggestedQty)} pcs</strong>
+                            </div>
+                            <div>
+                                <span>Required</span>
+                                <strong>${formatDate(item.requiredDate)}</strong>
+                            </div>
+                            <div>
+                                <span>Sales Velocity</span>
+                                <strong>${escapeHtml(item.salesVelocity)}</strong>
+                            </div>
+                        </div>
+
+                        <div class="catalog-mini-status">
+                            <span class="${requiredClass}">
+                                ${getDateStatusText(item.requiredDate)}
+                            </span>
+
+                            <span class="${velocityClass}">
+                                ${escapeHtml(item.salesVelocity)} moving
+                            </span>
+
+                            <span class="${materialPreview.hasShortage ? "material-shortage" : "material-ok"}">
+                                ${materialPreview.label}
+                            </span>
+                        </div>
+
+                        <div class="catalog-card-actions">
+                            <button type="button"
+                                    class="btn btn-light outlet-view-detail-btn"
+                                    data-id="${item.id}">
+                                View Details
+                            </button>
+
+                            <button type="button"
+                                    class="btn btn-primary outlet-add-plan-btn"
+                                    data-id="${item.id}"
+                                    ${isSelected ? "disabled" : ""}>
+                                ${isSelected ? "Added" : "Add to Plan"}
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }).join("");
+
+        document.querySelectorAll(".outlet-view-detail-btn").forEach(function (button) {
+            button.addEventListener("click", function () {
+                openDetailModal(Number(this.getAttribute("data-id")));
+            });
+        });
+
+        document.querySelectorAll(".outlet-add-plan-btn").forEach(function (button) {
+            button.addEventListener("click", function () {
+                addToPlan(Number(this.getAttribute("data-id")));
+            });
+        });
+    }
+
+    function openDetailModal(id) {
+        const item = catalogItems.map(normalizeOutletDemandItem).find(function (catalogItem) {
+            return Number(catalogItem.id) === Number(id);
+        });
+
+        if (!item) return;
+
+        activeDetailItem = item;
+
+        setText("outletDetailProductName", item.productName);
+        setText("outletDetailSubtitle", `${item.demandNo} • ${item.outletName}`);
+        setText("outletDetailOutletName", item.outletName);
+        setText("outletDetailDemandNo", item.demandNo);
+        setText("outletDetailStockStatus", item.stockStatus);
+        setText("outletDetailVelocity", `${item.salesVelocity} Moving`);
+        setText("outletDetailRequiredBadge", getDateStatusText(item.requiredDate));
+        setText("outletDetailItemName", item.productName);
+
+        setText("outletDetailCurrentStock", `${formatNumber(item.currentStock)} pcs`);
+        setText("outletDetailReorderLevel", `${formatNumber(item.reorderLevel)} pcs`);
+        setText("outletDetailSuggestedQty", `${formatNumber(item.suggestedQty)} pcs`);
+        setText("outletDetailRequiredDate", formatDate(item.requiredDate));
+        setText("outletDetailLast30Sales", `${formatNumber(item.last30DaysSales)} pcs`);
+        setText("outletDetailLocation", item.outletLocation);
+        setText("outletDetailNotes", item.planningNotes);
+
+        setText("outletDetailLast7Sales", `${formatNumber(item.last7DaysSales)} pcs`);
+        setText("outletDetailSales30Box", `${formatNumber(item.last30DaysSales)} pcs`);
+        setText("outletDetailAvgDailySales", `${formatNumber(item.avgDailySales)} pcs/day`);
+
+        const image = document.getElementById("outletDetailProductImage");
+        if (image) {
+            image.src = item.productImage;
+            image.alt = item.productName;
+        }
+
+        const stockElement = document.getElementById("outletDetailStockStatus");
+        if (stockElement) {
+            stockElement.className = getStockStatusClass(item.stockStatus);
+        }
+
+        const velocityElement = document.getElementById("outletDetailVelocity");
+        if (velocityElement) {
+            velocityElement.className = getVelocityClass(item.salesVelocity);
+        }
+
+        const requiredElement = document.getElementById("outletDetailRequiredBadge");
+        if (requiredElement) {
+            requiredElement.className = getDateBadgeClass(item.requiredDate);
+        }
+
+        renderDetailSizeGaps(item);
+        renderDetailMaterials(item);
+
+        if (outletDetailModal) {
+            outletDetailModal.classList.remove("hidden");
+        }
+    }
+
+    function renderDetailSizeGaps(item) {
+        const body = document.getElementById("outletDetailSizeGapBody");
+        if (!body) return;
+
+        if (!item.sizeGaps.length) {
+            body.innerHTML = `<tr><td colspan="4" class="empty-cell">No size gap data.</td></tr>`;
+            return;
+        }
+
+        body.innerHTML = item.sizeGaps.map(function (row) {
+            return `
+                <tr>
+                    <td>${escapeHtml(row.size)}</td>
+                    <td>${formatNumber(row.currentStock)}</td>
+                    <td>${formatNumber(row.reorderLevel)}</td>
+                    <td>${formatNumber(row.suggestedQty)}</td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    function renderDetailMaterials(item) {
+        const body = document.getElementById("outletDetailMaterialBody");
+        if (!body) return;
+
+        const rows = calculateMaterialRequirementForItems([item]);
+
+        if (!rows.length) {
+            body.innerHTML = `<tr><td colspan="5" class="empty-cell">No BOM/material data found.</td></tr>`;
+            return;
+        }
+
+        body.innerHTML = rows.map(function (row) {
+            return `
+                <tr>
+                    <td>${escapeHtml(row.materialName)}</td>
+                    <td>${formatNumber(row.requiredQty)} ${escapeHtml(row.unit)}</td>
+                    <td>${formatNumber(row.availableQty)} ${escapeHtml(row.unit)}</td>
+                    <td>${formatNumber(row.shortageQty)} ${escapeHtml(row.unit)}</td>
+                    <td>
+                        <span class="${row.shortageQty > 0 ? "badge badge-danger" : "badge badge-success"}">
+                            ${row.shortageQty > 0 ? "Shortage" : "Available"}
+                        </span>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    function addToPlan(id) {
+        const item = catalogItems.map(normalizeOutletDemandItem).find(function (catalogItem) {
+            return Number(catalogItem.id) === Number(id);
+        });
+
+        if (!item) return;
+
+        const alreadyAdded = selectedPlanItems.some(function (selected) {
+            return Number(selected.id) === Number(id);
+        });
+
+        if (alreadyAdded) {
+            alert("This outlet demand item is already added to the production plan.");
+            return;
+        }
+
+        selectedPlanItems.push(item);
+        renderBasket();
+        renderCatalog();
+        resetBulkMaterialTable();
+    }
+
+    function removeFromPlan(id) {
+        selectedPlanItems = selectedPlanItems.filter(function (item) {
+            return Number(item.id) !== Number(id);
+        });
+
+        renderBasket();
+        renderCatalog();
+        resetBulkMaterialTable();
+    }
+
+    function renderBasket() {
+        if (!planBasketItems) return;
+
+        if (!selectedPlanItems.length) {
+            planBasketItems.innerHTML = `
+                <div class="basket-empty-state">
+                    No outlet demand items added yet.
+                </div>
+            `;
+        } else {
+            planBasketItems.innerHTML = selectedPlanItems.map(function (item) {
+                return `
+                    <div class="basket-item">
+                        <img src="${escapeHtml(item.productImage)}"
+                             alt="${escapeHtml(item.productName)}"
+                             onerror="this.src='/images/placeholder-product.png'" />
+
+                        <div>
+                            <strong>${escapeHtml(item.productName)}</strong>
+                            <span>${escapeHtml(item.outletName)}</span>
+                            <small>${formatNumber(item.suggestedQty)} pcs • ${formatDate(item.requiredDate)}</small>
+                        </div>
+
+                        <button type="button"
+                                class="basket-remove-btn"
+                                data-id="${item.id}">
+                            ×
+                        </button>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        document.querySelectorAll(".basket-remove-btn").forEach(function (button) {
+            button.addEventListener("click", function () {
+                removeFromPlan(Number(this.getAttribute("data-id")));
+            });
+        });
+
+        updateBasketSummary();
+    }
+
+    function updateBasketSummary() {
+        const totalItems = selectedPlanItems.length;
+        const totalQty = selectedPlanItems.reduce(function (sum, item) {
+            return sum + Number(item.suggestedQty || 0);
+        }, 0);
+
+        const earliestDate = selectedPlanItems.length
+            ? selectedPlanItems.map(function (item) {
+                return item.requiredDate;
+            }).sort()[0]
+            : null;
+
+        setText("outletSelectedItemCount", totalItems);
+        setText("outletSelectedTotalQty", formatNumber(totalQty));
+        setText("outletSelectedEarliestDate", earliestDate ? formatDate(earliestDate) : "-");
+
+        setText("outletBasketTotalItems", totalItems);
+        setText("outletBasketTotalQty", formatNumber(totalQty));
+        setText("outletBasketEarliestDate", earliestDate ? formatDate(earliestDate) : "-");
+
+        if (selectedDraftJson) {
+            selectedDraftJson.value = JSON.stringify(selectedPlanItems);
+        }
+    }
+
+    function checkBulkMaterials() {
+        if (!selectedPlanItems.length) {
+            alert("Please add at least one outlet demand item to the production plan first.");
+            return;
+        }
+
+        const rows = calculateMaterialRequirementForItems(selectedPlanItems);
+
+        if (!rows.length) {
+            bulkMaterialBody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty-cell">
+                        No BOM/material data found for selected outlet demand items.
+                    </td>
+                </tr>
+            `;
+
+            setText("outletBasketMaterialStatus", "No BOM found");
+            return;
+        }
+
+        const hasShortage = rows.some(function (row) {
+            return row.shortageQty > 0;
+        });
+
+        bulkMaterialBody.innerHTML = rows.map(function (row) {
+            return `
+                <tr>
+                    <td>${escapeHtml(row.materialCode)}</td>
+                    <td>${escapeHtml(row.materialName)}</td>
+                    <td>${escapeHtml(row.materialType)}</td>
+                    <td>${formatNumber(row.requiredQty)}</td>
+                    <td>${formatNumber(row.availableQty)}</td>
+                    <td>${formatNumber(row.shortageQty)}</td>
+                    <td>${escapeHtml(row.unit)}</td>
+                    <td>
+                        <span class="${row.shortageQty > 0 ? "badge badge-danger" : "badge badge-success"}">
+                            ${row.shortageQty > 0 ? "Shortage" : "Available"}
+                        </span>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+
+        setText("outletBasketMaterialStatus", hasShortage ? "Shortage" : "Available");
+    }
+
+    function calculateMaterialRequirementForItems(items) {
+        const grouped = {};
+
+        items.forEach(function (item) {
+            const itemBomRows = getBomRowsForProduct(item.productId);
+
+            itemBomRows.forEach(function (bom) {
+                const material = getMaterialById(bom.materialId);
+                const requiredQty =
+                    Number(item.suggestedQty || 0) *
+                    Number(bom.qtyPerUnit || 0) *
+                    (1 + Number(bom.wastagePercent || 0) / 100);
+
+                if (!grouped[material.id]) {
+                    grouped[material.id] = {
+                        materialId: material.id,
+                        materialCode: material.code,
+                        materialName: material.name,
+                        materialType: material.type,
+                        unit: material.unit,
+                        requiredQty: 0,
+                        availableQty: Number(material.availableQty || 0),
+                        shortageQty: 0
+                    };
+                }
+
+                grouped[material.id].requiredQty += requiredQty;
+            });
+        });
+
+        return Object.values(grouped).map(function (row) {
+            row.shortageQty = Math.max(row.requiredQty - row.availableQty, 0);
+            return row;
+        });
+    }
+
+    function getBomRowsForProduct(productId) {
+        return bomData.map(normalizeBomRow).filter(function (row) {
+            return String(row.productId) === String(productId);
+        });
+    }
+
+    function normalizeBomRow(row) {
+        return {
+            productId: row.productId || row.ProductId || row.productCode || row.ProductCode || "",
+            materialId: row.materialId || row.MaterialId || row.materialCode || row.MaterialCode || "",
+            qtyPerUnit: Number(row.qtyPerUnit || row.quantityPerUnit || row.requiredQty || row.RequiredQty || 0),
+            wastagePercent: Number(row.wastagePercent || row.WastagePercent || 0)
+        };
+    }
+
+    function getMaterialById(materialId) {
+        const material = materials.map(normalizeMaterial).find(function (row) {
+            return String(row.id) === String(materialId) || String(row.code) === String(materialId);
+        });
+
+        return material || {
+            id: materialId,
+            code: materialId,
+            name: "Unknown Material",
+            type: "Material",
+            unit: "pcs",
+            availableQty: 0
+        };
+    }
+
+    function normalizeMaterial(material) {
+        return {
+            id: material.id || material.materialId || material.MaterialId || material.code || material.materialCode || "",
+            code: material.code || material.materialCode || material.MaterialCode || "",
+            name: material.name || material.materialName || material.MaterialName || "Material",
+            type: material.type || material.materialType || material.MaterialType || "Material",
+            unit: material.unit || material.uom || material.Unit || "pcs",
+            availableQty: Number(material.availableQty || material.currentStock || material.stock || material.AvailableQty || 0)
+        };
+    }
+
+    function getItemMaterialPreview(item) {
+        const rows = calculateMaterialRequirementForItems([item]);
+
+        if (!rows.length) {
+            return {
+                hasShortage: false,
+                label: "BOM not set"
+            };
+        }
+
+        const hasShortage = rows.some(function (row) {
+            return row.shortageQty > 0;
+        });
+
+        return {
+            hasShortage: hasShortage,
+            label: hasShortage ? "Material shortage" : "Material ready"
+        };
+    }
+
+    function resetBulkMaterialTable() {
+        if (!bulkMaterialBody) return;
+
+        bulkMaterialBody.innerHTML = `
+            <tr>
+                <td colspan="8" class="empty-cell">
+                    Add outlet demand items to plan basket, then click Check Materials in Bulk.
+                </td>
+            </tr>
+        `;
+
+        setText("outletBasketMaterialStatus", "Not checked");
+    }
+
+    function normalizeOutletDemandItem(item) {
+        return {
+            id: item.id || item.demandItemId || 0,
+            demandNo: item.demandNo || "DEMAND",
+            outletId: item.outletId || 0,
+            outletCode: item.outletCode || "",
+            outletName: item.outletName || "",
+            outletLocation: item.outletLocation || "",
+            outletManager: item.outletManager || "",
+            phone: item.phone || "",
+
+            productId: item.productId || item.productCode || "",
+            productCode: item.productCode || item.productId || "",
+            productName: item.productName || "",
+            category: item.category || "",
+            variant: item.variant || "",
+            productImage: item.productImage || "/images/placeholder-product.png",
+
+            currentStock: Number(item.currentStock || 0),
+            reorderLevel: Number(item.reorderLevel || 0),
+            maxStock: Number(item.maxStock || 0),
+            stockGap: Number(item.stockGap || 0),
+            suggestedQty: Number(item.suggestedQty || 0),
+
+            last7DaysSales: Number(item.last7DaysSales || 0),
+            last30DaysSales: Number(item.last30DaysSales || 0),
+            avgDailySales: Number(item.avgDailySales || 0),
+            salesVelocity: item.salesVelocity || "Normal",
+
+            stockStatus: item.stockStatus || "Low Stock",
+            requiredDate: item.requiredDate || "",
+            priority: item.priority || "Normal",
+            materialStatus: item.materialStatus || "Unchecked",
+            planningNotes: item.planningNotes || "No planning notes.",
+            sizeGaps: item.sizeGaps || []
+        };
+    }
+
+    function getStockStatusClass(status) {
+        if (status === "Critical") return "priority-badge priority-urgent";
+        if (status === "Reorder Soon") return "priority-badge priority-seasonal";
+        return "priority-badge priority-normal";
+    }
+
+    function getVelocityClass(velocity) {
+        if (velocity === "Fast") return "material-shortage";
+        if (velocity === "Slow") return "customer-delivery-normal";
+        return "material-ok";
+    }
+
+    function getVelocityWeight(velocity) {
+        if (velocity === "Fast") return 1;
+        if (velocity === "Normal") return 2;
+        return 3;
+    }
+
+    function getDateBadgeClass(dateValue) {
+        const diffDays = getDiffDays(dateValue);
+
+        if (diffDays < 0 || diffDays <= 7) {
+            return "customer-delivery-warning";
+        }
+
+        return "customer-delivery-normal";
+    }
+
+    function getDateStatusText(dateValue) {
+        const diffDays = getDiffDays(dateValue);
+
+        if (!dateValue) return "No required date";
+        if (diffDays < 0) return "Overdue";
+        if (diffDays === 0) return "Due today";
+        if (diffDays <= 7) return `${diffDays} days left`;
+
+        return "On schedule";
+    }
+
+    function getDiffDays(dateValue) {
+        if (!dateValue) return 9999;
+
+        const today = new Date();
+        const date = new Date(dateValue);
+        today.setHours(0, 0, 0, 0);
+        date.setHours(0, 0, 0, 0);
+
+        return Math.ceil((date - today) / (1000 * 60 * 60 * 24));
+    }
+
+    function formatDate(dateValue) {
+        if (!dateValue) return "-";
+
+        const date = new Date(dateValue);
+
+        if (Number.isNaN(date.getTime())) {
+            return dateValue;
+        }
+
+        return date.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        });
+    }
+
+    function formatNumber(value) {
+        return Number(value || 0).toLocaleString("en-US", {
+            maximumFractionDigits: 2
+        });
+    }
+
+    function setText(id, value) {
+        const element = document.getElementById(id);
+
+        if (element) {
+            element.textContent = value;
+        }
+    }
+
+    function closeModal(id) {
+        const modal = document.getElementById(id);
+
+        if (modal) {
+            modal.classList.add("hidden");
+        }
+    }
+
+    function escapeHtml(value) {
+        return String(value || "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+});
