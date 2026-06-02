@@ -29,7 +29,7 @@
 
   <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
-  <link rel="stylesheet" href="~/css/production-plans.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/sub-dashboard.css" asp-append-version="true" />
 </head>
 
 <body class="app-body">
@@ -44,6 +44,10 @@
 
       <nav class="top-nav">
         <a asp-page="/Index" class='@IsActive("/Index")'>Dashboard</a>
+
+        <a asp-page="/CRM/Index" class="@IsActive("/CRM")">
+          CRM
+        </a>
 
         <a asp-page="/Production/Index" class='@IsActive("/Production")'>
           Production
@@ -92,6 +96,7 @@
   </main>
 
   <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="~/js/nepali-datepicker-init.js" asp-append-version="true"></script>
 
   @await RenderSectionAsync("Scripts", required: false)
 
