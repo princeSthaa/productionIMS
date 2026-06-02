@@ -1,178 +1,147 @@
 <section class="pp-card">
-    <div class="pp-card-header">
-        <div>
-            <h2>Size Breakdown</h2>
-            <p>Total size quantity must match total production quantity.</p>
-        </div>
+  <div class="pp-card-header">
+    <div>
+      <h2>Size Breakdown</h2>
+      <p>Total size quantity must match total production quantity.</p>
+    </div>
+  </div>
+
+  <div class="size-grid">
+    <div class="form-group">
+      <label>XS</label>
+      <input type="number" min="0" name="SizeXS" id="sizeXS" class="form-control size-input" value="0" />
     </div>
 
-    <div class="size-grid">
-        <div class="form-group">
-            <label>XS</label>
-            <input type="number" min="0" name="SizeXS" id="sizeXS" class="form-control size-input" value="0" />
-        </div>
-
-        <div class="form-group">
-            <label>S</label>
-            <input type="number" min="0" name="SizeS" id="sizeS" class="form-control size-input" value="0" />
-        </div>
-
-        <div class="form-group">
-            <label>M</label>
-            <input type="number" min="0" name="SizeM" id="sizeM" class="form-control size-input" value="0" />
-        </div>
-
-        <div class="form-group">
-            <label>L</label>
-            <input type="number" min="0" name="SizeL" id="sizeL" class="form-control size-input" value="0" />
-        </div>
-
-        <div class="form-group">
-            <label>XL</label>
-            <input type="number" min="0" name="SizeXL" id="sizeXL" class="form-control size-input" value="0" />
-        </div>
-
-        <div class="form-group">
-            <label>XXL</label>
-            <input type="number" min="0" name="SizeXXL" id="sizeXXL" class="form-control size-input" value="0" />
-        </div>
+    <div class="form-group">
+      <label>S</label>
+      <input type="number" min="0" name="SizeS" id="sizeS" class="form-control size-input" value="0" />
     </div>
 
-    <div class="calculation-strip">
-        <div>
-            <span>Total Size Quantity</span>
-            <strong id="sizeTotal">0</strong>
-        </div>
-
-        <div>
-            <span>Difference</span>
-            <strong id="sizeDifference">0</strong>
-        </div>
-
-        <div id="sizeValidationMessage" class="validation-message warning">
-            Enter total quantity and size breakdown.
-        </div>
+    <div class="form-group">
+      <label>M</label>
+      <input type="number" min="0" name="SizeM" id="sizeM" class="form-control size-input" value="0" />
     </div>
+
+    <div class="form-group">
+      <label>L</label>
+      <input type="number" min="0" name="SizeL" id="sizeL" class="form-control size-input" value="0" />
+    </div>
+
+    <div class="form-group">
+      <label>XL</label>
+      <input type="number" min="0" name="SizeXL" id="sizeXL" class="form-control size-input" value="0" />
+    </div>
+
+    <div class="form-group">
+      <label>XXL</label>
+      <input type="number" min="0" name="SizeXXL" id="sizeXXL" class="form-control size-input" value="0" />
+    </div>
+  </div>
+
+  <div class="calculation-strip">
+    <div>
+      <span>Total Size Quantity</span>
+      <strong id="sizeTotal">0</strong>
+    </div>
+
+    <div>
+      <span>Difference</span>
+      <strong id="sizeDifference">0</strong>
+    </div>
+
+    <div id="sizeValidationMessage" class="validation-message warning">
+      Enter total quantity and size breakdown.
+    </div>
+  </div>
 </section>
 
 <section class="pp-card">
-    <div class="pp-card-header">
-        <div>
-            <h2>Planned Dates</h2>
-            <p>Plan start and completion dates before the required date.</p>
-        </div>
+  <div class="pp-card-header">
+    <div>
+      <h2>Planned Dates</h2>
+      <p>Plan start and completion dates before the required date.</p>
+    </div>
+  </div>
+
+  <div class="form-grid four-col">
+    <div class="form-group">
+      <label>Required Date</label>
+      <input type="date" name="RequiredDate" id="requiredDate" class="form-control" />
     </div>
 
-    <div class="form-grid four-col">
-        <div class="form-group">
-            <label>Required Date</label>
-            <input type="date" name="RequiredDate" id="requiredDate" class="form-control" />
-        </div>
-
-        <div class="form-group">
-            <label>Planned Start Date</label>
-            <input type="date" name="PlannedStartDate" id="plannedStartDate" class="form-control" />
-        </div>
-
-        <div class="form-group">
-            <label>Planned Completion Date</label>
-            <input type="date" name="PlannedCompletionDate" id="plannedCompletionDate" class="form-control" />
-        </div>
-
-        <div class="form-group">
-            <label>Buffer Days</label>
-            <input type="text" id="bufferDays" class="form-control" value="0 days" readonly />
-        </div>
+    <div class="form-group">
+      <label>Planned Start Date</label>
+      <input type="date" name="PlannedStartDate" id="plannedStartDate" class="form-control" />
     </div>
 
-    <div id="dateValidationMessage" class="validation-message">
-        Select dates to validate production schedule.
+    <div class="form-group">
+      <label>Planned Completion Date</label>
+      <input type="date" name="PlannedCompletionDate" id="plannedCompletionDate" class="form-control" />
     </div>
+
+    <div class="form-group">
+      <label>Buffer Days</label>
+      <input type="text" id="bufferDays" class="form-control" value="0 days" readonly />
+    </div>
+  </div>
+
+  <div id="dateValidationMessage" class="validation-message">
+    Select dates to validate production schedule.
+  </div>
 </section>
 
 <section class="pp-card">
-    <div class="pp-card-header">
-        <div>
-            <h2>Material Requirement Preview</h2>
-            <p>Materials are calculated from BOM and material master data only.</p>
-        </div>
-
-        <button type="button" class="btn btn-light" id="checkMaterialBtn">
-            Check Material Availability
-        </button>
+  <div class="pp-card-header">
+    <div>
+      <h2>Material Requirement Preview</h2>
+      <p>Materials are calculated from BOM and material master data only.</p>
     </div>
 
-    <div class="pp-table-wrapper">
-        <table class="pp-table">
-            <thead>
-                <tr>
-                    <th>Material Code</th>
-                    <th>Material Name</th>
-                    <th>Material Type</th>
-                    <th>Required Qty</th>
-                    <th>Available Qty</th>
-                    <th>Shortage Qty</th>
-                    <th>Unit</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
+    <button type="button" class="btn btn-light" id="checkMaterialBtn">
+      Check Material Availability
+    </button>
+  </div>
 
-            <tbody id="materialRequirementBody">
-                <tr>
-                    <td colspan="8" class="empty-cell">
-                        Select product and quantity to preview material requirement.
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</section>
+  <div class="pp-table-wrapper">
+    <table class="pp-table">
+      <thead>
+        <tr>
+          <th>Material Code</th>
+          <th>Material Name</th>
+          <th>Material Type</th>
+          <th>Required Qty</th>
+          <th>Available Qty</th>
+          <th>Shortage Qty</th>
+          <th>Unit</th>
+          <th>Status</th>
+        </tr>
+      </thead>
 
-<section class="pp-card">
-    <div class="pp-card-header">
-        <div>
-            <h2>Production Stages</h2>
-            <p>Default garment production stages.</p>
-        </div>
-    </div>
-
-    <div class="pp-table-wrapper">
-        <table class="pp-table">
-            <thead>
-                <tr>
-                    <th>Stage Name</th>
-                    <th>Work Center / Department</th>
-                    <th>Planned Start Date</th>
-                    <th>Planned End Date</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-
-            <tbody id="productionStagesBody">
-                <tr>
-                    <td colspan="5" class="empty-cell">
-                        Production stages will appear here.
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+      <tbody id="materialRequirementBody">
+        <tr>
+          <td colspan="8" class="empty-cell">
+            Select product and quantity to preview material requirement.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </section>
 
 <div class="pp-action-bar">
-    <button type="submit" name="ActionType" value="Draft" class="btn btn-light">
-        Save as Draft
-    </button>
+  <button type="submit" name="ActionType" value="Draft" class="btn btn-light">
+    Save as Draft
+  </button>
 
-    <button type="button" class="btn btn-outline" id="checkMaterialBottomBtn">
-        Check Material Availability
-    </button>
+  <button type="button" class="btn btn-outline" id="checkMaterialBottomBtn">
+    Check Material Availability
+  </button>
 
-    <button type="submit" name="ActionType" value="Create" class="btn btn-primary">
-        Create Production Plan
-    </button>
+  <button type="submit" name="ActionType" value="Create" class="btn btn-primary">
+    Create Production Plan
+  </button>
 
-    <a asp-page="/Production/Index" class="btn btn-danger-light">
-        Cancel
-    </a>
+  <a asp-page="/Production/Index" class="btn btn-danger-light">
+    Cancel
+  </a>
 </div>

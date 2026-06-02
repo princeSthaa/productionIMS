@@ -133,8 +133,8 @@
                     <td>${App.formatDate(plan.requiredDate)}</td>
                     <td>${App.badge(plan.status)}</td>
                     <td class="text-right">
-                        <a class="btn btn-sm btn-light" href="/new/Details/${encodeURIComponent(id)}">View</a>
-                        <a class="btn btn-sm btn-primary" href="/new/Edit/${encodeURIComponent(id)}">Edit</a>
+                        <a class="btn btn-sm btn-light" href="/Production/Details/${encodeURIComponent(id)}">View</a>
+                        <a class="btn btn-sm btn-primary" href="/Production/Edit/${encodeURIComponent(id)}">Edit</a>
                     </td>
                 </tr>
             `;
