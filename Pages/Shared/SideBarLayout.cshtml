@@ -1,0 +1,43 @@
+@{
+  Layout = "_Layout";
+
+  // Grab the current page path (e.g., "/Production/CreatePlan" or "/Warehouse/Index")
+  var currentPage = Convert.ToString(ViewContext.RouteData.Values["page"]) ?? string.Empty;
+
+  // Helper to highlight the active link
+  string IsActive(string targetPage) => currentPage.Equals(targetPage, StringComparison.OrdinalIgnoreCase) ? "active" :
+string.Empty;
+
+  var sidebarTitle = ViewData["SidebarTitle"] as string ?? "Menu";
+  var sidebarLink = ViewData["SidebarLink"] as List<(string name, string url, string icon)> ?? new List<(string, string,
+string)>();
+}
+<link rel="stylesheet" href="~/css/sidebarlayout.css">
+<div class="layout-wrapper">
+  <aside class="sidebar">
+
+    <div class="px-4 mb-3">
+      <span class="text-uppercase fw-bold text-secondary" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+        @sidebarTitle
+      </span>
+    </div>
+
+    <nav class="sidebar-nav">
+      @foreach (var link in sidebarLink)
+      {
+        <a href="@link.url" class="@IsActive(link.url)">
+          <span class="material-symbols-outlined">@link.icon</span> @link.name
+        </a>
+      }
+    </nav>
+
+  </aside>
+
+  <div class="content-area">
+    @RenderBody()
+  </div>
+</div>
+
+@section Scripts {
+  @await RenderSectionAsync("Scripts", required: false)
+}
