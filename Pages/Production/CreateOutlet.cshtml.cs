@@ -2,7 +2,7 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Kaam.Pages.New
+namespace Kaam.Pages.Production
 {
     public class CreateOutletModel : PageModel
     {

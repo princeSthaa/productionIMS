@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Kaam.Pages.New
+namespace Kaam.Pages.Production
 {
     public class DetailsModel : PageModel
     {
