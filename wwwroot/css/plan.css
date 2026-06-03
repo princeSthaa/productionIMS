@@ -638,6 +638,84 @@
     font-size: 13px;
 }
 
+.size-breakdown-wrapper {
+    overflow-x: visible;
+}
+
+.size-breakdown-table {
+    min-width: 0;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.size-breakdown-table .size-col {
+    width: 22%;
+}
+
+.size-breakdown-table .color-col {
+    width: 38%;
+}
+
+.size-breakdown-table .qty-col {
+    width: 40%;
+}
+
+.size-breakdown-table th {
+    padding: 8px;
+    font-size: 11px;
+    letter-spacing: 0;
+    line-height: 1.2;
+}
+
+.size-breakdown-table th,
+.size-breakdown-table td {
+    white-space: normal;
+}
+
+.size-breakdown-table td {
+    padding: 8px;
+    font-size: 12px;
+}
+
+.outlet-size-gap-wrapper {
+    overflow-x: visible;
+}
+
+.outlet-size-gap-table {
+    min-width: 0;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.outlet-size-gap-table .size-col {
+    width: 14%;
+}
+
+.outlet-size-gap-table .color-col {
+    width: 26%;
+}
+
+.outlet-size-gap-table .stock-col {
+    width: 20%;
+}
+
+.outlet-size-gap-table th {
+    padding: 8px;
+    font-size: 11px;
+    letter-spacing: 0;
+    line-height: 1.2;
+}
+
+.outlet-size-gap-table th,
+.outlet-size-gap-table td {
+    white-space: normal;
+}
+
+.outlet-size-gap-table td {
+    padding: 8px;
+    font-size: 12px;
+}
+
 /* =========================
    CUSTOMER ORDER CATALOG RESPONSIVE
 ========================= */
@@ -1506,6 +1584,10 @@
     grid-template-columns: minmax(280px, 1.4fr) 190px 180px 180px 220px;
 }
 
+.outlet-catalog-filter-grid {
+    grid-template-columns: minmax(280px, 1.5fr) 190px 190px 220px;
+}
+
 .outlet-demand-card .catalog-meta-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -1582,5 +1664,417 @@
 
     .outlet-demand-page .customer-order-catalog-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   PRODUCTION CUSTOMER CATALOG PAGE
+========================================================= */
+
+.production-customers-page {
+    max-width: 1560px;
+    margin: 0 auto;
+    padding-bottom: 40px;
+}
+
+.customer-catalog-overview-card {
+    margin-bottom: 18px;
+    padding: 22px;
+}
+
+.customer-catalog-overview {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 24px;
+    align-items: center;
+}
+
+.customer-catalog-overview h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.customer-catalog-overview p {
+    margin: 6px 0 0;
+    color: #64748b;
+}
+
+.customer-catalog-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 120px);
+    gap: 10px;
+}
+
+.customer-catalog-stats div,
+.selected-customer-stats div,
+.production-customer-meta-grid div,
+.customer-detail-summary-grid div {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 12px;
+}
+
+.customer-catalog-stats span,
+.selected-customer-stats span,
+.production-customer-meta-grid span,
+.customer-detail-summary-grid span {
+    display: block;
+    margin-bottom: 4px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.customer-catalog-stats strong,
+.selected-customer-stats strong,
+.production-customer-meta-grid strong,
+.customer-detail-summary-grid strong {
+    display: block;
+    color: #111827;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.customer-catalog-filter-card {
+    margin-bottom: 22px;
+    padding: 20px 22px;
+}
+
+.customer-catalog-filter-grid {
+    display: grid;
+    grid-template-columns: minmax(280px, 1.5fr) 210px 190px 220px;
+    gap: 14px;
+    align-items: end;
+}
+
+.customer-catalog-filter-grid .form-group {
+    margin-bottom: 0;
+}
+
+.customer-catalog-filter-grid .form-control {
+    min-height: 48px;
+    border-radius: 12px;
+}
+
+.customer-catalog-section {
+    margin-top: 8px;
+}
+
+.production-customer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(280px, 1fr));
+    gap: 18px;
+}
+
+.production-customer-grid > .empty-cell {
+    grid-column: 1 / -1;
+}
+
+.production-customer-card {
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    transition: 0.2s ease;
+}
+
+.production-customer-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.10);
+    transform: translateY(-1px);
+}
+
+.production-customer-avatar,
+.selected-customer-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: #0f172a;
+    color: #ffffff;
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+.production-customer-identity {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 16px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-bottom: 1px solid #eef2f7;
+}
+
+.production-customer-avatar {
+    width: 54px;
+    height: 54px;
+    font-size: 16px;
+}
+
+.production-customer-identity h3 {
+    margin: 7px 0 0;
+    color: #111827;
+    font-size: 18px;
+    line-height: 1.25;
+}
+
+.production-customer-body {
+    padding: 16px;
+}
+
+.production-customer-heading {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.production-customer-heading .customer-type {
+    flex: 0 0 auto;
+    padding: 6px 9px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.customer-next-item {
+    min-width: 0;
+    padding: 6px 9px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 11px;
+    font-weight: 800;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.production-customer-body p {
+    margin: 8px 0 12px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.production-customer-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.production-customer-contact {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0;
+    color: #475569;
+    font-size: 13px;
+}
+
+.production-customer-contact .material-symbols-outlined {
+    font-size: 18px;
+    color: #2563eb;
+}
+
+.production-customer-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.production-customer-actions .btn {
+    min-height: 42px;
+    border-radius: 12px;
+}
+
+.customer-detail-modal-panel {
+    width: min(980px, calc(100vw - 40px));
+}
+
+.customer-detail-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.customer-detail-action-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+.customer-detail-products {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.customer-detail-product-ref {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+}
+
+.customer-detail-product-ref img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+}
+
+.customer-detail-product-ref strong {
+    display: block;
+    color: #111827;
+    font-size: 13px;
+    line-height: 1.25;
+}
+
+.customer-detail-product-ref span {
+    display: block;
+    margin-top: 4px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.color-variant-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.customer-detail-orders-table {
+    min-width: 760px;
+}
+
+/* =========================================================
+   SELECTED CUSTOMER SUMMARY ON CREATE CUSTOMER PLAN
+========================================================= */
+
+.selected-customer-card {
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) minmax(0, 2fr);
+    gap: 18px;
+    align-items: center;
+    margin-bottom: 18px;
+    padding: 18px;
+}
+
+.selected-customer-main {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.selected-customer-avatar {
+    flex: 0 0 auto;
+    width: 58px;
+    height: 58px;
+    font-size: 18px;
+}
+
+.selected-customer-main h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.selected-customer-main p {
+    margin: 4px 0 0;
+    color: #64748b;
+}
+
+.selected-customer-stats {
+    display: grid;
+    grid-template-columns: 1.2fr 1.4fr repeat(3, minmax(100px, 1fr));
+    gap: 10px;
+}
+
+@media (max-width: 1300px) {
+    .production-customer-grid {
+        grid-template-columns: repeat(2, minmax(280px, 1fr));
+    }
+
+    .customer-catalog-overview {
+        grid-template-columns: 1fr;
+    }
+
+    .customer-catalog-stats {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .selected-customer-card {
+        grid-template-columns: 1fr;
+    }
+
+    .selected-customer-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .customer-catalog-filter-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .production-customer-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .customer-detail-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .customer-detail-products {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .customer-catalog-filter-grid,
+    .customer-catalog-stats,
+    .selected-customer-stats,
+    .customer-detail-summary-grid,
+    .production-customer-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .customer-detail-action-row {
+        justify-content: stretch;
+    }
+
+    .production-customer-identity,
+    .customer-detail-products {
+        grid-template-columns: 1fr;
+    }
+
+    .production-customer-identity {
+        justify-items: start;
     }
 }

@@ -1,0 +1,182 @@
+@page
+@model Kaam.Pages.Production.CustomersModel
+@{
+    ViewData["Title"] = "Select Customer";
+}
+
+<link rel="stylesheet" href="~/css/plan.css" asp-append-version="true" />
+
+<div class="pp-page production-customers-page">
+
+    <div class="pp-page-header">
+        <div>
+            <h1>Select Customer</h1>
+            <p>Choose a customer first, then create a production plan from that customer's order items.</p>
+        </div>
+
+        <div class="pp-header-actions">
+            <a asp-page="/Production/Create" class="btn btn-light">
+                Change Demand Type
+            </a>
+
+            <a asp-page="/Production/Index" class="btn btn-light">
+                Back to Plans
+            </a>
+        </div>
+    </div>
+
+    <section class="pp-card customer-catalog-overview-card">
+        <div class="customer-catalog-overview">
+            <div>
+                <span class="catalog-eyebrow">Customer Catalog</span>
+                <h2>Customers with Active Orders</h2>
+                <p>Review each customer's open order quantity, delivery pressure, and order items before planning.</p>
+            </div>
+
+            <div class="customer-catalog-stats">
+                <div>
+                    <span>Customers</span>
+                    <strong id="customerCatalogTotalCustomers">0</strong>
+                </div>
+                <div>
+                    <span>Open Orders</span>
+                    <strong id="customerCatalogTotalOrders">0</strong>
+                </div>
+                <div>
+                    <span>Total Qty</span>
+                    <strong id="customerCatalogTotalQty">0</strong>
+                </div>
+                <div>
+                    <span>Urgent</span>
+                    <strong id="customerCatalogUrgentCount">0</strong>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pp-card customer-catalog-filter-card">
+        <div class="customer-catalog-filter-grid">
+            <div class="form-group">
+                <label for="customerCatalogSearch">Search Customer</label>
+                <input type="text" id="customerCatalogSearch" class="form-control"
+                       placeholder="Search name, code, phone, location, order no..." />
+            </div>
+
+            <div class="form-group">
+                <label for="customerCatalogTypeFilter">Customer Type</label>
+                <select id="customerCatalogTypeFilter" class="form-control">
+                    <option value="">All Types</option>
+                    <option value="School">School</option>
+                    <option value="Retailer">Retailer</option>
+                    <option value="Business Customer">Business Customer</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="customerCatalogPriorityFilter">Priority</label>
+                <select id="customerCatalogPriorityFilter" class="form-control">
+                    <option value="">All Priorities</option>
+                    <option value="Urgent">Urgent</option>
+                    <option value="Normal">Normal</option>
+                    <option value="Seasonal">Seasonal</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="customerCatalogSort">Sort By</label>
+                <select id="customerCatalogSort" class="form-control">
+                    <option value="deliveryDate">Nearest Delivery Date</option>
+                    <option value="customerName">Customer Name</option>
+                    <option value="quantityHigh">Quantity High to Low</option>
+                    <option value="orderCount">Order Count</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <section class="customer-catalog-section">
+        <div class="catalog-section-header">
+            <div>
+                <h2>Customer List</h2>
+                <p id="customerCatalogResultText">Showing customers with production-ready orders.</p>
+            </div>
+        </div>
+
+        <div id="productionCustomerGrid" class="production-customer-grid">
+            <div class="empty-cell">
+                Loading customers...
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<div class="pp-modal hidden" id="customerDetailModal">
+    <div class="pp-modal-backdrop" data-close-modal="customerDetailModal"></div>
+
+    <div class="pp-modal-panel large customer-detail-modal-panel">
+        <div class="pp-modal-header">
+            <div>
+                <h2 id="customerDetailName">Customer Detail</h2>
+                <p id="customerDetailSubtitle">Open order items for this customer.</p>
+            </div>
+
+            <button type="button" class="modal-close-btn" data-close-modal="customerDetailModal">x</button>
+        </div>
+
+        <div class="pp-modal-body">
+            <div class="customer-detail-summary-grid">
+                <div>
+                    <span>Customer Code</span>
+                    <strong id="customerDetailCode">-</strong>
+                </div>
+                <div>
+                    <span>Phone</span>
+                    <strong id="customerDetailPhone">-</strong>
+                </div>
+                <div>
+                    <span>Location</span>
+                    <strong id="customerDetailAddress">-</strong>
+                </div>
+                <div>
+                    <span>Total Qty</span>
+                    <strong id="customerDetailQty">-</strong>
+                </div>
+            </div>
+
+            <div class="customer-detail-action-row">
+                <a id="customerDetailCreatePlanLink" href="/Production/CreateCustomer" class="btn btn-primary">
+                    Create Plan
+                </a>
+            </div>
+
+            <div class="customer-detail-products" id="customerDetailProductRefs">
+                <div class="empty-cell">No product references found.</div>
+            </div>
+
+            <div class="pp-table-wrapper">
+                <table class="pp-table compact-table customer-detail-orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order No</th>
+                            <th>Product</th>
+                            <th>Color Sets</th>
+                            <th>Qty</th>
+                            <th>Delivery</th>
+                            <th>Priority</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customerDetailOrdersBody">
+                        <tr>
+                            <td colspan="6" class="empty-cell">No orders found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/app.js" asp-append-version="true"></script>
+<script src="~/data/customers.js" asp-append-version="true"></script>
+<script src="~/js/production-customers.js" asp-append-version="true"></script>

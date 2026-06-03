@@ -6,15 +6,19 @@
 
 <link rel="stylesheet" href="~/css/plan.css" asp-append-version="true" />
 
-<div class="pp-page customer-order-page">
+<div class="pp-page customer-order-page" id="customerOrderPlanPage" data-selected-customer-id="@Model.CustomerId">
 
   <div class="pp-page-header">
     <div>
       <h1>Create Customer Order Plan</h1>
-      <p>Browse ready customer orders, check materials in bulk, and add selected items to a production plan.</p>
+      <p id="customerOrderHeaderText">Browse ready customer orders, check materials in bulk, and add selected items to a production plan.</p>
     </div>
 
     <div class="pp-header-actions">
+      <a asp-page="/Production/Customers" class="btn btn-light">
+        Choose Customer
+      </a>
+
       <a asp-page="/Production/Create" class="btn btn-light">
         Change Demand Type
       </a>
@@ -35,6 +39,44 @@
     <div class="alert alert-danger">@Model.ErrorMessage</div>
   }
 
+  <section class="pp-card selected-customer-card hidden" id="selectedCustomerCard">
+    <div class="selected-customer-main">
+      <div class="selected-customer-avatar" id="selectedCustomerAvatar">CU</div>
+      <div>
+        <span class="catalog-eyebrow">Selected Customer</span>
+        <h2 id="selectedCustomerName">Customer</h2>
+        <p id="selectedCustomerMeta">Order items for the selected customer.</p>
+      </div>
+    </div>
+
+    <div class="selected-customer-stats">
+      <div>
+        <span>Phone</span>
+        <strong id="selectedCustomerPhone">-</strong>
+      </div>
+      <div>
+        <span>Location</span>
+        <strong id="selectedCustomerAddress">-</strong>
+      </div>
+      <div>
+        <span>Open Orders</span>
+        <strong id="selectedCustomerOrders">0</strong>
+      </div>
+      <div>
+        <span>Total Qty</span>
+        <strong id="selectedCustomerQty">0</strong>
+      </div>
+      <div>
+        <span>Earliest Delivery</span>
+        <strong id="selectedCustomerDelivery">-</strong>
+      </div>
+    </div>
+  </section>
+
+  <div class="alert alert-warning hidden" id="customerSelectionWarning">
+    Choose a customer from the customer catalog to view only that customer's order items.
+  </div>
+
   <form method="post" id="productionPlanForm">
 
     <input asp-for="DemandType" type="hidden" value="Customer Order" />
@@ -44,7 +86,7 @@
       <div class="catalog-hero-content">
         <div>
           <span class="catalog-eyebrow">Customer Order Catalog</span>
-          <h2>Ready Orders for Production Planning</h2>
+          <h2 id="customerOrderCatalogTitle">Ready Orders for Production Planning</h2>
           <!--    <p>
                         Select customer order items like an internal e-commerce catalog.
                         View product image, size breakdown, delivery date, and material status before adding to plan.
@@ -68,53 +110,13 @@
       </div>
     </section>
 
-    <section class="pp-card catalog-filter-card">
-      <div class="catalog-filter-grid">
-        <div class="form-group">
-          <label for="catalogSearch">Search Order</label>
-          <input type="text" id="catalogSearch" class="form-control"
-                 placeholder="Search customer, order no, product, phone, location..." />
-        </div>
-
-        <div class="form-group">
-          <label for="customerTypeFilter">Customer Type</label>
-          <select id="customerTypeFilter" class="form-control">
-            <option value="">All Types</option>
-            <option value="School">School</option>
-            <option value="Retailer">Retailer</option>
-            <option value="Business Customer">Business Customer</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="priorityFilter">Priority</label>
-          <select id="priorityFilter" class="form-control">
-            <option value="">All Priorities</option>
-            <option value="Urgent">Urgent</option>
-            <option value="Normal">Normal</option>
-            <option value="Seasonal">Seasonal</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="catalogSort">Sort By</label>
-          <select id="catalogSort" class="form-control">
-            <option value="deliveryDate">Nearest Delivery Date</option>
-            <option value="customerName">Customer Name</option>
-            <option value="quantityHigh">Quantity High to Low</option>
-            <option value="priority">Priority</option>
-          </select>
-        </div>
-      </div>
-    </section>
-
     <div class="catalog-layout">
 
       <main class="catalog-main">
         <div class="catalog-section-header">
           <div>
-            <h2>Customer Order Items</h2>
-            <p>Click View Details to inspect size chart, measurements, and material requirements.</p>
+            <h2 id="customerOrderItemsTitle">Customer Order Items</h2>
+            <p id="customerOrderItemsText">Click View Details to inspect size chart, measurements, and material requirements.</p>
           </div>
         </div>
 
@@ -228,7 +230,7 @@
       <div class="order-detail-layout">
 
         <div class="order-detail-media">
-          <img id="detailProductImage" src="/images/placeholder-product.png" alt="Product image" />
+          <img id="detailProductImage" src="/images/products/place-holder.png" alt="Product image" />
 
           <div class="order-detail-thumbnail-row">
             <div>
@@ -286,20 +288,26 @@
         <section class="detail-section">
           <div class="detail-section-header">
             <h3>Size Breakdown</h3>
-            <p>Quantity required per size.</p>
+            <p>Quantity required per size and color variant.</p>
           </div>
 
-          <div class="pp-table-wrapper">
-            <table class="pp-table compact-table" style="min-width: 245px ; width: auto; max-width: 900px;">
+          <div class="pp-table-wrapper size-breakdown-wrapper">
+            <table class="pp-table compact-table size-breakdown-table">
+              <colgroup>
+                <col class="size-col" />
+                <col class="color-col" />
+                <col class="qty-col" />
+              </colgroup>
               <thead>
                 <tr>
-                  <th style="width: 50%; white-space: nowrap;">Size</th>
-                  <th style="width: 50%; white-space: nowrap;">Quantity</th>
+                  <th>Size</th>
+                  <th>Color</th>
+                  <th>Quantity</th>
                 </tr>
               </thead>
               <tbody id="detailSizeBreakdownBody">
                 <tr>
-                  <td colspan="2" class="empty-cell">No size data.</td>
+                  <td colspan="3" class="empty-cell">No size data.</td>
                 </tr>
               </tbody>
             </table>

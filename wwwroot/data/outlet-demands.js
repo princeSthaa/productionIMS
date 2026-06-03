@@ -13,7 +13,7 @@ window.outletDemandCatalogData = [
         productCode: "PRD-003",
         productName: "Men Casual Shirt",
         category: "Retail Garment",
-        variant: "White",
+        variant: "White / Sky Blue / Black",
         productImage: "/images/products/casual-shirt.jpg",
 
         currentStock: 18,
@@ -34,9 +34,9 @@ window.outletDemandCatalogData = [
         planningNotes: "Fast moving item. Replenish before weekend demand.",
 
         sizeGaps: [
-            { size: "M", currentStock: 5, reorderLevel: 30, suggestedQty: 40 },
-            { size: "L", currentStock: 8, reorderLevel: 35, suggestedQty: 50 },
-            { size: "XL", currentStock: 5, reorderLevel: 25, suggestedQty: 30 }
+            { size: "M", currentStock: 5, reorderLevel: 30, suggestedQty: 40, colors: [{ color: "White", currentStock: 2, reorderLevel: 12, suggestedQty: 16 }, { color: "Sky Blue", currentStock: 2, reorderLevel: 10, suggestedQty: 14 }, { color: "Black", currentStock: 1, reorderLevel: 8, suggestedQty: 10 }] },
+            { size: "L", currentStock: 8, reorderLevel: 35, suggestedQty: 50, colors: [{ color: "White", currentStock: 3, reorderLevel: 14, suggestedQty: 20 }, { color: "Sky Blue", currentStock: 3, reorderLevel: 12, suggestedQty: 18 }, { color: "Black", currentStock: 2, reorderLevel: 9, suggestedQty: 12 }] },
+            { size: "XL", currentStock: 5, reorderLevel: 25, suggestedQty: 30, colors: [{ color: "White", currentStock: 2, reorderLevel: 10, suggestedQty: 12 }, { color: "Sky Blue", currentStock: 2, reorderLevel: 8, suggestedQty: 10 }, { color: "Black", currentStock: 1, reorderLevel: 7, suggestedQty: 8 }] }
         ]
     },
     {
@@ -53,7 +53,7 @@ window.outletDemandCatalogData = [
         productCode: "PRD-004",
         productName: "Corporate Polo T-Shirt",
         category: "Corporate Wear",
-        variant: "Black",
+        variant: "Black / Charcoal",
         productImage: "/images/products/polo-shirt.jpg",
 
         currentStock: 22,
@@ -74,10 +74,10 @@ window.outletDemandCatalogData = [
         planningNotes: "Common corporate stock item. Keep enough sizes M and L.",
 
         sizeGaps: [
-            { size: "S", currentStock: 6, reorderLevel: 20, suggestedQty: 25 },
-            { size: "M", currentStock: 5, reorderLevel: 35, suggestedQty: 45 },
-            { size: "L", currentStock: 7, reorderLevel: 30, suggestedQty: 40 },
-            { size: "XL", currentStock: 4, reorderLevel: 15, suggestedQty: 20 }
+            { size: "S", currentStock: 6, reorderLevel: 20, suggestedQty: 25, colors: [{ color: "Black", currentStock: 4, reorderLevel: 12, suggestedQty: 15 }, { color: "Charcoal", currentStock: 2, reorderLevel: 8, suggestedQty: 10 }] },
+            { size: "M", currentStock: 5, reorderLevel: 35, suggestedQty: 45, colors: [{ color: "Black", currentStock: 3, reorderLevel: 22, suggestedQty: 28 }, { color: "Charcoal", currentStock: 2, reorderLevel: 13, suggestedQty: 17 }] },
+            { size: "L", currentStock: 7, reorderLevel: 30, suggestedQty: 40, colors: [{ color: "Black", currentStock: 4, reorderLevel: 18, suggestedQty: 24 }, { color: "Charcoal", currentStock: 3, reorderLevel: 12, suggestedQty: 16 }] },
+            { size: "XL", currentStock: 4, reorderLevel: 15, suggestedQty: 20, colors: [{ color: "Black", currentStock: 2, reorderLevel: 9, suggestedQty: 12 }, { color: "Charcoal", currentStock: 2, reorderLevel: 6, suggestedQty: 8 }] }
         ]
     },
     {
@@ -115,10 +115,10 @@ window.outletDemandCatalogData = [
         planningNotes: "Seasonal school demand may increase next month.",
 
         sizeGaps: [
-            { size: "S", currentStock: 8, reorderLevel: 20, suggestedQty: 20 },
-            { size: "M", currentStock: 10, reorderLevel: 30, suggestedQty: 35 },
-            { size: "L", currentStock: 12, reorderLevel: 25, suggestedQty: 25 },
-            { size: "XL", currentStock: 5, reorderLevel: 10, suggestedQty: 10 }
+            { size: "S", currentStock: 8, reorderLevel: 20, suggestedQty: 20, colors: [{ color: "Grey", currentStock: 5, reorderLevel: 12, suggestedQty: 12 }, { color: "Royal Blue", currentStock: 3, reorderLevel: 8, suggestedQty: 8 }] },
+            { size: "M", currentStock: 10, reorderLevel: 30, suggestedQty: 35, colors: [{ color: "Grey", currentStock: 6, reorderLevel: 18, suggestedQty: 22 }, { color: "Royal Blue", currentStock: 4, reorderLevel: 12, suggestedQty: 13 }] },
+            { size: "L", currentStock: 12, reorderLevel: 25, suggestedQty: 25, colors: [{ color: "Grey", currentStock: 7, reorderLevel: 15, suggestedQty: 15 }, { color: "Royal Blue", currentStock: 5, reorderLevel: 10, suggestedQty: 10 }] },
+            { size: "XL", currentStock: 5, reorderLevel: 10, suggestedQty: 10, colors: [{ color: "Grey", currentStock: 3, reorderLevel: 6, suggestedQty: 6 }, { color: "Royal Blue", currentStock: 2, reorderLevel: 4, suggestedQty: 4 }] }
         ]
     },
     {
@@ -156,10 +156,10 @@ window.outletDemandCatalogData = [
         planningNotes: "Tourism season demand. Prioritize hospitality uniform stock.",
 
         sizeGaps: [
-            { size: "S", currentStock: 2, reorderLevel: 15, suggestedQty: 20 },
-            { size: "M", currentStock: 3, reorderLevel: 20, suggestedQty: 25 },
-            { size: "L", currentStock: 4, reorderLevel: 18, suggestedQty: 25 },
-            { size: "XL", currentStock: 1, reorderLevel: 7, suggestedQty: 10 }
+            { size: "S", currentStock: 2, reorderLevel: 15, suggestedQty: 20, colors: [{ color: "Cream", currentStock: 1, reorderLevel: 9, suggestedQty: 12 }, { color: "Brown", currentStock: 1, reorderLevel: 6, suggestedQty: 8 }] },
+            { size: "M", currentStock: 3, reorderLevel: 20, suggestedQty: 25, colors: [{ color: "Cream", currentStock: 2, reorderLevel: 12, suggestedQty: 15 }, { color: "Brown", currentStock: 1, reorderLevel: 8, suggestedQty: 10 }] },
+            { size: "L", currentStock: 4, reorderLevel: 18, suggestedQty: 25, colors: [{ color: "Cream", currentStock: 2, reorderLevel: 11, suggestedQty: 15 }, { color: "Brown", currentStock: 2, reorderLevel: 7, suggestedQty: 10 }] },
+            { size: "XL", currentStock: 1, reorderLevel: 7, suggestedQty: 10, colors: [{ color: "Cream", currentStock: 1, reorderLevel: 4, suggestedQty: 6 }, { color: "Brown", currentStock: 0, reorderLevel: 3, suggestedQty: 4 }] }
         ]
     },
     {
@@ -176,7 +176,7 @@ window.outletDemandCatalogData = [
         productCode: "PRD-001",
         productName: "School Uniform Set",
         category: "Uniform",
-        variant: "Navy Blue",
+        variant: "Navy Blue / White",
         productImage: "/images/products/school-uniform.jpg",
 
         currentStock: 42,
@@ -197,11 +197,11 @@ window.outletDemandCatalogData = [
         planningNotes: "Prepare before school season order increase.",
 
         sizeGaps: [
-            { size: "XS", currentStock: 8, reorderLevel: 20, suggestedQty: 20 },
-            { size: "S", currentStock: 10, reorderLevel: 30, suggestedQty: 35 },
-            { size: "M", currentStock: 12, reorderLevel: 35, suggestedQty: 45 },
-            { size: "L", currentStock: 8, reorderLevel: 25, suggestedQty: 30 },
-            { size: "XL", currentStock: 4, reorderLevel: 10, suggestedQty: 10 }
+            { size: "XS", currentStock: 8, reorderLevel: 20, suggestedQty: 20, colors: [{ color: "Navy Blue", currentStock: 5, reorderLevel: 12, suggestedQty: 12 }, { color: "White", currentStock: 3, reorderLevel: 8, suggestedQty: 8 }] },
+            { size: "S", currentStock: 10, reorderLevel: 30, suggestedQty: 35, colors: [{ color: "Navy Blue", currentStock: 6, reorderLevel: 18, suggestedQty: 22 }, { color: "White", currentStock: 4, reorderLevel: 12, suggestedQty: 13 }] },
+            { size: "M", currentStock: 12, reorderLevel: 35, suggestedQty: 45, colors: [{ color: "Navy Blue", currentStock: 8, reorderLevel: 22, suggestedQty: 28 }, { color: "White", currentStock: 4, reorderLevel: 13, suggestedQty: 17 }] },
+            { size: "L", currentStock: 8, reorderLevel: 25, suggestedQty: 30, colors: [{ color: "Navy Blue", currentStock: 5, reorderLevel: 15, suggestedQty: 18 }, { color: "White", currentStock: 3, reorderLevel: 10, suggestedQty: 12 }] },
+            { size: "XL", currentStock: 4, reorderLevel: 10, suggestedQty: 10, colors: [{ color: "Navy Blue", currentStock: 3, reorderLevel: 6, suggestedQty: 6 }, { color: "White", currentStock: 1, reorderLevel: 4, suggestedQty: 4 }] }
         ]
     }
 ];

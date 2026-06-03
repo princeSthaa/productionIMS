@@ -6,15 +6,16 @@
 
 <link rel="stylesheet" href="~/css/plan.css" asp-append-version="true" />
 
-<div class="pp-page outlet-demand-page">
+<div class="pp-page outlet-demand-page" id="outletDemandPlanPage" data-selected-outlet-id="@Model.OutletId">
 
   <div class="pp-page-header">
     <div>
       <h1>Create Outlet Production Plan</h1>
-      <p>Browse outlet stock demand, add replenishment items to plan, and check materials in bulk.</p>
+      <p id="outletDemandHeaderText">Browse outlet stock demand, add replenishment items to plan, and check materials in bulk.</p>
     </div>
 
     <div class="pp-header-actions">
+      <a asp-page="/Production/Outlets" class="btn btn-light">Choose Outlet</a>
       <a asp-page="/Production/Create" class="btn btn-light">Change Demand Type</a>
       <a asp-page="/Production/Index" class="btn btn-light">Back to Plans</a>
     </div>
@@ -30,6 +31,44 @@
     <div class="alert alert-danger">@Model.ErrorMessage</div>
   }
 
+  <section class="pp-card selected-customer-card hidden" id="selectedOutletCard">
+    <div class="selected-customer-main">
+      <div class="selected-customer-avatar" id="selectedOutletAvatar">OU</div>
+      <div>
+        <span class="catalog-eyebrow">Selected Outlet</span>
+        <h2 id="selectedOutletName">Outlet</h2>
+        <p id="selectedOutletMeta">Demand items for the selected outlet.</p>
+      </div>
+    </div>
+
+    <div class="selected-customer-stats">
+      <div>
+        <span>Manager</span>
+        <strong id="selectedOutletManager">-</strong>
+      </div>
+      <div>
+        <span>Location</span>
+        <strong id="selectedOutletLocation">-</strong>
+      </div>
+      <div>
+        <span>Demand Items</span>
+        <strong id="selectedOutletDemandCount">0</strong>
+      </div>
+      <div>
+        <span>Total Qty</span>
+        <strong id="selectedOutletQty">0</strong>
+      </div>
+      <div>
+        <span>Earliest Required</span>
+        <strong id="selectedOutletRequired">-</strong>
+      </div>
+    </div>
+  </section>
+
+  <div class="alert alert-warning hidden" id="outletSelectionWarning">
+    Choose an outlet from the outlet catalog to view only that outlet's demand items.
+  </div>
+
   <form method="post" id="outletProductionPlanForm">
 
     <input asp-for="DemandType" type="hidden" value="Outlet Demand" />
@@ -39,7 +78,7 @@
       <div class="catalog-hero-content">
         <div>
           <span class="catalog-eyebrow">Outlet Demand Catalog</span>
-          <h2>Outlet Replenishment Planning</h2>
+          <h2 id="outletDemandCatalogTitle">Outlet Replenishment Planning</h2>
           <p>
             Select products that need production for outlet stock replenishment.
             Review stock gap, sales velocity, suggested quantity, and material availability.
@@ -63,63 +102,13 @@
       </div>
     </section>
 
-    <section class="pp-card catalog-filter-card">
-      <div class="catalog-filter-grid outlet-filter-grid">
-        <div class="form-group">
-          <label for="outletSearch">Search Demand</label>
-          <input type="text" id="outletSearch" class="form-control"
-                 placeholder="Search outlet, product, category, location..." />
-        </div>
-
-        <div class="form-group">
-          <label for="outletFilter">Outlet</label>
-          <select id="outletFilter" class="form-control">
-            <option value="">All Outlets</option>
-            <option value="New Road Outlet">New Road Outlet</option>
-            <option value="Lalitpur Outlet">Lalitpur Outlet</option>
-            <option value="Pokhara Outlet">Pokhara Outlet</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="stockStatusFilter">Stock Status</label>
-          <select id="stockStatusFilter" class="form-control">
-            <option value="">All Status</option>
-            <option value="Critical">Critical</option>
-            <option value="Low Stock">Low Stock</option>
-            <option value="Reorder Soon">Reorder Soon</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="velocityFilter">Sales Velocity</label>
-          <select id="velocityFilter" class="form-control">
-            <option value="">All Velocity</option>
-            <option value="Fast">Fast</option>
-            <option value="Normal">Normal</option>
-            <option value="Slow">Slow</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="outletSort">Sort By</label>
-          <select id="outletSort" class="form-control">
-            <option value="requiredDate">Nearest Required Date</option>
-            <option value="stockGapHigh">Stock Gap High to Low</option>
-            <option value="salesVelocity">Sales Velocity</option>
-            <option value="outletName">Outlet Name</option>
-          </select>
-        </div>
-      </div>
-    </section>
-
     <div class="catalog-layout">
 
       <main class="catalog-main">
         <div class="catalog-section-header">
           <div>
-            <h2>Outlet Demand Items</h2>
-            <p>Choose products that need production based on outlet stock gap and sales movement.</p>
+            <h2 id="outletDemandItemsTitle">Outlet Demand Items</h2>
+            <p id="outletDemandItemsText">Choose products that need production based on outlet stock gap and sales movement.</p>
           </div>
         </div>
 
@@ -231,7 +220,7 @@
       <div class="order-detail-layout">
 
         <div class="order-detail-media">
-          <img id="outletDetailProductImage" src="/images/placeholder-product.png" alt="Product image" />
+          <img id="outletDetailProductImage" src="/images/products/place-holder.png" alt="Product image" />
 
           <div class="order-detail-thumbnail-row">
             <div>
@@ -294,17 +283,25 @@
       </div>
 
       <div class="order-detail-tabs">
-        <section class="detail-section">
+        <section class="detail-section full-detail-section">
           <div class="detail-section-header">
             <h3>Size-wise Stock Gap</h3>
-            <p>Suggested quantity per size.</p>
+            <p>Suggested quantity per size and color variant.</p>
           </div>
 
-          <div class="pp-table-wrapper">
-            <table class="pp-table compact-table">
+          <div class="pp-table-wrapper outlet-size-gap-wrapper">
+            <table class="pp-table compact-table outlet-size-gap-table">
+              <colgroup>
+                <col class="size-col" />
+                <col class="color-col" />
+                <col class="stock-col" />
+                <col class="stock-col" />
+                <col class="stock-col" />
+              </colgroup>
               <thead>
                 <tr>
                   <th>Size</th>
+                  <th>Color</th>
                   <th>Current</th>
                   <th>Reorder</th>
                   <th>Suggested</th>
@@ -312,7 +309,7 @@
               </thead>
               <tbody id="outletDetailSizeGapBody">
                 <tr>
-                  <td colspan="4" class="empty-cell">No size gap data.</td>
+                  <td colspan="5" class="empty-cell">No size gap data.</td>
                 </tr>
               </tbody>
             </table>
@@ -384,4 +381,3 @@
 <script src="~/data/bom.js" asp-append-version="true"></script>
 
 <script src="~/js/outlet-plan-create.js" asp-append-version="true"></script>
-<script src="~/js/production-plan-create.js" asp-append-version="true"></script>

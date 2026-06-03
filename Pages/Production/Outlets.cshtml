@@ -1,0 +1,182 @@
+@page
+@model Kaam.Pages.Production.OutletsModel
+@{
+    ViewData["Title"] = "Select Outlet";
+}
+
+<link rel="stylesheet" href="~/css/plan.css" asp-append-version="true" />
+
+<div class="pp-page production-outlets-page production-customers-page">
+
+    <div class="pp-page-header">
+        <div>
+            <h1>Select Outlet</h1>
+            <p>Choose an outlet first, then create a production plan from that outlet's replenishment demand.</p>
+        </div>
+
+        <div class="pp-header-actions">
+            <a asp-page="/Production/Create" class="btn btn-light">
+                Change Demand Type
+            </a>
+
+            <a asp-page="/Production/Index" class="btn btn-light">
+                Back to Plans
+            </a>
+        </div>
+    </div>
+
+    <section class="pp-card customer-catalog-overview-card">
+        <div class="customer-catalog-overview">
+            <div>
+                <span class="catalog-eyebrow">Outlet Catalog</span>
+                <h2>Outlets with Replenishment Demand</h2>
+                <p>Review open demand items, suggested quantity, stock pressure, and next required date before planning.</p>
+            </div>
+
+            <div class="customer-catalog-stats">
+                <div>
+                    <span>Outlets</span>
+                    <strong id="outletCatalogTotalOutlets">0</strong>
+                </div>
+                <div>
+                    <span>Demand Items</span>
+                    <strong id="outletCatalogTotalDemand">0</strong>
+                </div>
+                <div>
+                    <span>Total Qty</span>
+                    <strong id="outletCatalogTotalQty">0</strong>
+                </div>
+                <div>
+                    <span>Critical</span>
+                    <strong id="outletCatalogCriticalCount">0</strong>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pp-card customer-catalog-filter-card">
+        <div class="customer-catalog-filter-grid outlet-catalog-filter-grid">
+            <div class="form-group">
+                <label for="outletCatalogSearch">Search Outlet</label>
+                <input type="text" id="outletCatalogSearch" class="form-control"
+                       placeholder="Search outlet, code, location, manager, product..." />
+            </div>
+
+            <div class="form-group">
+                <label for="outletCatalogStatusFilter">Stock Status</label>
+                <select id="outletCatalogStatusFilter" class="form-control">
+                    <option value="">All Status</option>
+                    <option value="Critical">Critical</option>
+                    <option value="Low Stock">Low Stock</option>
+                    <option value="Reorder Soon">Reorder Soon</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="outletCatalogVelocityFilter">Sales Velocity</label>
+                <select id="outletCatalogVelocityFilter" class="form-control">
+                    <option value="">All Velocity</option>
+                    <option value="Fast">Fast</option>
+                    <option value="Normal">Normal</option>
+                    <option value="Slow">Slow</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="outletCatalogSort">Sort By</label>
+                <select id="outletCatalogSort" class="form-control">
+                    <option value="requiredDate">Nearest Required Date</option>
+                    <option value="quantityHigh">Suggested Qty High to Low</option>
+                    <option value="demandCount">Demand Count</option>
+                    <option value="outletName">Outlet Name</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <section class="customer-catalog-section">
+        <div class="catalog-section-header">
+            <div>
+                <h2>Outlet List</h2>
+                <p id="outletCatalogResultText">Showing outlets with replenishment demand.</p>
+            </div>
+        </div>
+
+        <div id="productionOutletGrid" class="production-customer-grid production-outlet-grid">
+            <div class="empty-cell">
+                Loading outlets...
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<div class="pp-modal hidden" id="outletCatalogDetailModal">
+    <div class="pp-modal-backdrop" data-close-modal="outletCatalogDetailModal"></div>
+
+    <div class="pp-modal-panel large customer-detail-modal-panel">
+        <div class="pp-modal-header">
+            <div>
+                <h2 id="outletCatalogDetailName">Outlet Detail</h2>
+                <p id="outletCatalogDetailSubtitle">Open replenishment demand for this outlet.</p>
+            </div>
+
+            <button type="button" class="modal-close-btn" data-close-modal="outletCatalogDetailModal">x</button>
+        </div>
+
+        <div class="pp-modal-body">
+            <div class="customer-detail-summary-grid">
+                <div>
+                    <span>Outlet Code</span>
+                    <strong id="outletCatalogDetailCode">-</strong>
+                </div>
+                <div>
+                    <span>Manager</span>
+                    <strong id="outletCatalogDetailManager">-</strong>
+                </div>
+                <div>
+                    <span>Location</span>
+                    <strong id="outletCatalogDetailLocation">-</strong>
+                </div>
+                <div>
+                    <span>Total Qty</span>
+                    <strong id="outletCatalogDetailQty">-</strong>
+                </div>
+            </div>
+
+            <div class="customer-detail-action-row">
+                <a id="outletCatalogCreatePlanLink" href="/Production/CreateOutlet" class="btn btn-primary">
+                    Create Plan
+                </a>
+            </div>
+
+            <div class="customer-detail-products" id="outletCatalogProductRefs">
+                <div class="empty-cell">No demand references found.</div>
+            </div>
+
+            <div class="pp-table-wrapper">
+                <table class="pp-table compact-table customer-detail-orders-table">
+                    <thead>
+                        <tr>
+                            <th>Demand No</th>
+                            <th>Product</th>
+                            <th>Color Sets</th>
+                            <th>Suggested</th>
+                            <th>Required</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="outletCatalogDetailDemandBody">
+                        <tr>
+                            <td colspan="6" class="empty-cell">No demand found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/app.js" asp-append-version="true"></script>
+<script src="~/data/outlet-demands.js" asp-append-version="true"></script>
+<script src="~/js/production-outlets.js" asp-append-version="true"></script>

@@ -6,6 +6,9 @@ namespace Kaam.Pages.Production
 {
     public class CreateOutletModel : PageModel
     {
+        [BindProperty(SupportsGet = true)]
+        public int? OutletId { get; set; }
+
         [BindProperty]
         public string DemandType { get; set; } = "Outlet Demand";
 
