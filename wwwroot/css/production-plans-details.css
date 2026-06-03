@@ -584,21 +584,35 @@
 }
 
 .pp-filter-grid {
-    padding: 18px 20px 20px;
+    padding: 16px 20px;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
+    align-items: start;
+}
+
+.pp-filter-grid .form-control {
+    font-size: 13px;
+    min-height: 38px;
+    padding: 6px 10px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 7px;
+    margin-bottom: 4px;
     color: var(--muted);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 800;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1300px) {
+    .pp-filter-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+    }
+}
+
+@media (max-width: 850px) {
     .pp-filter-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
