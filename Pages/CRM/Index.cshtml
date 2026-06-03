@@ -18,7 +18,7 @@
 
     <div class="pp-header-actions">
       <!-- Button to create a new customer -->
-      <a asp-page="/CRM/CreateCustomer" class="btn btn-primary">
+      <a asp-page="/CRM/Customer/CreateCustomer" class="btn btn-primary">
         + Add New Customer
       </a>
     </div>
@@ -151,7 +151,7 @@
               <div class="btn-group">
                 <a href="/CRM/Details/CUS-1001" class="btn btn-sm btn-light" title="View Profile">👁️</a>
                 <a href="/CRM/Edit/CUS-1001" class="btn btn-sm btn-light" title="Edit Info">✏️</a>
-                <a href="/CRM/CreateOrder?customerId=CUS-1001" class="btn btn-sm btn-primary" title="Take Order">+
+                <a href="/CRM/Order/CreateOrder?customerId=CUS-1001" class="btn btn-sm btn-primary" title="Take Order">+
                   Order</a>
                 </div>
               </td>
@@ -170,6 +170,4 @@
   </div>
 
   <!-- Scripts -->
-  <script src="~/js/app.js" asp-append-version="true"></script>
-  <script src="~/data/mock-crm-data.js" asp-append-version="true"></script>
-  <script src="~/js/crm-index.js" asp-append-version="true"></script>
+  <script src="~/js/crm/crm-index.js" asp-append-version="true"></script>

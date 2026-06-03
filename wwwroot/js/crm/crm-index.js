@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     <div class="btn-group">
                         <a href="/CRM/Details/${customer.id}" class="btn btn-sm btn-light" title="View Profile">👁️</a>
                         <a href="/CRM/Edit/${customer.id}" class="btn btn-sm btn-light" title="Edit Info">✏️</a>
-                        <a href="/CRM/CreateOrder?customerId=${customer.id}" class="btn btn-sm btn-primary" title="Take Order">+ Order</a>
+                        <a href="/CRM/Order/CreateOrder?customerId=${customer.id}" class="btn btn-sm btn-primary" title="Take Order">+ Order</a>
                     </div>
                 </td>
             `;

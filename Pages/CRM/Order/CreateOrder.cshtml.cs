@@ -16,8 +16,8 @@ public class CreateOrder : PageModel
     ViewData["SidebarLinks"] = new List<(string Name, string Url, string Icon)>
         {
             ("Overview", "/CRM/Index", "dashboard"),
-            ("Create Customer", "/CRM/CreateCustomer", "add_circle"),
-            ("Create Order", "/CRM/CreateOustomer", "add_circle")
+            ("Create Customer", "/CRM/Customer/CreateCustomer", "add_circle"),
+            ("Create Order", "/CRM/Order/CreateOustomer", "add_circle")
         };
   }
 
