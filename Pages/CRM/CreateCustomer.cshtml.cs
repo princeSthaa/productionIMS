@@ -11,12 +11,12 @@ public class CreateCustomer : PageModel
 
     ViewData["SidebarLinks"] = new List<(string Name, string Url, string Icon)>
             {
-                ("Overview", "/Production/Index", "dashboard"),
+                ("Overview", "/CRM/Index", "dashboard"),
                 ("Create Customer", "/CRM/CreateCustomer", "add_circle"),
                 ("Create Order", "/CRM/CreateOustomer", "add_circle")
             };
   }
-  public void OnGet() 
+  public void OnGet()
   {
     LoadCustomerCreateMenu();
   }
