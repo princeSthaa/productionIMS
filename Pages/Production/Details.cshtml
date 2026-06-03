@@ -16,7 +16,7 @@
         </div>
 
         <div class="pp-header-actions">
-            <a asp-page="/Production/Index" class="btn btn-light">
+            <a asp-page="/Production/PlansDetails" asp-route-id="@Model.PlanId" class="btn btn-light">
                 Back to Plans
             </a>
 
@@ -156,38 +156,11 @@
 
                 <!-- Product Information -->
                 <div class="detail-panel">
-                    <h3>Product Information</h3>
+                    <h3>Products In This Plan</h3>
 
-                    <div class="product-detail-card">
-                        <div class="product-image-box">
-                            <img id="productImage" src="/images/products/placeholder.png" alt="Product image" />
-                        </div>
-
-                        <div class="detail-list">
-                            <div>
-                                <span>Product Code</span>
-                                <strong id="productCode">-</strong>
-                            </div>
-
-                            <div>
-                                <span>Product Name</span>
-                                <strong id="productName">-</strong>
-                            </div>
-
-                            <div>
-                                <span>Category</span>
-                                <strong id="productCategory">-</strong>
-                            </div>
-
-                            <div>
-                                <span>Color / Variant</span>
-                                <strong id="productVariant">-</strong>
-                            </div>
-
-                            <div>
-                                <span>Total Quantity</span>
-                                <strong id="productQuantity">-</strong>
-                            </div>
+                    <div id="detailsProductList" class="plan-product-list">
+                        <div class="empty-cell">
+                            Loading plan products...
                         </div>
                     </div>
                 </div>
@@ -391,6 +364,16 @@
                     Loading size validation...
                 </div>
             </div>
+
+            <div class="detail-panel mt-20">
+                <h3>Product Wise Size And Color Variants</h3>
+
+                <div id="detailsProductSizeList" class="product-size-breakdown-list">
+                    <div class="empty-cell">
+                        Loading product size breakdown...
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Activity Tab -->
@@ -420,6 +403,12 @@
 
 
 <script src="~/js/app.js" asp-append-version="true"></script>
+<script src="~/data/customers.js" asp-append-version="true"></script>
+<script src="~/data/outlets.js" asp-append-version="true"></script>
+<script src="~/data/products.js" asp-append-version="true"></script>
+<script src="~/data/materials.js" asp-append-version="true"></script>
+<script src="~/data/bom.js" asp-append-version="true"></script>
+<script src="~/data/warehouses.js" asp-append-version="true"></script>
 <script src="~/data/mock-production-plans.js" asp-append-version="true"></script>
 <script src="~/data/production-stages.js" asp-append-version="true"></script>
 

@@ -252,6 +252,21 @@
                         </select>
                     </div>
                 </div>
+
+                <div class="multi-product-edit-section">
+                    <div class="section-action-row">
+                        <div>
+                            <h3>Products In This Plan</h3>
+                            <p>Edit product-wise quantities, dates, and size/color variants.</p>
+                        </div>
+                    </div>
+
+                    <div id="editProductList" class="edit-product-list">
+                        <div class="empty-cell">
+                            Loading plan products...
+                        </div>
+                    </div>
+                </div>
             </section>
         </div>
 
@@ -260,39 +275,39 @@
             <div class="pp-card-header">
                 <div>
                     <h2>Size Breakdown</h2>
-                    <p>Update size quantity distribution. Total must match production quantity.</p>
+                    <p>Aggregate quantity distribution across all products in this production plan.</p>
                 </div>
             </div>
 
             <div class="size-grid">
                 <div class="form-group">
                     <label>XS</label>
-                    <input type="number" min="0" name="SizeXS" id="sizeXS" class="form-control size-input editable-field" value="0" />
+                    <input type="number" min="0" name="SizeXS" id="sizeXS" class="form-control size-input" value="0" readonly />
                 </div>
 
                 <div class="form-group">
                     <label>S</label>
-                    <input type="number" min="0" name="SizeS" id="sizeS" class="form-control size-input editable-field" value="0" />
+                    <input type="number" min="0" name="SizeS" id="sizeS" class="form-control size-input" value="0" readonly />
                 </div>
 
                 <div class="form-group">
                     <label>M</label>
-                    <input type="number" min="0" name="SizeM" id="sizeM" class="form-control size-input editable-field" value="0" />
+                    <input type="number" min="0" name="SizeM" id="sizeM" class="form-control size-input" value="0" readonly />
                 </div>
 
                 <div class="form-group">
                     <label>L</label>
-                    <input type="number" min="0" name="SizeL" id="sizeL" class="form-control size-input editable-field" value="0" />
+                    <input type="number" min="0" name="SizeL" id="sizeL" class="form-control size-input" value="0" readonly />
                 </div>
 
                 <div class="form-group">
                     <label>XL</label>
-                    <input type="number" min="0" name="SizeXL" id="sizeXL" class="form-control size-input editable-field" value="0" />
+                    <input type="number" min="0" name="SizeXL" id="sizeXL" class="form-control size-input" value="0" readonly />
                 </div>
 
                 <div class="form-group">
                     <label>XXL</label>
-                    <input type="number" min="0" name="SizeXXL" id="sizeXXL" class="form-control size-input editable-field" value="0" />
+                    <input type="number" min="0" name="SizeXXL" id="sizeXXL" class="form-control size-input" value="0" readonly />
                 </div>
             </div>
 
@@ -537,6 +552,7 @@
     </div>
 </div>
 
+<script src="~/js/app.js" asp-append-version="true"></script>
 <script src="~/data/customers.js" asp-append-version="true"></script>
 <script src="~/data/outlets.js" asp-append-version="true"></script>
 <script src="~/data/products.js" asp-append-version="true"></script>
@@ -546,5 +562,4 @@
 <script src="~/data/production-stages.js" asp-append-version="true"></script>
 <script src="~/data/mock-production-plans.js" asp-append-version="true"></script>
 
-<script src="~/js/production-plan-create.js" asp-append-version="true"></script>
 <script src="~/js/production-plan-edit.js" asp-append-version="true"></script>

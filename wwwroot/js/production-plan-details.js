@@ -1,6 +1,8 @@
 (function () {
     "use strict";
 
+    const fallbackProductImage = "https://images.unsplash.com/photo-1523381294911-8d3cead13475?auto=format&fit=crop&w=640&q=80";
+
     const state = {
         plans: [],
         products: [],
@@ -11,7 +13,7 @@
         bom: [],
         stages: [],
         plan: null,
-        product: null
+        planProducts: []
     };
 
     document.addEventListener("DOMContentLoaded", init);
@@ -19,11 +21,11 @@
     function init() {
         state.plans = App.getData("mockProductionPlans", "productionPlans", "plans");
         state.products = App.getData("products", "mockProducts", "productData");
-        state.customers = App.getData("customers", "mockCustomers", "customerData");
+        state.customers = App.getData("customers", "mockCustomers", "customerData", "customerMasterData", "customerOrderCatalogData");
         state.outlets = App.getData("outlets", "mockOutlets", "outletData");
         state.warehouses = App.getData("warehouses", "mockWarehouses", "warehouseData");
         state.materials = App.getData("materials", "mockMaterials", "materialData");
-        state.bom = App.getData("bom", "mockBom", "billOfMaterials", "bomItems");
+        state.bom = App.getData("bomMasterData", "bomData", "boms", "bom", "mockBom", "billOfMaterials", "bomItems");
         state.stages = App.getData("productionStages", "mockProductionStages", "stages");
 
         bindTabs();
@@ -54,10 +56,7 @@
     function loadPlan() {
         const id = App.value("#selectedPlanId");
         state.plan = App.findById(state.plans, id) || state.plans[0] || null;
-
-        if (state.plan) {
-            state.product = App.findById(state.products, state.plan.productId);
-        }
+        state.planProducts = state.plan ? normalizePlanProducts(state.plan) : [];
     }
 
     function renderDetails() {
@@ -78,28 +77,27 @@
 
     function renderSummary() {
         const plan = state.plan;
-        const productName = plan.productName || state.product?.name || state.product?.productName || "-";
+        const products = state.planProducts;
+        const productLabel = getProductSummaryLabel(products);
 
         App.setText("#detailsPlanNo", plan.planNo || plan.planId);
-        App.setText("#detailsPlanSubtitle", `${productName} • ${plan.demandType || "-"}`);
+        App.setText("#detailsPlanSubtitle", `${getSourceName()} | ${plan.demandType || "-"}`);
 
         const badge = document.getElementById("detailsStatusBadge");
         if (badge) badge.outerHTML = App.badge(plan.status);
 
         App.setText("#summaryDemandType", plan.demandType);
         App.setText("#summarySourceName", getSourceName());
-        App.setText("#summaryProduct", productName);
-        App.setText("#summaryQuantity", Number(plan.quantity || plan.totalQuantity || 0).toLocaleString());
-        App.setText("#summaryStartDate", App.formatDate(plan.plannedStartDate));
-        App.setText("#summaryCompletionDate", App.formatDate(plan.plannedCompletionDate));
-        App.setText("#summaryRequiredDate", App.formatDate(plan.requiredDate));
+        App.setText("#summaryProduct", productLabel);
+        App.setText("#summaryQuantity", formatNumber(getPlanQuantity()));
+        App.setText("#summaryStartDate", App.formatDate(plan.plannedStartDate || getMinProductDate("plannedStartDate")));
+        App.setText("#summaryCompletionDate", App.formatDate(plan.plannedCompletionDate || getMaxProductDate("plannedCompletionDate")));
+        App.setText("#summaryRequiredDate", App.formatDate(plan.requiredDate || getMaxProductDate("requiredDate")));
         App.setText("#summaryPriority", plan.priority || "Normal");
     }
 
     function renderOverview() {
         const plan = state.plan;
-        const product = state.product || {};
-        const productName = plan.productName || product.name || product.productName || "-";
 
         App.setText("#overviewPlanNo", plan.planNo || plan.planId);
         App.setText("#overviewPlanDate", App.formatDate(plan.planDate));
@@ -108,23 +106,73 @@
         App.setText("#overviewOutputDestination", plan.outputDestination || "-");
         App.setText("#overviewStatus", plan.status);
 
-        App.setText("#productCode", product.productCode || product.code || plan.productId);
-        App.setText("#productName", productName);
-        App.setText("#productCategory", product.category || "-");
-        App.setText("#productVariant", plan.variant || plan.color || "-");
-        App.setText("#productQuantity", Number(plan.quantity || plan.totalQuantity || 0).toLocaleString());
-
-        const img = document.getElementById("productImage");
-        if (img) {
-            img.src = product.imagePath || product.image || "/images/products/placeholder.png";
-            img.alt = productName;
-        }
+        renderProductList();
 
         App.setText("#datePlanDate", App.formatDate(plan.planDate));
-        App.setText("#dateStartDate", App.formatDate(plan.plannedStartDate));
-        App.setText("#dateCompletionDate", App.formatDate(plan.plannedCompletionDate));
-        App.setText("#dateRequiredDate", App.formatDate(plan.requiredDate));
+        App.setText("#dateStartDate", App.formatDate(plan.plannedStartDate || getMinProductDate("plannedStartDate")));
+        App.setText("#dateCompletionDate", App.formatDate(plan.plannedCompletionDate || getMaxProductDate("plannedCompletionDate")));
+        App.setText("#dateRequiredDate", App.formatDate(plan.requiredDate || getMaxProductDate("requiredDate")));
         App.setText("#dateBufferDays", `${Math.max(App.dateDiffDays(plan.plannedCompletionDate, plan.requiredDate), 0)} days`);
+    }
+
+    function renderProductList() {
+        const list = document.getElementById("detailsProductList");
+        if (!list) return;
+
+        if (!state.planProducts.length) {
+            list.innerHTML = `<div class="empty-cell">No products found for this plan.</div>`;
+            return;
+        }
+
+        list.innerHTML = state.planProducts.map(function (product) {
+            const image = product.productImage || getCatalogProduct(product)?.productImage || getCatalogProduct(product)?.imagePath || fallbackProductImage;
+
+            return `
+                <article class="plan-product-card">
+                    <img src="${App.escapeHtml(image)}"
+                         alt="${App.escapeHtml(product.productName)}"
+                         onerror="this.src='${fallbackProductImage}'" />
+
+                    <div class="plan-product-card-body">
+                        <div class="plan-product-card-head">
+                            <div>
+                                <span>${App.escapeHtml(product.productCode || product.productId || "-")}</span>
+                                <h4>${App.escapeHtml(product.productName)}</h4>
+                            </div>
+
+                            ${App.badge(product.status || state.plan.status)}
+                        </div>
+
+                        <div class="plan-product-meta-grid">
+                            <div>
+                                <span>Category</span>
+                                <strong>${App.escapeHtml(product.category || "-")}</strong>
+                            </div>
+                            <div>
+                                <span>Variant</span>
+                                <strong>${App.escapeHtml(product.variant || "-")}</strong>
+                            </div>
+                            <div>
+                                <span>Quantity</span>
+                                <strong>${formatNumber(product.quantity)} pcs</strong>
+                            </div>
+                            <div>
+                                <span>Source</span>
+                                <strong>${App.escapeHtml(product.sourceName || getSourceName())}</strong>
+                            </div>
+                            <div>
+                                <span>Required</span>
+                                <strong>${App.formatDate(product.requiredDate)}</strong>
+                            </div>
+                            <div>
+                                <span>Planned</span>
+                                <strong>${App.formatDate(product.plannedStartDate)} - ${App.formatDate(product.plannedCompletionDate)}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }).join("");
     }
 
     function getSourceName() {
@@ -194,35 +242,25 @@
         const body = document.getElementById("detailsMaterialBody");
         if (!body) return;
 
-        const plan = state.plan;
-        const quantity = Number(plan.quantity || plan.totalQuantity || 0);
+        const rows = calculateMaterialRequirements(state.planProducts);
 
-        const bomItems = state.bom.filter(function (item) {
-            return String(item.productId) === String(plan.productId);
-        });
-
-        if (!bomItems.length) {
-            body.innerHTML = `<tr><td colspan="8" class="empty-cell">No BOM found for this product.</td></tr>`;
+        if (!rows.length) {
+            body.innerHTML = `<tr><td colspan="8" class="empty-cell">No BOM found for the products in this plan.</td></tr>`;
             return;
         }
 
-        body.innerHTML = bomItems.map(function (bomItem) {
-            const material = App.findById(state.materials, bomItem.materialId);
-            const baseQty = quantity * Number(bomItem.qtyPerUnit || 0);
-            const requiredQty = baseQty + (baseQty * Number(bomItem.wastagePercent || 0) / 100);
-            const availableQty = Number(material?.availableQty ?? material?.availableStock ?? material?.stock ?? 0);
-            const shortageQty = Math.max(requiredQty - availableQty, 0);
-            const status = shortageQty > 0 ? "Shortage" : "OK";
+        body.innerHTML = rows.map(function (row) {
+            const status = row.shortageQty > 0 ? "Shortage" : "OK";
 
             return `
                 <tr>
-                    <td>${App.escapeHtml(material?.materialCode || material?.code || bomItem.materialId)}</td>
-                    <td><strong>${App.escapeHtml(material?.name || material?.materialName || "-")}</strong></td>
-                    <td>${App.escapeHtml(material?.type || material?.materialType || "-")}</td>
-                    <td>${requiredQty.toFixed(2)}</td>
-                    <td>${availableQty.toFixed(2)}</td>
-                    <td>${shortageQty.toFixed(2)}</td>
-                    <td>${App.escapeHtml(bomItem.unit || material?.unit || "-")}</td>
+                    <td>${App.escapeHtml(row.materialCode)}</td>
+                    <td><strong>${App.escapeHtml(row.materialName)}</strong></td>
+                    <td>${App.escapeHtml(row.materialType)}</td>
+                    <td>${row.requiredQty.toFixed(2)}</td>
+                    <td>${row.availableQty.toFixed(2)}</td>
+                    <td>${row.shortageQty.toFixed(2)}</td>
+                    <td>${App.escapeHtml(row.unit)}</td>
                     <td>${App.badge(status)}</td>
                 </tr>
             `;
@@ -265,8 +303,8 @@
                     <td>${App.formatDate(stage.plannedEndDate || state.plan.plannedCompletionDate)}</td>
                     <td>${App.formatDate(stage.actualStartDate)}</td>
                     <td>${App.formatDate(stage.actualEndDate)}</td>
-                    <td>${Number(stage.completedQty || 0).toLocaleString()}</td>
-                    <td>${Number(stage.rejectedQty || 0).toLocaleString()}</td>
+                    <td>${formatNumber(stage.completedQty || 0)}</td>
+                    <td>${formatNumber(stage.rejectedQty || 0)}</td>
                     <td>${App.badge(stage.status || "Not Started")}</td>
                 </tr>
             `;
@@ -274,39 +312,89 @@
     }
 
     function renderSizes() {
-        const sizes = state.plan.sizes || state.plan.sizeBreakdown || {};
-        const quantity = Number(state.plan.quantity || state.plan.totalQuantity || 0);
+        const totalsBySize = {};
+        let sizeTotal = 0;
 
-        const xs = Number(sizes.XS || sizes.xs || 0);
-        const s = Number(sizes.S || sizes.s || 0);
-        const m = Number(sizes.M || sizes.m || 0);
-        const l = Number(sizes.L || sizes.l || 0);
-        const xl = Number(sizes.XL || sizes.xl || 0);
-        const xxl = Number(sizes.XXL || sizes.xxl || 0);
+        state.planProducts.forEach(function (product) {
+            getSizeColorRows(product).forEach(function (row) {
+                totalsBySize[row.size] = (totalsBySize[row.size] || 0) + Number(row.quantity || 0);
+                sizeTotal += Number(row.quantity || 0);
+            });
+        });
 
-        const total = xs + s + m + l + xl + xxl;
-
-        App.setText("#sizeXS", xs);
-        App.setText("#sizeS", s);
-        App.setText("#sizeM", m);
-        App.setText("#sizeL", l);
-        App.setText("#sizeXL", xl);
-        App.setText("#sizeXXL", xxl);
-        App.setText("#detailsSizeTotal", total);
-        App.setText("#detailsPlanQuantity", quantity);
+        App.setText("#sizeXS", totalsBySize.XS || 0);
+        App.setText("#sizeS", totalsBySize.S || 0);
+        App.setText("#sizeM", totalsBySize.M || 0);
+        App.setText("#sizeL", totalsBySize.L || 0);
+        App.setText("#sizeXL", totalsBySize.XL || 0);
+        App.setText("#sizeXXL", totalsBySize.XXL || 0);
+        App.setText("#detailsSizeTotal", formatNumber(sizeTotal));
+        App.setText("#detailsPlanQuantity", formatNumber(getPlanQuantity()));
 
         const msg = document.getElementById("detailsSizeMessage");
         if (msg) {
             msg.classList.remove("success", "warning", "danger");
 
-            if (total === quantity) {
-                msg.textContent = "Size breakdown matches plan quantity.";
+            if (sizeTotal === getPlanQuantity()) {
+                msg.textContent = "Size and color breakdown matches plan quantity.";
                 msg.classList.add("success");
             } else {
-                msg.textContent = `Size total does not match plan quantity. Difference: ${quantity - total}`;
+                msg.textContent = `Size total does not match plan quantity. Difference: ${formatNumber(getPlanQuantity() - sizeTotal)}`;
                 msg.classList.add("danger");
             }
         }
+
+        renderProductSizeBreakdown();
+    }
+
+    function renderProductSizeBreakdown() {
+        const list = document.getElementById("detailsProductSizeList");
+        if (!list) return;
+
+        if (!state.planProducts.length) {
+            list.innerHTML = `<div class="empty-cell">No product size data found.</div>`;
+            return;
+        }
+
+        list.innerHTML = state.planProducts.map(function (product) {
+            const rows = getSizeColorRows(product);
+            const total = rows.reduce(function (sum, row) {
+                return sum + Number(row.quantity || 0);
+            }, 0);
+
+            return `
+                <article class="product-size-card">
+                    <div class="product-size-card-head">
+                        <div>
+                            <h4>${App.escapeHtml(product.productName)}</h4>
+                            <p>${App.escapeHtml(product.variant || "-")}</p>
+                        </div>
+                        <strong>${formatNumber(total)} pcs</strong>
+                    </div>
+
+                    <table class="variant-breakdown-table">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Color</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows.map(function (row) {
+                                return `
+                                    <tr>
+                                        <td>${App.escapeHtml(row.size)}</td>
+                                        <td><span class="variant-chip">${App.escapeHtml(row.color)}</span></td>
+                                        <td>${formatNumber(row.quantity)}</td>
+                                    </tr>
+                                `;
+                            }).join("") || `<tr><td colspan="3" class="empty-cell">No size/color variants.</td></tr>`}
+                        </tbody>
+                    </table>
+                </article>
+            `;
+        }).join("");
     }
 
     function renderActivity() {
@@ -339,5 +427,196 @@
                 </div>
             `;
         }).join("");
+    }
+
+    function normalizePlanProducts(plan) {
+        const rawProducts = Array.isArray(plan.products) && plan.products.length
+            ? plan.products
+            : [plan];
+
+        return rawProducts.map(function (product, index) {
+            const catalogProduct = getCatalogProduct(product) || {};
+
+            return {
+                lineId: product.lineId || `${plan.planNo || plan.planId || "PLAN"}-${index + 1}`,
+                productId: product.productId || plan.productId || catalogProduct.productId || catalogProduct.id || "",
+                productCode: product.productCode || product.productId || plan.productId || catalogProduct.productCode || "",
+                productName: product.productName || product.product || plan.productName || catalogProduct.productName || catalogProduct.name || "-",
+                category: product.category || plan.category || catalogProduct.category || "-",
+                variant: product.variant || product.color || plan.variant || plan.color || "-",
+                quantity: Number(product.quantity || product.qty || plan.quantity || plan.totalQuantity || 0),
+                sourceName: product.sourceName || product.source || plan.sourceName || getSourceName(),
+                requiredDate: product.requiredDate || plan.requiredDate || "",
+                plannedStartDate: product.plannedStartDate || product.plannedStart || plan.plannedStartDate || "",
+                plannedCompletionDate: product.plannedCompletionDate || product.plannedFinish || plan.plannedCompletionDate || "",
+                status: product.status || plan.status || "Draft",
+                priority: product.priority || plan.priority || "Normal",
+                productImage: product.productImage || product.imagePath || product.image || catalogProduct.productImage || catalogProduct.imagePath || fallbackProductImage,
+                productionNotes: product.productionNotes || plan.productionNotes || "",
+                sizes: product.sizes || product.sizeBreakdown || plan.sizes || plan.sizeBreakdown || []
+            };
+        });
+    }
+
+    function getCatalogProduct(product) {
+        const candidates = [
+            product.productId,
+            product.productCode,
+            product.id,
+            product.code
+        ].filter(Boolean).map(String);
+
+        return state.products.find(function (item) {
+            return candidates.includes(String(item.id))
+                || candidates.includes(String(item.productId))
+                || candidates.includes(String(item.productCode))
+                || candidates.includes(String(item.code));
+        });
+    }
+
+    function calculateMaterialRequirements(products) {
+        const grouped = {};
+
+        products.forEach(function (product) {
+            const bomItems = getBomItemsForProduct(product);
+
+            bomItems.forEach(function (bomItem) {
+                const material = getMaterialById(bomItem.materialId);
+                const baseQty = Number(product.quantity || 0) * Number(bomItem.qtyPerUnit || 0);
+                const requiredQty = baseQty + (baseQty * Number(bomItem.wastagePercent || 0) / 100);
+                const key = material.materialId || material.id || bomItem.materialId;
+
+                if (!grouped[key]) {
+                    grouped[key] = {
+                        materialCode: material.materialCode || material.code || bomItem.materialId,
+                        materialName: material.name || material.materialName || "Unknown Material",
+                        materialType: material.type || material.materialType || "Material",
+                        requiredQty: 0,
+                        availableQty: Number(material.availableQty ?? material.availableStock ?? material.stock ?? 0),
+                        shortageQty: 0,
+                        unit: bomItem.unit || material.unit || "-"
+                    };
+                }
+
+                grouped[key].requiredQty += requiredQty;
+            });
+        });
+
+        return Object.values(grouped).map(function (row) {
+            row.shortageQty = Math.max(row.requiredQty - row.availableQty, 0);
+            return row;
+        });
+    }
+
+    function getBomItemsForProduct(product) {
+        const catalogProduct = getCatalogProduct(product) || {};
+        const candidates = [
+            product.productId,
+            product.productCode,
+            catalogProduct.id,
+            catalogProduct.productId,
+            catalogProduct.productCode
+        ].filter(Boolean).map(String);
+
+        return state.bom.filter(function (item) {
+            return candidates.includes(String(item.productId))
+                || candidates.includes(String(item.ProductId))
+                || candidates.includes(String(item.productCode))
+                || candidates.includes(String(item.ProductCode));
+        });
+    }
+
+    function getMaterialById(materialId) {
+        return state.materials.find(function (material) {
+            return String(material.id) === String(materialId)
+                || String(material.materialId) === String(materialId)
+                || String(material.materialCode) === String(materialId)
+                || String(material.code) === String(materialId);
+        }) || {
+            id: materialId,
+            materialId: materialId,
+            materialCode: materialId,
+            name: "Unknown Material",
+            materialName: "Unknown Material",
+            type: "Material",
+            materialType: "Material",
+            unit: "pcs",
+            availableQty: 0
+        };
+    }
+
+    function getSizeColorRows(product) {
+        const sizes = product.sizes || [];
+
+        if (!Array.isArray(sizes)) {
+            return Object.entries(sizes).map(function ([size, qty]) {
+                return {
+                    size: size,
+                    color: product.variant || "-",
+                    quantity: Number(qty || 0)
+                };
+            });
+        }
+
+        const rows = [];
+
+        sizes.forEach(function (sizeRow) {
+            const colorRows = sizeRow.colors || sizeRow.colorVariants || sizeRow.variants || [];
+
+            if (colorRows.length) {
+                colorRows.forEach(function (colorRow) {
+                    rows.push({
+                        size: sizeRow.size || "-",
+                        color: colorRow.color || colorRow.variant || colorRow.name || product.variant || "-",
+                        quantity: Number(colorRow.quantity || colorRow.qty || 0)
+                    });
+                });
+
+                return;
+            }
+
+            rows.push({
+                size: sizeRow.size || "-",
+                color: sizeRow.color || product.variant || "-",
+                quantity: Number(sizeRow.quantity || sizeRow.qty || 0)
+            });
+        });
+
+        return rows;
+    }
+
+    function getPlanQuantity() {
+        return state.planProducts.reduce(function (sum, product) {
+            return sum + Number(product.quantity || 0);
+        }, 0) || Number(state.plan.quantity || state.plan.totalQuantity || 0);
+    }
+
+    function getProductSummaryLabel(products) {
+        if (!products.length) return "-";
+        if (products.length === 1) return products[0].productName;
+
+        return `${products.length} products: ${products.slice(0, 2).map(function (product) {
+            return product.productName;
+        }).join(", ")}${products.length > 2 ? "..." : ""}`;
+    }
+
+    function getMinProductDate(field) {
+        return state.planProducts.map(function (product) {
+            return product[field];
+        }).filter(Boolean).sort()[0] || "";
+    }
+
+    function getMaxProductDate(field) {
+        const dates = state.planProducts.map(function (product) {
+            return product[field];
+        }).filter(Boolean).sort();
+
+        return dates[dates.length - 1] || "";
+    }
+
+    function formatNumber(value) {
+        return Number(value || 0).toLocaleString("en-US", {
+            maximumFractionDigits: 2
+        });
     }
 })();

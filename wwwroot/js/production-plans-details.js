@@ -1,255 +1,167 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const plans = [
-        {
-            planNo: "PP-20260602-001",
-            demandType: "Outlet Replenishment",
-            source: "Multiple Outlets",
-            status: "Material Check",
-            statusClass: "status-material",
-            totalQty: 390,
-            productCount: 4,
-            factoryStart: "2026-06-04",
-            factoryFinish: "2026-06-13",
-            earliestRequired: "2026-06-06",
-            latestRequired: "2026-06-15",
-            risk: "1 urgent item",
-            products: [
-                {
-                    product: "Black Polo T-shirt",
-                    source: "New Road Outlet",
-                    qty: 120,
-                    requiredDate: "2026-06-06",
-                    plannedStart: "2026-06-04",
-                    plannedFinish: "2026-06-07",
-                    status: "Material Check",
-                    risk: true,
-                    sizes: { S: 15, M: 40, L: 35, XL: 20, XXL: 10 }
-                },
-                {
-                    product: "White School Shirt",
-                    source: "Lalitpur Outlet",
-                    qty: 90,
-                    requiredDate: "2026-06-09",
-                    plannedStart: "2026-06-05",
-                    plannedFinish: "2026-06-09",
-                    status: "Draft",
-                    risk: false,
-                    sizes: { S: 10, M: 30, L: 30, XL: 20 }
-                },
-                {
-                    product: "Hotel Staff Uniform",
-                    source: "Pokhara Outlet",
-                    qty: 80,
-                    requiredDate: "2026-06-12",
-                    plannedStart: "2026-06-08",
-                    plannedFinish: "2026-06-12",
-                    status: "Draft",
-                    risk: false,
-                    sizes: { M: 25, L: 35, XL: 20 }
-                },
-                {
-                    product: "Hoodie",
-                    source: "New Road Outlet",
-                    qty: 100,
-                    requiredDate: "2026-06-15",
-                    plannedStart: "2026-06-10",
-                    plannedFinish: "2026-06-13",
-                    status: "Draft",
-                    risk: false,
-                    sizes: { S: 20, M: 35, L: 30, XL: 15 }
-                }
-            ]
-        },
-        {
-            planNo: "PP-20260602-002",
-            demandType: "Customer Order",
-            source: "Global School",
-            status: "Draft",
-            statusClass: "status-draft",
-            totalQty: 260,
-            productCount: 2,
-            factoryStart: "2026-06-06",
-            factoryFinish: "2026-06-11",
-            earliestRequired: "2026-06-10",
-            latestRequired: "2026-06-12",
-            risk: "On schedule",
-            products: [
-                {
-                    product: "White School Shirt",
-                    source: "Global School",
-                    qty: 140,
-                    requiredDate: "2026-06-10",
-                    plannedStart: "2026-06-06",
-                    plannedFinish: "2026-06-09",
-                    status: "Draft",
-                    risk: false,
-                    sizes: { S: 25, M: 50, L: 45, XL: 20 }
-                },
-                {
-                    product: "Formal Trouser",
-                    source: "Global School",
-                    qty: 120,
-                    requiredDate: "2026-06-12",
-                    plannedStart: "2026-06-08",
-                    plannedFinish: "2026-06-11",
-                    status: "Draft",
-                    risk: false,
-                    sizes: { M: 40, L: 50, XL: 30 }
-                }
-            ]
-        },
-        {
-            planNo: "PP-20260602-003",
-            demandType: "In-house Stock",
-            source: "Main Warehouse",
-            status: "In Production",
-            statusClass: "status-running",
-            totalQty: 180,
-            productCount: 1,
-            factoryStart: "2026-06-03",
-            factoryFinish: "2026-06-08",
-            earliestRequired: "2026-06-14",
-            latestRequired: "2026-06-14",
-            risk: "On schedule",
-            products: [
-                {
-                    product: "Kurta Set",
-                    source: "Main Warehouse",
-                    qty: 180,
-                    requiredDate: "2026-06-14",
-                    plannedStart: "2026-06-03",
-                    plannedFinish: "2026-06-08",
-                    status: "In Production",
-                    risk: false,
-                    sizes: { S: 25, M: 60, L: 55, XL: 40 }
-                }
-            ]
-        }
-    ];
+    const plans = (window.mockProductionPlans || window.productionPlans || window.plans || []).map(normalizePlan);
 
     const selectedPlanNoFromRoute = document.getElementById("selectedPlanNoFromRoute")?.value || "";
     const planList = document.getElementById("planList");
+    const planPagination = document.getElementById("planPagination");
     const detailBody = document.getElementById("planDetailBody");
-const demandTypeFilter = document.getElementById("demandTypeFilter");
-const statusFilter = document.getElementById("statusFilter");
-const fromDateFilter = document.getElementById("fromDateFilter");
-const toDateFilter = document.getElementById("toDateFilter");
-const productSearch = document.getElementById("productSearch");
-const sourceSearch = document.getElementById("sourceSearch");
-const resetFiltersBtn = document.getElementById("resetFiltersBtn");
+    const demandTypeFilter = document.getElementById("demandTypeFilter");
+    const statusFilter = document.getElementById("statusFilter");
+    const fromDateFilter = document.getElementById("fromDateFilter");
+    const toDateFilter = document.getElementById("toDateFilter");
+    const productSearch = document.getElementById("productSearch");
+    const sourceSearch = document.getElementById("sourceSearch");
+    const resetFiltersBtn = document.getElementById("resetFiltersBtn");
+    const viewPlanDetailsBtn = document.getElementById("viewPlanDetailsBtn");
+    const editPlanBtn = document.getElementById("editPlanBtn");
+    const pageSize = 5;
 
-    let activePlanNo = selectedPlanNoFromRoute || plans[0].planNo;
+    let activePlanNo = selectedPlanNoFromRoute || plans[0]?.planNo || "";
+    let currentPage = 1;
+    let shouldPageToActivePlan = Boolean(selectedPlanNoFromRoute);
 
     renderPlans();
     renderDetails();
     attachEvents();
 
     function attachEvents() {
-    [
-        demandTypeFilter,
-        statusFilter,
-        fromDateFilter,
-        toDateFilter,
-        productSearch,
-        sourceSearch
-    ].forEach(function (element) {
-        if (element) {
-            element.addEventListener("input", renderPlans);
-            element.addEventListener("change", renderPlans);
+        [
+            demandTypeFilter,
+            statusFilter,
+            fromDateFilter,
+            toDateFilter,
+            productSearch,
+            sourceSearch
+        ].forEach(function (element) {
+            if (element) {
+                element.addEventListener("input", resetToFirstPageAndRender);
+                element.addEventListener("change", resetToFirstPageAndRender);
+            }
+        });
+
+        if (resetFiltersBtn) {
+            resetFiltersBtn.addEventListener("click", function () {
+                if (demandTypeFilter) demandTypeFilter.value = "";
+                if (statusFilter) statusFilter.value = "";
+                if (fromDateFilter) fromDateFilter.value = "";
+                if (toDateFilter) toDateFilter.value = "";
+                if (productSearch) productSearch.value = "";
+                if (sourceSearch) sourceSearch.value = "";
+
+                currentPage = 1;
+                shouldPageToActivePlan = false;
+                renderPlans();
+            });
         }
-    });
-
-    if (resetFiltersBtn) {
-        resetFiltersBtn.addEventListener("click", function () {
-            if (demandTypeFilter) demandTypeFilter.value = "";
-            if (statusFilter) statusFilter.value = "";
-            if (fromDateFilter) fromDateFilter.value = "";
-            if (toDateFilter) toDateFilter.value = "";
-            if (productSearch) productSearch.value = "";
-            if (sourceSearch) sourceSearch.value = "";
-
-            renderPlans();
-        });
     }
 
-    const printBtn = document.getElementById("printPlanBtn");
-
-    if (printBtn) {
-        printBtn.addEventListener("click", function () {
-            window.print();
-        });
+    function resetToFirstPageAndRender() {
+        currentPage = 1;
+        shouldPageToActivePlan = false;
+        renderPlans();
     }
-}
 
     function renderPlans() {
         if (!planList) return;
 
         let filteredPlans = plans.slice();
 
-const demandTypeValue = demandTypeFilter ? demandTypeFilter.value : "";
-const statusValue = statusFilter ? statusFilter.value : "";
-const fromDateValue = fromDateFilter ? fromDateFilter.value : "";
-const toDateValue = toDateFilter ? toDateFilter.value : "";
-const productSearchText = productSearch ? productSearch.value.toLowerCase().trim() : "";
-const sourceSearchText = sourceSearch ? sourceSearch.value.toLowerCase().trim() : "";
+        const demandTypeValue = demandTypeFilter ? demandTypeFilter.value : "";
+        const statusValue = statusFilter ? statusFilter.value : "";
+        const fromDateValue = fromDateFilter ? fromDateFilter.value : "";
+        const toDateValue = toDateFilter ? toDateFilter.value : "";
+        const productSearchText = productSearch ? productSearch.value.toLowerCase().trim() : "";
+        const sourceSearchText = sourceSearch ? sourceSearch.value.toLowerCase().trim() : "";
 
-if (demandTypeValue) {
-    filteredPlans = filteredPlans.filter(function (plan) {
-        return plan.demandType === demandTypeValue;
-    });
-}
-
-if (statusValue) {
-    filteredPlans = filteredPlans.filter(function (plan) {
-        return plan.status === statusValue;
-    });
-}
-
-if (productSearchText) {
-    filteredPlans = filteredPlans.filter(function (plan) {
-        const productText = plan.products.map(function (product) {
-            return product.product;
-        }).join(" ").toLowerCase();
-
-        return productText.includes(productSearchText);
-    });
-}
-
-if (sourceSearchText) {
-    filteredPlans = filteredPlans.filter(function (plan) {
-        return plan.source.toLowerCase().includes(sourceSearchText) ||
-            plan.products.some(function (product) {
-                return product.source.toLowerCase().includes(sourceSearchText);
+        if (demandTypeValue) {
+            filteredPlans = filteredPlans.filter(function (plan) {
+                return plan.demandType === demandTypeValue;
             });
-    });
-}
+        }
 
-if (fromDateValue) {
-    filteredPlans = filteredPlans.filter(function (plan) {
-        return new Date(plan.earliestRequired) >= new Date(fromDateValue) ||
-            plan.products.some(function (product) {
-                return new Date(product.requiredDate) >= new Date(fromDateValue);
+        if (statusValue) {
+            filteredPlans = filteredPlans.filter(function (plan) {
+                return plan.status === statusValue;
             });
-    });
-}
+        }
 
-if (toDateValue) {
-    filteredPlans = filteredPlans.filter(function (plan) {
-        return new Date(plan.latestRequired) <= new Date(toDateValue) ||
-            plan.products.some(function (product) {
-                return new Date(product.requiredDate) <= new Date(toDateValue);
+        if (productSearchText) {
+            filteredPlans = filteredPlans.filter(function (plan) {
+                return plan.products.some(function (product) {
+                    return product.productName.toLowerCase().includes(productSearchText);
+                });
             });
-    });
-}
+        }
+
+        if (sourceSearchText) {
+            filteredPlans = filteredPlans.filter(function (plan) {
+                return plan.sourceName.toLowerCase().includes(sourceSearchText)
+                    || plan.products.some(function (product) {
+                        return product.sourceName.toLowerCase().includes(sourceSearchText);
+                    });
+            });
+        }
+
+        if (fromDateValue) {
+            filteredPlans = filteredPlans.filter(function (plan) {
+                return isSameOrAfter(plan.earliestRequired, fromDateValue)
+                    || plan.products.some(function (product) {
+                        return isSameOrAfter(product.requiredDate, fromDateValue);
+                    });
+            });
+        }
+
+        if (toDateValue) {
+            filteredPlans = filteredPlans.filter(function (plan) {
+                return isSameOrBefore(plan.latestRequired, toDateValue)
+                    || plan.products.some(function (product) {
+                        return isSameOrBefore(product.requiredDate, toDateValue);
+                    });
+            });
+        }
 
         if (!filteredPlans.length) {
             planList.innerHTML = `<div class="empty-cell">No plans found.</div>`;
+            renderPagination(0);
+            if (!plans.some(function (plan) { return plan.planNo === activePlanNo; })) {
+                activePlanNo = plans[0]?.planNo || "";
+                renderDetails();
+            }
             return;
         }
 
-        planList.innerHTML = filteredPlans.map(function (plan) {
+        if (!filteredPlans.some(function (plan) { return plan.planNo === activePlanNo; })) {
+            activePlanNo = filteredPlans[0].planNo;
+            renderDetails();
+        }
+
+        const totalPages = Math.max(Math.ceil(filteredPlans.length / pageSize), 1);
+
+        if (shouldPageToActivePlan) {
+            const activeIndex = filteredPlans.findIndex(function (plan) {
+                return plan.planNo === activePlanNo;
+            });
+
+            if (activeIndex >= 0) {
+                currentPage = Math.floor(activeIndex / pageSize) + 1;
+            }
+
+            shouldPageToActivePlan = false;
+        }
+
+        currentPage = Math.min(Math.max(currentPage, 1), totalPages);
+
+        const startIndex = (currentPage - 1) * pageSize;
+        const pagePlans = filteredPlans.slice(startIndex, startIndex + pageSize);
+
+        if (pagePlans.length && !pagePlans.some(function (plan) { return plan.planNo === activePlanNo; })) {
+            activePlanNo = pagePlans[0].planNo;
+            renderDetails();
+        }
+
+        planList.innerHTML = pagePlans.map(function (plan) {
             const productNames = plan.products.slice(0, 3).map(function (product) {
-                return product.product;
+                return product.productName;
             }).join(", ");
 
             const moreText = plan.products.length > 3
@@ -257,7 +169,9 @@ if (toDateValue) {
                 : "";
 
             const isActive = plan.planNo === activePlanNo ? "active" : "";
-            const isRisk = String(plan.risk).toLowerCase().includes("urgent");
+            const isRisk = plan.products.some(function (product) {
+                return product.risk || String(product.priority).toLowerCase() === "urgent";
+            });
             const duration = daysBetween(plan.factoryStart, plan.factoryFinish);
             const barWidth = Math.min(duration * 10, 100);
 
@@ -266,10 +180,10 @@ if (toDateValue) {
                     <div class="plan-top">
                         <div>
                             <div class="plan-no">${escapeHtml(plan.planNo)}</div>
-                            <h3 class="plan-title">${escapeHtml(plan.demandType)} • ${escapeHtml(plan.source)}</h3>
+                            <h3 class="plan-title">${escapeHtml(plan.demandType)} | ${escapeHtml(plan.sourceName)}</h3>
                         </div>
 
-                        <span class="status-badge ${plan.statusClass}">
+                        <span class="status-badge ${statusClass(plan.status)}">
                             ${escapeHtml(plan.status)}
                         </span>
                     </div>
@@ -292,7 +206,7 @@ if (toDateValue) {
 
                         <div class="mini-box">
                             <span>Date Risk</span>
-                            <strong>${escapeHtml(plan.risk)}</strong>
+                            <strong>${escapeHtml(plan.riskText)}</strong>
                         </div>
                     </div>
 
@@ -310,11 +224,75 @@ if (toDateValue) {
             `;
         }).join("");
 
+        renderPagination(filteredPlans.length);
+
         document.querySelectorAll(".plan-card").forEach(function (card) {
             card.addEventListener("click", function () {
                 activePlanNo = card.getAttribute("data-plan-no");
                 renderPlans();
                 renderDetails();
+            });
+        });
+    }
+
+    function renderPagination(totalItems) {
+        if (!planPagination) return;
+
+        if (!totalItems) {
+            planPagination.innerHTML = "";
+            return;
+        }
+
+        const totalPages = Math.max(Math.ceil(totalItems / pageSize), 1);
+        const startItem = ((currentPage - 1) * pageSize) + 1;
+        const endItem = Math.min(currentPage * pageSize, totalItems);
+        const pageButtons = Array.from({ length: totalPages }, function (_, index) {
+            const page = index + 1;
+            const activeClass = page === currentPage ? "active" : "";
+
+            return `
+                <button type="button"
+                        class="page-btn ${activeClass}"
+                        data-page="${page}">
+                    ${page}
+                </button>
+            `;
+        }).join("");
+
+        planPagination.innerHTML = `
+            <div class="pagination-info">
+                Showing ${formatNumber(startItem)}-${formatNumber(endItem)} of ${formatNumber(totalItems)}
+            </div>
+
+            <div class="pagination-actions">
+                <button type="button"
+                        class="page-btn"
+                        data-page="${currentPage - 1}"
+                        ${currentPage === 1 ? "disabled" : ""}>
+                    Previous
+                </button>
+
+                ${pageButtons}
+
+                <button type="button"
+                        class="page-btn"
+                        data-page="${currentPage + 1}"
+                        ${currentPage === totalPages ? "disabled" : ""}>
+                    Next
+                </button>
+            </div>
+        `;
+
+        planPagination.querySelectorAll("[data-page]").forEach(function (button) {
+            button.addEventListener("click", function (event) {
+                event.stopPropagation();
+
+                const page = Number(button.getAttribute("data-page"));
+                if (!page || page === currentPage || page < 1 || page > totalPages) return;
+
+                currentPage = page;
+                shouldPageToActivePlan = false;
+                renderPlans();
             });
         });
     }
@@ -326,68 +304,31 @@ if (toDateValue) {
             return item.planNo === activePlanNo;
         }) || plans[0];
 
-        const productCards = plan.products.map(function (product) {
-            const sizePills = Object.entries(product.sizes || {}).map(function ([size, qty]) {
-                return `<span class="size-pill">${escapeHtml(size)}: ${formatNumber(qty)}</span>`;
-            }).join("");
+        if (!plan) {
+            detailBody.innerHTML = `<div class="empty-cell">No production plans found.</div>`;
+            updatePlanActionLinks("");
+            return;
+        }
 
+        activePlanNo = plan.planNo;
+        updatePlanActionLinks(plan.planNo);
+
+        const quickProductRows = plan.products.map(function (product) {
             return `
-                <article class="product-date-card">
-                    <div class="product-date-head">
-                        <div>
-                            <h4>${escapeHtml(product.product)}</h4>
-                            <p>${escapeHtml(product.source)} • ${formatNumber(product.qty)} pcs</p>
-                        </div>
+                <div class="quick-product-row">
+                    <div class="quick-product-main">
+                        <strong>${escapeHtml(product.productName)}</strong>
+                        <span>${escapeHtml(product.variant || "-")} | ${escapeHtml(product.sourceName)}</span>
+                    </div>
 
+                    <div class="quick-product-meta">
+                        <span>${formatNumber(product.quantity)} pcs</span>
+                        <span>Required ${formatDateShort(product.requiredDate)}</span>
                         <span class="status-badge ${product.risk ? "status-risk" : "status-ok"}">
-                            ${product.risk ? "Date Risk" : "OK"}
+                            ${escapeHtml(product.risk ? "Risk" : product.status)}
                         </span>
                     </div>
-
-                    <div class="product-date-grid">
-                        <div>
-                            <span>Quantity</span>
-                            <strong>${formatNumber(product.qty)} pcs</strong>
-                        </div>
-
-                        <div>
-                            <span>Required Date</span>
-                            <strong>${formatDate(product.requiredDate)}</strong>
-                        </div>
-
-                        <div>
-                            <span>Planned Start</span>
-                            <strong>${formatDate(product.plannedStart)}</strong>
-                        </div>
-
-                        <div>
-                            <span>Planned Finish</span>
-                            <strong>${formatDate(product.plannedFinish)}</strong>
-                        </div>
-                    </div>
-
-                    <div class="size-row">
-                        ${sizePills || `<span class="size-pill">No size data</span>`}
-                    </div>
-                </article>
-            `;
-        }).join("");
-
-        const tableRows = plan.products.map(function (product) {
-            return `
-                <tr>
-                    <td><strong>${escapeHtml(product.product)}</strong></td>
-                    <td>${escapeHtml(product.source)}</td>
-                    <td>${formatNumber(product.qty)} pcs</td>
-                    <td>${formatDate(product.requiredDate)}</td>
-                    <td>${formatDate(product.plannedStart)}</td>
-                    <td>${formatDate(product.plannedFinish)}</td>
-                    <td>
-                        <span class="status-badge ${product.risk ? "status-risk" : "status-ok"}">
-                            ${escapeHtml(product.status)}
-                        </span>
-                    </td>
-                </tr>
+                </div>
             `;
         }).join("");
 
@@ -396,15 +337,25 @@ if (toDateValue) {
                 <div>
                     <small>Plan No</small>
                     <h3>${escapeHtml(plan.planNo)}</h3>
-                    <small>${escapeHtml(plan.demandType)} • ${escapeHtml(plan.source)}</small>
+                    <small>${escapeHtml(plan.demandType)} | ${escapeHtml(plan.sourceName)}</small>
                 </div>
 
-                <span class="status-badge ${plan.statusClass}">
+                <span class="status-badge ${statusClass(plan.status)}">
                     ${escapeHtml(plan.status)}
                 </span>
             </div>
 
             <div class="date-summary-grid">
+                <div class="date-card">
+                    <span>Products</span>
+                    <strong>${formatNumber(plan.productCount)}</strong>
+                </div>
+
+                <div class="date-card">
+                    <span>Total Quantity</span>
+                    <strong>${formatNumber(plan.totalQty)} pcs</strong>
+                </div>
+
                 <div class="date-card">
                     <span>Factory Start</span>
                     <strong>${formatDate(plan.factoryStart)}</strong>
@@ -421,38 +372,132 @@ if (toDateValue) {
                 </div>
             </div>
 
-            <div class="factory-note">
-                <strong>Planning rule:</strong>
-                The plan has one factory window, but every product inside the plan can have its own required date,
-                planned start date, and planned finish date.
+            <div class="compact-plan-note">
+                This is a quick reference only. Open View Details for the full product schedule,
+                size breakdown, color variants, materials, and stages.
             </div>
 
-            <h4 class="section-title">Product Schedule Inside This Plan</h4>
+            <h4 class="section-title">Quick Product Reference</h4>
 
-            ${productCards}
-
-            <h4 class="section-title">Compact Table View</h4>
-
-            <div class="table-wrap">
-                <table class="plan-table">
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Source</th>
-                            <th>Qty</th>
-                            <th>Required</th>
-                            <th>Start</th>
-                            <th>Finish</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        ${tableRows}
-                    </tbody>
-                </table>
+            <div class="quick-product-list">
+                ${quickProductRows}
             </div>
         `;
+    }
+
+    function updatePlanActionLinks(planNo) {
+        const encodedPlanNo = encodeURIComponent(planNo || "");
+
+        if (viewPlanDetailsBtn) {
+            viewPlanDetailsBtn.href = encodedPlanNo ? `/Production/Details/${encodedPlanNo}` : "/Production/Details";
+        }
+
+        if (editPlanBtn) {
+            editPlanBtn.href = encodedPlanNo ? `/Production/Edit/${encodedPlanNo}` : "/Production/Edit";
+        }
+    }
+
+    function normalizePlan(plan) {
+        const products = Array.isArray(plan.products) && plan.products.length
+            ? plan.products.map(function (product, index) {
+                return normalizeProduct(product, plan, index);
+            })
+            : [normalizeProduct(plan, plan, 0)];
+
+        const requiredDates = products.map(function (product) {
+            return product.requiredDate;
+        }).filter(Boolean).sort();
+
+        const starts = products.map(function (product) {
+            return product.plannedStartDate;
+        }).filter(Boolean).sort();
+
+        const finishes = products.map(function (product) {
+            return product.plannedCompletionDate;
+        }).filter(Boolean).sort();
+
+        const urgentCount = products.filter(function (product) {
+            return product.risk || String(product.priority || "").toLowerCase() === "urgent";
+        }).length;
+
+        return {
+            raw: plan,
+            planNo: plan.planNo || plan.planId || plan.id || "",
+            demandType: plan.demandType || "-",
+            sourceName: plan.sourceName || plan.customerName || plan.outletName || plan.warehouseName || "-",
+            status: plan.status || "Draft",
+            totalQty: products.reduce(function (sum, product) {
+                return sum + Number(product.quantity || 0);
+            }, 0) || Number(plan.totalQuantity || plan.quantity || 0),
+            productCount: products.length,
+            factoryStart: plan.plannedStartDate || starts[0] || "",
+            factoryFinish: plan.plannedCompletionDate || finishes[finishes.length - 1] || "",
+            earliestRequired: requiredDates[0] || plan.requiredDate || "",
+            latestRequired: requiredDates[requiredDates.length - 1] || plan.requiredDate || "",
+            riskText: urgentCount ? `${urgentCount} urgent item${urgentCount > 1 ? "s" : ""}` : "On schedule",
+            products: products
+        };
+    }
+
+    function normalizeProduct(product, plan, index) {
+        return {
+            lineId: product.lineId || `${plan.planNo || plan.planId || "PLAN"}-${index + 1}`,
+            orderNo: product.orderNo || "",
+            demandNo: product.demandNo || "",
+            productId: product.productId || plan.productId || "",
+            productCode: product.productCode || product.productId || plan.productId || "",
+            productName: product.productName || product.product || plan.productName || plan.product || "-",
+            category: product.category || plan.category || "-",
+            variant: product.variant || product.color || plan.variant || plan.color || "-",
+            quantity: Number(product.quantity || product.qty || plan.quantity || plan.totalQuantity || 0),
+            sourceName: product.sourceName || product.source || plan.sourceName || plan.customerName || plan.outletName || plan.warehouseName || "-",
+            requiredDate: product.requiredDate || plan.requiredDate || "",
+            plannedStartDate: product.plannedStartDate || product.plannedStart || plan.plannedStartDate || "",
+            plannedCompletionDate: product.plannedCompletionDate || product.plannedFinish || plan.plannedCompletionDate || "",
+            status: product.status || plan.status || "Draft",
+            priority: product.priority || plan.priority || "Normal",
+            risk: Boolean(product.risk),
+            sizes: product.sizes || product.sizeBreakdown || plan.sizes || plan.sizeBreakdown || []
+        };
+    }
+
+    function getSizeColorRows(product) {
+        const sizes = product.sizes || [];
+
+        if (!Array.isArray(sizes)) {
+            return Object.entries(sizes).map(function ([size, qty]) {
+                return {
+                    size: size,
+                    color: product.variant || "-",
+                    quantity: Number(qty || 0)
+                };
+            });
+        }
+
+        const rows = [];
+
+        sizes.forEach(function (sizeRow) {
+            const colorRows = sizeRow.colors || sizeRow.colorVariants || sizeRow.variants || [];
+
+            if (colorRows.length) {
+                colorRows.forEach(function (colorRow) {
+                    rows.push({
+                        size: sizeRow.size || "-",
+                        color: colorRow.color || colorRow.variant || colorRow.name || product.variant || "-",
+                        quantity: Number(colorRow.quantity || colorRow.qty || 0)
+                    });
+                });
+                return;
+            }
+
+            rows.push({
+                size: sizeRow.size || "-",
+                color: sizeRow.color || product.variant || "-",
+                quantity: Number(sizeRow.quantity || sizeRow.qty || 0)
+            });
+        });
+
+        return rows;
     }
 
     function daysBetween(start, end) {
@@ -464,6 +509,40 @@ if (toDateValue) {
         }
 
         return Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    }
+
+    function isSameOrAfter(value, limit) {
+        const date = new Date(value);
+        const limitDate = new Date(limit);
+
+        if (Number.isNaN(date.getTime()) || Number.isNaN(limitDate.getTime())) {
+            return true;
+        }
+
+        return date >= limitDate;
+    }
+
+    function isSameOrBefore(value, limit) {
+        const date = new Date(value);
+        const limitDate = new Date(limit);
+
+        if (Number.isNaN(date.getTime()) || Number.isNaN(limitDate.getTime())) {
+            return true;
+        }
+
+        return date <= limitDate;
+    }
+
+    function statusClass(status) {
+        const value = String(status || "").toLowerCase();
+
+        if (value.includes("draft")) return "status-draft";
+        if (value.includes("material")) return "status-material";
+        if (value.includes("completed")) return "status-completed";
+        if (value.includes("hold")) return "status-hold";
+        if (value.includes("cutting") || value.includes("production") || value.includes("stitching")) return "status-running";
+
+        return "status-running";
     }
 
     function formatDate(dateValue) {

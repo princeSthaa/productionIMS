@@ -13,8 +13,7 @@
         <div>
             <h1>Production Plans</h1>
             <p>
-                Select a plan from the list and review product-wise quantity, required dates,
-                planned dates, and size breakdown.
+                Select a plan from the list and use the quick reference before opening the full details or edit screen.
             </p>
         </div>
 
@@ -100,18 +99,32 @@
             <div id="planList" class="plan-list">
                 <div class="empty-cell">Loading plans...</div>
             </div>
+
+            <div id="planPagination" class="plan-pagination"></div>
         </section>
 
         <section class="plan-detail-card">
             <div class="plans-card-header">
                 <div>
                     <h2>Plan Detail</h2>
-                    <p>Selected plan with product-wise schedule.</p>
+                    <p>Selected plan summary and quick product reference.</p>
                 </div>
 
-                <button type="button" class="btn btn-light" id="printPlanBtn">
-                    Print
-                </button>
+                <div class="plans-detail-actions">
+                    <a id="viewPlanDetailsBtn"
+                       asp-page="/Production/Details"
+                       asp-route-id="@Model.PlanNo"
+                       class="btn btn-light">
+                        View Details
+                    </a>
+
+                    <a id="editPlanBtn"
+                       asp-page="/Production/Edit"
+                       asp-route-id="@Model.PlanNo"
+                       class="btn btn-primary">
+                        Edit
+                    </a>
+                </div>
             </div>
 
             <div id="planDetailBody" class="plan-detail-body">
@@ -123,6 +136,8 @@
 
 </div>
 
+<script src="~/js/app.js" asp-append-version="true"></script>
+<script src="~/data/mock-production-plans.js" asp-append-version="true"></script>
 <script src="~/js/production-plans-details.js" asp-append-version="true"></script>
 <script src="https://nepalidatepicker.sajanmaharjan.com.np/v5/nepali.datepicker/js/nepali.datepicker.v5.0.6.min.js"
         type="text/javascript"></script>
