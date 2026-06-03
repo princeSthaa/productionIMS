@@ -38,50 +38,55 @@
 
         <!-- Use a grid layout similar to your filters for two-column design -->
         <div class="pp-filter-grid" style="grid-template-columns: repeat(2, 1fr); gap: 20px;">
+          <div asp-validation-summary="ModelOnly" class="text-danger" style="grid-column: 1 / -1;"></div>
 
           <!-- Basic Information -->
           <div class="form-group">
-            <label for="CustomerName">Full Name <span class="text-danger">*</span></label>
-            <input type="text" id="CustomerName" name="CustomerName" class="form-control"
-                   placeholder="e.g. Ram Shrestha" required />
+            <label asp-for="Input.CustomerName">Full Name <span class="text-danger">*</span></label>
+            <input asp-for="Input.CustomerName" class="form-control" placeholder="e.g. Ram Shrestha" />
+            <span asp-validation-for="Input.CustomerName" class="text-danger"></span>
           </div>
 
           <div class="form-group">
-            <label for="CompanyName">Company / Business Name</label>
-            <input type="text" id="CompanyName" name="CompanyName" class="form-control"
-                   placeholder="e.g. Everest Garments Pvt. Ltd." />
+            <label asp-for="Input.CompanyName">Company / Business Name</label>
+            <input asp-for="Input.CompanyName" class="form-control" placeholder="e.g. Everest Garments Pvt. Ltd." />
+            <span asp-validation-for="Input.CompanyName" class="text-danger"></span>
           </div>
 
           <div class="form-group">
-            <label for="Email">Email Address</label>
-            <input type="email" id="Email" name="Email" class="form-control" placeholder="contact@example.com" />
+            <label asp-for="Input.Email">Email Address</label>
+            <input asp-for="Input.Email" class="form-control" placeholder="contact@example.com" />
+            <span asp-validation-for="Input.Email" class="text-danger"></span>
           </div>
 
           <div class="form-group">
-            <label for="Phone">Phone Number <span class="text-danger">*</span></label>
-            <input type="tel" id="Phone" name="Phone" class="form-control" placeholder="e.g. 98XXXXXXXX" required />
+            <label asp-for="Input.Phone">Phone Number <span class="text-danger">*</span></label>
+            <input asp-for="Input.Phone" class="form-control" placeholder="e.g. 98XXXXXXXX" />
+            <span asp-validation-for="Input.Phone" class="text-danger"></span>
           </div>
 
           <div class="form-group">
-            <label for="PanVatNo">PAN / VAT Number</label>
-            <input type="text" id="PanVatNo" name="PanVatNo" class="form-control" placeholder="9-digit PAN/VAT" />
+            <label asp-for="Input.PanVatNo">PAN / VAT Number</label>
+            <input asp-for="Input.PanVatNo" class="form-control" placeholder="9-digit PAN/VAT" />
+            <span asp-validation-for="Input.PanVatNo" class="text-danger"></span>
           </div>
 
           <div class="form-group">
-            <label for="CustomerType">Customer Type</label>
-            <select id="CustomerType" name="CustomerType" class="form-control">
+            <label asp-for="Input.CustomerType">Customer Type</label>
+            <select asp-for="Input.CustomerType" class="form-control">
               <option value="Retail">Retail</option>
               <option value="Wholesale">Wholesale</option>
               <option value="Distributor">Distributor</option>
               <option value="Export">Export</option>
             </select>
+            <span asp-validation-for="Input.CustomerType" class="text-danger"></span>
           </div>
 
           <!-- Address spans full width -->
           <div class="form-group" style="grid-column: 1 / -1;">
-            <label for="Address">Full Address</label>
-            <textarea id="Address" name="Address" class="form-control" rows="3"
-                      placeholder="Street, City, Province"></textarea>
+            <label asp-for="Input.Address">Full Address</label>
+            <textarea asp-for="Input.Address" class="form-control" rows="3" placeholder="Street, City, Province"></textarea>
+            <span asp-validation-for="Input.Address" class="text-danger"></span>
           </div>
 
         </div>

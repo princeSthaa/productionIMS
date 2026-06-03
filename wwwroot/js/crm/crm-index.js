@@ -32,12 +32,19 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // 4. Render Table
     function renderTable(data) {
+        // Update summary metrics if elements are present on this page
+        if (summaryTotal) summaryTotal.innerText = data.length;
+        if (summaryActive) summaryActive.innerText = data.filter(c => c.status === "Active").length;
+
+        // If table doesn't exist on this page, do not proceed with table rendering
+        if (!tableBody) return;
+
         tableBody.innerHTML = ""; // Clear current table
 
         if (data.length === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="9" class="empty-cell text-center" style="padding: 30px; color: var(--muted);">
+                    <td colspan="8" class="empty-cell text-center" style="padding: 30px; color: var(--muted);">
                         No customers found matching the selected filters.
                     </td>
                 </tr>`;
@@ -51,6 +58,13 @@ document.addEventListener("DOMContentLoaded", function() {
             if (customer.status === "Blacklisted") statusClass = "material-shortage"; // Uses your existing red class
 
             const row = document.createElement("tr");
+            row.style.cursor = "pointer";
+            // Allow clicking anywhere on the row (except on the action buttons themselves) to view the profile
+            row.onclick = (e) => {
+                if (!e.target.closest('.text-right')) {
+                    window.location.href = `/CRM/Details/${customer.id}`;
+                }
+            };
             row.innerHTML = `
                 <td><strong>${customer.id}</strong></td>
                 <td>
@@ -64,33 +78,27 @@ document.addEventListener("DOMContentLoaded", function() {
                 <td>${customer.location}</td>
                 <td><span class="badge badge-info">${customer.type}</span></td>
                 <td>${customer.orders}</td>
-                <td>${customer.lastOrderDate}</td>
                 <td><span class="${statusClass}">${customer.status}</span></td>
                 <td class="text-right">
-                    <div class="btn-group">
-                        <a href="/CRM/Details/${customer.id}" class="btn btn-sm btn-light" title="View Profile">👁️</a>
-                        <a href="/CRM/Edit/${customer.id}" class="btn btn-sm btn-light" title="Edit Info">✏️</a>
-                        <a href="/CRM/CreateOrder?customerId=${customer.id}" class="btn btn-sm btn-primary" title="Take Order">+ Order</a>
+                    <div style="display: flex; flex-direction: column; gap: 5px; align-items: flex-end;">
+                        <a href="/CRM/Edit/${customer.id}" class="btn btn-sm btn-light" title="Edit Info">Edit</a>
+                        <a href="/CRM/Order/CreateOrder?customerId=${customer.id}" class="btn btn-sm btn-primary" title="Take Order">+ Order</a>
                     </div>
                 </td>
             `;
             tableBody.appendChild(row);
         });
-
-        // Update Summary Cards
-        summaryTotal.innerText = data.length;
-        summaryActive.innerText = data.filter(c => c.status === "Active").length;
     }
 
     // 5. Filter Logic
     function applyFilters() {
-        const typeVal = typeFilter.value;
-        const statusVal = statusFilter.value;
-        const searchVal = customerSearch.value.toLowerCase();
-        const locationVal = locationSearch.value.toLowerCase();
+        const typeVal = typeFilter ? typeFilter.value : "";
+        const statusVal = statusFilter ? statusFilter.value : "";
+        const searchVal = customerSearch ? customerSearch.value.toLowerCase() : "";
+        const locationVal = locationSearch ? locationSearch.value.toLowerCase() : "";
 
-        const fromDateNum = parseDateToNumber(fromDateInput.value);
-        const toDateNum = parseDateToNumber(toDateInput.value);
+        const fromDateNum = fromDateInput ? parseDateToNumber(fromDateInput.value) : 0;
+        const toDateNum = toDateInput ? parseDateToNumber(toDateInput.value) : 0;
 
         const filteredData = mockCustomers.filter(customer => {
             // Dropdown filters
@@ -121,20 +129,22 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // 6. Event Listeners for standard inputs
-    typeFilter.addEventListener("change", applyFilters);
-    statusFilter.addEventListener("change", applyFilters);
-    customerSearch.addEventListener("input", applyFilters);
-    locationSearch.addEventListener("input", applyFilters);
+    if (typeFilter) typeFilter.addEventListener("change", applyFilters);
+    if (statusFilter) statusFilter.addEventListener("change", applyFilters);
+    if (customerSearch) customerSearch.addEventListener("input", applyFilters);
+    if (locationSearch) locationSearch.addEventListener("input", applyFilters);
 
-    resetBtn.addEventListener("click", () => {
-        typeFilter.value = "";
-        statusFilter.value = "";
-        customerSearch.value = "";
-        locationSearch.value = "";
-        fromDateInput.value = "";
-        toDateInput.value = "";
-        applyFilters();
-    });
+    if (resetBtn) {
+        resetBtn.addEventListener("click", () => {
+            if (typeFilter) typeFilter.value = "";
+            if (statusFilter) statusFilter.value = "";
+            if (customerSearch) customerSearch.value = "";
+            if (locationSearch) locationSearch.value = "";
+            if (fromDateInput) fromDateInput.value = "";
+            if (toDateInput) toDateInput.value = "";
+            applyFilters();
+        });
+    }
 
     // 7. Initial Render
     renderTable(mockCustomers);
@@ -150,6 +160,10 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     };
 
-    if (fromDateInput) fromDateInput.nepaliDatePicker(datePickerOptions);
-    if (toDateInput) toDateInput.nepaliDatePicker(datePickerOptions);
+    if (fromDateInput && typeof fromDateInput.nepaliDatePicker === "function") {
+        fromDateInput.nepaliDatePicker(datePickerOptions);
+    }
+    if (toDateInput && typeof toDateInput.nepaliDatePicker === "function") {
+        toDateInput.nepaliDatePicker(datePickerOptions);
+    }
 });

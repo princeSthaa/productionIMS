@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // 1. Find all input fields that need the datepicker
+    // Find all input fields that need the datepicker
     const nepaliDateInputs = document.querySelectorAll('.nepali-date');
 
     // If there are no such inputs on this page, do nothing!

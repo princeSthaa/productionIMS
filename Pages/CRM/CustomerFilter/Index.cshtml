@@ -1,0 +1,112 @@
+@page
+@model kaam.Pages.CRM.CustomerFilter.IndexModel
+@{
+  ViewData["Title"] = "Customer Filter";
+  Layout = "_SidebarLayout";
+}
+
+<div class="pp-page">
+  <!-- Page Header -->
+  <div class="pp-page-header">
+    <div>
+      <h1>Customer Filter</h1>
+      <p>Search by customer details, region, status, or registration date.</p>
+    </div>
+  </div>
+
+  <!-- Filter Card -->
+  <div class="pp-card">
+    <div class="pp-card-header">
+      <div>
+        <h2>Filter Customers</h2>
+        <p>Search by customer details, region, status, or registration date.</p>
+      </div>
+
+      <button type="button" class="btn btn-light" id="resetFiltersBtn">
+        Reset Filters
+      </button>
+    </div>
+
+    <div class="pp-filter-grid">
+      <div class="form-group">
+        <label for="customerTypeFilter">Customer Type</label>
+        <select id="customerTypeFilter" class="form-control">
+          <option value="">All Types</option>
+          <option value="Retail">Retail</option>
+          <option value="Wholesale">Wholesale</option>
+          <option value="Distributor">Distributor</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="statusFilter">Status</label>
+        <select id="statusFilter" class="form-control">
+          <option value="">All Statuses</option>
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+          <option value="Blacklisted">Blacklisted</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="fromDateFilter">Registered From (BS)</label>
+        <input type="text" id="fromDateFilter" class="form-control nepali-date" placeholder="DD-MM-YYYY" readonly />
+      </div>
+
+      <div class="form-group">
+        <label for="toDateFilter">Registered To (BS)</label>
+        <input type="text" id="toDateFilter" class="form-control nepali-date" placeholder="DD-MM-YYYY" readonly />
+      </div>
+
+      <div class="form-group">
+        <label for="customerSearch">Customer Search</label>
+        <input type="text" id="customerSearch" class="form-control" placeholder="Search name, email, or phone..." />
+      </div>
+
+      <div class="form-group">
+        <label for="locationSearch">Location Search</label>
+        <input type="text" id="locationSearch" class="form-control" placeholder="Search city or address..." />
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="pp-card">
+    <div class="pp-card-header">
+      <div>
+        <h2>Customer Directory</h2>
+        <p id="tableInfoText">Showing customer records.</p>
+      </div>
+    </div>
+
+    <div class="pp-table-wrapper">
+      <table class="pp-table compact-table">
+        <thead>
+          <tr>
+            <th>Customer ID</th>
+            <th>Name</th>
+            <th>Contact Info</th>
+            <th>Location</th>
+            <th>Type</th>
+            <th>Total Orders</th>
+            <th>Status</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody id="customersTableBody">
+          <!-- Empty State (Hidden by default, used by JS) -->
+          <tr id="loadingRow" style="display: none;">
+            <td colspan="8" class="empty-cell">
+              Loading customers...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Scripts -->
+<script src="~/js/crm/crm-index.js" asp-append-version="true"></script>
