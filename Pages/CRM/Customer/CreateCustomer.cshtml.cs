@@ -3,21 +3,10 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace kaam.Pages.CRM;
 
-public class CreateCustomer : PageModel
+public class CreateCustomer : CRMBasePageModel
 {
-  private void LoadCustomerCreateMenu()
-  {
-    ViewData["SidebarTitle"] = "Customer Management";
-
-    ViewData["SidebarLinks"] = new List<(string Name, string Url, string Icon)>
-            {
-                ("Overview", "/CRM/Index", "dashboard"),
-                ("Create Customer", "/CRM/Customer/CreateCustomer", "add_circle"),
-                ("Create Order", "/CRM/Order/CreateOustomer", "add_circle")
-            };
-  }
   public void OnGet()
   {
-    LoadCustomerCreateMenu();
+    LoadSidebarMenu();
   }
 }
