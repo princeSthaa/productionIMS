@@ -1,0 +1,157 @@
+
+
+@page "{id?}"
+@model Kaam.Pages.Production.PlansDetailsModel
+@{
+    ViewData["Title"] = "Production Plans";
+    Layout = "_SidebarLayout";
+}
+
+<link rel="stylesheet" href="~/css/production-plans-details.css" asp-append-version="true" />
+
+<div class="plans-page">
+
+    <div class="plans-page-header">
+        <div>
+            <h1>Production Plans</h1>
+            <p>
+                Select a plan from the list and review product-wise quantity, required dates,
+                planned dates, and size breakdown.
+            </p>
+        </div>
+
+        <div class="plans-header-actions">
+            <a asp-page="/Production/Create" class="btn btn-primary">
+                + Create Production Plan
+            </a>
+        </div>
+    </div>
+
+    <input type="hidden" id="selectedPlanNoFromRoute" value="@Model.PlanNo" />
+
+    <div class="plans-detail-layout">
+
+        <section class="plans-list-card">
+            <div class="plans-card-header">
+                <div>
+                    <h2>Plan List</h2>
+                    <p>One card represents one production plan.</p>
+                </div>
+            </div>
+            <!-- Filter Card -->
+<div class="pp-card plan-filter-card">
+    <div class="pp-card-header">
+        <div>
+            <h2>Filter Production Plans</h2>
+            <p>Search by product, source, demand type, status, or date range.</p>
+        </div>
+
+        <button type="button" class="btn btn-light" id="resetFiltersBtn">
+            Reset Filters
+        </button>
+    </div>
+
+    <div class="pp-filter-grid">
+        <div class="form-group">
+            <label for="demandTypeFilter">Demand Type</label>
+            <select id="demandTypeFilter" class="form-control">
+                <option value="">All Demand Types</option>
+                <option value="Customer Order">Customer Order</option>
+                <option value="Outlet Replenishment">Outlet Replenishment</option>
+                <option value="In-house Stock">In-house Stock</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="statusFilter">Status</label>
+            <select id="statusFilter" class="form-control">
+                <option value="">All Statuses</option>
+                <option value="Draft">Draft</option>
+                <option value="Material Check">Material Check</option>
+                <option value="In Production">In Production</option>
+                <option value="Completed">Completed</option>
+                <option value="On Hold">On Hold</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="fromDateFilter">From Date</label>
+            <input type="date" id="fromDateFilter" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="toDateFilter">To Date</label>
+            <input type="date" id="toDateFilter" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="productSearch">Product Search</label>
+            <input type="text"
+                   id="productSearch"
+                   class="form-control"
+                   placeholder="Search product name..." />
+        </div>
+
+        <div class="form-group">
+            <label for="sourceSearch">Source Search</label>
+            <input type="text"
+                   id="sourceSearch"
+                   class="form-control"
+                   placeholder="Search customer, outlet, warehouse..." />
+        </div>
+    </div>
+</div>
+
+            <div id="planList" class="plan-list">
+                <div class="empty-cell">Loading plans...</div>
+            </div>
+        </section>
+
+        <section class="plan-detail-card">
+            <div class="plans-card-header">
+                <div>
+                    <h2>Plan Detail</h2>
+                    <p>Selected plan with product-wise schedule.</p>
+                </div>
+
+                <button type="button" class="btn btn-light" id="printPlanBtn">
+                    Print
+                </button>
+            </div>
+
+            <div id="planDetailBody" class="plan-detail-body">
+                <div class="empty-cell">Select a plan to view details.</div>
+            </div>
+        </section>
+
+    </div>
+
+</div>
+
+<script src="~/js/production-plans-details.js" asp-append-version="true"></script>
+<script src="https://nepalidatepicker.sajanmaharjan.com.np/v5/nepali.datepicker/js/nepali.datepicker.v5.0.6.min.js"
+        type="text/javascript"></script>
+        <script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Select your input elements
+    var fromDateInput = document.getElementById("fromDateFilter");
+    var toDateInput = document.getElementById("toDateFilter");
+
+    // 2. Create your configuration object
+    var datePickerOptions = {
+        miniEnglishDates: true
+        // You can add other options here later, comma-separated, like:
+        // ndpYear: true,
+        // ndpMonth: true
+    };
+
+    // 3. Pass the options object into the initialization functions
+    if (fromDateInput) {
+        fromDateInput.nepaliDatePicker(datePickerOptions);
+    }
+
+    if (toDateInput) {
+        toDateInput.nepaliDatePicker(datePickerOptions);
+    }
+});
+</script>

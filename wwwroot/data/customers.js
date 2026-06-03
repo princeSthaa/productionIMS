@@ -17,18 +17,18 @@ window.customerOrderCatalogData = [
         productCode: "PRD-001",
         productName: "School Uniform Set",
         category: "Uniform",
-        variant: "Navy Blue",
+        variant: "Navy Blue / White",
         quantity: 500,
         productImage: "/images/products/school-uniform.jpg",
         customerImage: "/images/customers/school-1.jpg",
         materialStatus: "Unchecked",
         productionNotes: "School logo embroidery on chest. Pack size-wise in separate bundles.",
         sizes: [
-            { size: "XS", quantity: 40 },
-            { size: "S", quantity: 90 },
-            { size: "M", quantity: 160 },
-            { size: "L", quantity: 140 },
-            { size: "XL", quantity: 70 }
+            { size: "XS", quantity: 40, colors: [{ color: "Navy Blue", quantity: 24 }, { color: "White", quantity: 16 }] },
+            { size: "S", quantity: 90, colors: [{ color: "Navy Blue", quantity: 55 }, { color: "White", quantity: 35 }] },
+            { size: "M", quantity: 160, colors: [{ color: "Navy Blue", quantity: 100 }, { color: "White", quantity: 60 }] },
+            { size: "L", quantity: 140, colors: [{ color: "Navy Blue", quantity: 90 }, { color: "White", quantity: 50 }] },
+            { size: "XL", quantity: 70, colors: [{ color: "Navy Blue", quantity: 45 }, { color: "White", quantity: 25 }] }
         ],
         measurements: [
             { size: "XS", chest: 34, shoulder: 15, sleeve: 22, length: 25, unit: "inch" },
@@ -36,6 +36,80 @@ window.customerOrderCatalogData = [
             { size: "M", chest: 38, shoulder: 17, sleeve: 24, length: 27, unit: "inch" },
             { size: "L", chest: 40, shoulder: 18, sleeve: 25, length: 28, unit: "inch" },
             { size: "XL", chest: 42, shoulder: 19, sleeve: 26, length: 29, unit: "inch" }
+        ]
+    },
+    {
+        id: 6,
+        orderNo: "ORD-2026-006",
+        customerId: 1,
+        customerCode: "CUS-SCH-001",
+        customerName: "Himalayan Public School",
+        customerType: "School",
+        phone: "01-4521188",
+        address: "Maharajgunj, Kathmandu",
+        paymentTerms: "30 Days Credit",
+        deliveryLocation: "Maharajgunj, Kathmandu",
+        orderDate: "2026-06-04",
+        deliveryDate: "2026-06-28",
+        priority: "Normal",
+        productId: "PRD-002",
+        productCode: "PRD-002",
+        productName: "School Tracksuit Set",
+        category: "Sports Uniform",
+        variant: "Grey / Royal Blue",
+        quantity: 240,
+        productImage: "/images/products/tracksuit.jpg",
+        customerImage: "/images/customers/school-1.jpg",
+        materialStatus: "Unchecked",
+        productionNotes: "Second order for winter sports program. Keep house labels separate from regular uniform order.",
+        sizes: [
+            { size: "S", quantity: 50, colors: [{ color: "Grey", quantity: 30 }, { color: "Royal Blue", quantity: 20 }] },
+            { size: "M", quantity: 80, colors: [{ color: "Grey", quantity: 45 }, { color: "Royal Blue", quantity: 35 }] },
+            { size: "L", quantity: 70, colors: [{ color: "Grey", quantity: 40 }, { color: "Royal Blue", quantity: 30 }] },
+            { size: "XL", quantity: 40, colors: [{ color: "Grey", quantity: 20 }, { color: "Royal Blue", quantity: 20 }] }
+        ],
+        measurements: [
+            { size: "S", chest: 36, shoulder: 16, sleeve: 23, length: 25, unit: "inch" },
+            { size: "M", chest: 38, shoulder: 17, sleeve: 24, length: 26, unit: "inch" },
+            { size: "L", chest: 40, shoulder: 18, sleeve: 25, length: 27, unit: "inch" },
+            { size: "XL", chest: 42, shoulder: 19, sleeve: 26, length: 28, unit: "inch" }
+        ]
+    },
+    {
+        id: 7,
+        orderNo: "ORD-2026-007",
+        customerId: 1,
+        customerCode: "CUS-SCH-001",
+        customerName: "Himalayan Public School",
+        customerType: "School",
+        phone: "01-4521188",
+        address: "Maharajgunj, Kathmandu",
+        paymentTerms: "30 Days Credit",
+        deliveryLocation: "Maharajgunj, Kathmandu",
+        orderDate: "2026-06-05",
+        deliveryDate: "2026-07-03",
+        priority: "Normal",
+        productId: "PRD-004",
+        productCode: "PRD-004",
+        productName: "House Polo T-Shirt",
+        category: "School House Wear",
+        variant: "Red / Blue / Green",
+        quantity: 180,
+        productImage: "/images/products/polo-shirt.jpg",
+        customerImage: "/images/customers/school-1.jpg",
+        materialStatus: "Unchecked",
+        productionNotes: "Pack by house color first, then by size. Use school crest embroidery.",
+        sizes: [
+            { size: "S", quantity: 40, colors: [{ color: "Red", quantity: 15 }, { color: "Blue", quantity: 15 }, { color: "Green", quantity: 10 }] },
+            { size: "M", quantity: 70, colors: [{ color: "Red", quantity: 25 }, { color: "Blue", quantity: 25 }, { color: "Green", quantity: 20 }] },
+            { size: "L", quantity: 50, colors: [{ color: "Red", quantity: 20 }, { color: "Blue", quantity: 15 }, { color: "Green", quantity: 15 }] },
+            { size: "XL", quantity: 20, colors: [{ color: "Red", quantity: 8 }, { color: "Blue", quantity: 7 }, { color: "Green", quantity: 5 }] }
+        ],
+        measurements: [
+            { size: "S", chest: 36, shoulder: 16, sleeve: 8, length: 26, unit: "inch" },
+            { size: "M", chest: 38, shoulder: 17, sleeve: 8.5, length: 27, unit: "inch" },
+            { size: "L", chest: 40, shoulder: 18, sleeve: 9, length: 28, unit: "inch" },
+            { size: "XL", chest: 42, shoulder: 19, sleeve: 9.5, length: 29, unit: "inch" }
         ]
     },
     {
@@ -63,10 +137,10 @@ window.customerOrderCatalogData = [
         materialStatus: "Unchecked",
         productionNotes: "Use school color combination. Elastic waist trouser required.",
         sizes: [
-            { size: "S", quantity: 70 },
-            { size: "M", quantity: 120 },
-            { size: "L", quantity: 100 },
-            { size: "XL", quantity: 60 }
+            { size: "S", quantity: 70, colors: [{ color: "Grey", quantity: 40 }, { color: "Royal Blue", quantity: 30 }] },
+            { size: "M", quantity: 120, colors: [{ color: "Grey", quantity: 70 }, { color: "Royal Blue", quantity: 50 }] },
+            { size: "L", quantity: 100, colors: [{ color: "Grey", quantity: 60 }, { color: "Royal Blue", quantity: 40 }] },
+            { size: "XL", quantity: 60, colors: [{ color: "Grey", quantity: 35 }, { color: "Royal Blue", quantity: 25 }] }
         ],
         measurements: [
             { size: "S", chest: 36, shoulder: 16, sleeve: 23, length: 25, unit: "inch" },
@@ -93,16 +167,16 @@ window.customerOrderCatalogData = [
         productCode: "PRD-003",
         productName: "Men Casual Shirt",
         category: "Retail Garment",
-        variant: "White",
+        variant: "White / Sky Blue / Black",
         quantity: 220,
         productImage: "/images/products/casual-shirt.jpg",
         customerImage: "/images/customers/retailer-1.jpg",
         materialStatus: "Unchecked",
         productionNotes: "Retail packaging required. Include brand label and size sticker.",
         sizes: [
-            { size: "M", quantity: 80 },
-            { size: "L", quantity: 90 },
-            { size: "XL", quantity: 50 }
+            { size: "M", quantity: 80, colors: [{ color: "White", quantity: 35 }, { color: "Sky Blue", quantity: 25 }, { color: "Black", quantity: 20 }] },
+            { size: "L", quantity: 90, colors: [{ color: "White", quantity: 40 }, { color: "Sky Blue", quantity: 30 }, { color: "Black", quantity: 20 }] },
+            { size: "XL", quantity: 50, colors: [{ color: "White", quantity: 20 }, { color: "Sky Blue", quantity: 18 }, { color: "Black", quantity: 12 }] }
         ],
         measurements: [
             { size: "M", chest: 39, shoulder: 17.5, sleeve: 24, length: 28, unit: "inch" },
@@ -128,17 +202,17 @@ window.customerOrderCatalogData = [
         productCode: "PRD-004",
         productName: "Corporate Polo T-Shirt",
         category: "Corporate Wear",
-        variant: "Black",
+        variant: "Black / Charcoal",
         quantity: 400,
         productImage: "/images/products/polo-shirt.jpg",
         customerImage: "/images/customers/business-1.jpg",
         materialStatus: "Unchecked",
         productionNotes: "Company logo embroidery on left chest.",
         sizes: [
-            { size: "S", quantity: 80 },
-            { size: "M", quantity: 140 },
-            { size: "L", quantity: 120 },
-            { size: "XL", quantity: 60 }
+            { size: "S", quantity: 80, colors: [{ color: "Black", quantity: 50 }, { color: "Charcoal", quantity: 30 }] },
+            { size: "M", quantity: 140, colors: [{ color: "Black", quantity: 90 }, { color: "Charcoal", quantity: 50 }] },
+            { size: "L", quantity: 120, colors: [{ color: "Black", quantity: 75 }, { color: "Charcoal", quantity: 45 }] },
+            { size: "XL", quantity: 60, colors: [{ color: "Black", quantity: 35 }, { color: "Charcoal", quantity: 25 }] }
         ],
         measurements: [
             { size: "S", chest: 36, shoulder: 16, sleeve: 8, length: 26, unit: "inch" },
@@ -172,10 +246,10 @@ window.customerOrderCatalogData = [
         materialStatus: "Unchecked",
         productionNotes: "Separate uniforms for front desk and housekeeping staff.",
         sizes: [
-            { size: "S", quantity: 30 },
-            { size: "M", quantity: 70 },
-            { size: "L", quantity: 55 },
-            { size: "XL", quantity: 25 }
+            { size: "S", quantity: 30, colors: [{ color: "Cream", quantity: 18 }, { color: "Brown", quantity: 12 }] },
+            { size: "M", quantity: 70, colors: [{ color: "Cream", quantity: 42 }, { color: "Brown", quantity: 28 }] },
+            { size: "L", quantity: 55, colors: [{ color: "Cream", quantity: 34 }, { color: "Brown", quantity: 21 }] },
+            { size: "XL", quantity: 25, colors: [{ color: "Cream", quantity: 15 }, { color: "Brown", quantity: 10 }] }
         ],
         measurements: [
             { size: "S", chest: 36, shoulder: 16, sleeve: 23, length: 26, unit: "inch" },

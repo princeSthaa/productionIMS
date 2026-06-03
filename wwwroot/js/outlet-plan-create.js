@@ -1,5 +1,17 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const catalogItems = window.outletDemandCatalogData || window.outletDemands || [];
+    const fallbackProductImage = "https://images.unsplash.com/photo-1523381294911-8d3cead13475?auto=format&fit=crop&w=480&q=80";
+    const pageRoot = document.getElementById("outletDemandPlanPage");
+    const selectedOutletId = pageRoot ? String(pageRoot.dataset.selectedOutletId || "").trim() : "";
+    const allCatalogItems = window.outletDemandCatalogData || window.outletDemands || [];
+    const catalogItems = selectedOutletId
+        ? allCatalogItems.filter(function (item) {
+            const normalizedItem = normalizeOutletDemandItem(item);
+            return String(normalizedItem.outletId) === selectedOutletId;
+        })
+        : allCatalogItems;
+    const selectedOutlet = selectedOutletId
+        ? catalogItems.map(normalizeOutletDemandItem)[0] || null
+        : null;
     const materials = window.materialMasterData || window.materials || window.materialsData || [];
     const bomData = window.bomMasterData || window.bomData || window.boms || [];
     const products = window.productMasterData || window.products || window.productsData || [];
@@ -7,11 +19,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let selectedPlanItems = [];
     let activeDetailItem = null;
 
-    const outletSearch = document.getElementById("outletSearch");
-    const outletFilter = document.getElementById("outletFilter");
-    const stockStatusFilter = document.getElementById("stockStatusFilter");
-    const velocityFilter = document.getElementById("velocityFilter");
-    const outletSort = document.getElementById("outletSort");
     const catalogGrid = document.getElementById("outletDemandCatalogGrid");
 
     const selectedDraftJson = document.getElementById("selectedOutletDraftJson");
@@ -27,15 +34,9 @@ document.addEventListener("DOMContentLoaded", function () {
     initialize();
 
     function initialize() {
+        renderSelectedOutletSummary();
         renderCatalog();
         renderBasket();
-
-        [outletSearch, outletFilter, stockStatusFilter, velocityFilter, outletSort].forEach(function (element) {
-            if (element) {
-                element.addEventListener("input", renderCatalog);
-                element.addEventListener("change", renderCatalog);
-            }
-        });
 
         document.querySelectorAll("[data-close-modal]").forEach(function (button) {
             button.addEventListener("click", function () {
@@ -85,66 +86,86 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function renderSelectedOutletSummary() {
+        const selectedOutletCard = document.getElementById("selectedOutletCard");
+        const outletSelectionWarning = document.getElementById("outletSelectionWarning");
+
+        if (!selectedOutletId) {
+            if (outletSelectionWarning) {
+                outletSelectionWarning.classList.remove("hidden");
+            }
+
+            setText("outletDemandHeaderText", "No outlet is selected yet. Choose an outlet to narrow the replenishment demand catalog.");
+            setText("outletDemandCatalogTitle", "All Outlet Demand");
+            setText("outletDemandItemsTitle", "All Outlet Demand Items");
+            setText("outletDemandItemsText", "Choose an outlet first for the normal outlet-specific planning flow.");
+            return;
+        }
+
+        if (!selectedOutlet) {
+            if (outletSelectionWarning) {
+                outletSelectionWarning.classList.remove("hidden");
+                outletSelectionWarning.textContent = "The selected outlet was not found in the current outlet demand data.";
+            }
+
+            setText("outletDemandHeaderText", "The selected outlet was not found in the current outlet demand data.");
+            setText("outletDemandCatalogTitle", "No Demand Found");
+            setText("outletDemandItemsTitle", "No Outlet Demand Items");
+            setText("outletDemandItemsText", "Go back to the outlet catalog and choose another outlet.");
+            return;
+        }
+
+        if (outletSelectionWarning) {
+            outletSelectionWarning.classList.add("hidden");
+        }
+
+        if (selectedOutletCard) {
+            selectedOutletCard.classList.remove("hidden");
+        }
+
+        const normalizedItems = catalogItems.map(normalizeOutletDemandItem);
+        const totalQty = normalizedItems.reduce(function (sum, item) {
+            return sum + Number(item.suggestedQty || 0);
+        }, 0);
+
+        const earliestRequired = normalizedItems.length
+            ? normalizedItems.map(function (item) {
+                return item.requiredDate;
+            }).sort()[0]
+            : "";
+
+        setText("outletDemandHeaderText", `Showing replenishment demand for ${selectedOutlet.outletName}. Add one or more demand items to the production plan basket.`);
+        setText("outletDemandCatalogTitle", `${selectedOutlet.outletName} Demand`);
+        setText("outletDemandItemsTitle", `${selectedOutlet.outletName} Demand Items`);
+        setText("outletDemandItemsText", "Click View Details to inspect size/color stock gaps, measurements, and material requirements before adding to plan.");
+
+        setText("selectedOutletAvatar", getInitials(selectedOutlet.outletName));
+        setText("selectedOutletName", selectedOutlet.outletName);
+        setText("selectedOutletMeta", `${selectedOutlet.outletCode} | ${selectedOutlet.phone || "Phone not set"}`);
+        setText("selectedOutletManager", selectedOutlet.outletManager || "-");
+        setText("selectedOutletLocation", selectedOutlet.outletLocation || "-");
+        setText("selectedOutletDemandCount", normalizedItems.length);
+        setText("selectedOutletQty", `${formatNumber(totalQty)} pcs`);
+        setText("selectedOutletRequired", earliestRequired ? formatDate(earliestRequired) : "-");
+    }
+
     function renderCatalog() {
         if (!catalogGrid) return;
 
         let filtered = catalogItems.map(normalizeOutletDemandItem);
 
-        const searchText = outletSearch ? outletSearch.value.toLowerCase().trim() : "";
-        const outletValue = outletFilter ? outletFilter.value : "";
-        const statusValue = stockStatusFilter ? stockStatusFilter.value : "";
-        const velocityValue = velocityFilter ? velocityFilter.value : "";
-        const sortValue = outletSort ? outletSort.value : "requiredDate";
-
-        if (searchText) {
-            filtered = filtered.filter(function (item) {
-                return item.demandNo.toLowerCase().includes(searchText) ||
-                    item.outletName.toLowerCase().includes(searchText) ||
-                    item.outletLocation.toLowerCase().includes(searchText) ||
-                    item.productName.toLowerCase().includes(searchText) ||
-                    item.productCode.toLowerCase().includes(searchText) ||
-                    item.category.toLowerCase().includes(searchText);
-            });
-        }
-
-        if (outletValue) {
-            filtered = filtered.filter(function (item) {
-                return item.outletName === outletValue;
-            });
-        }
-
-        if (statusValue) {
-            filtered = filtered.filter(function (item) {
-                return item.stockStatus === statusValue;
-            });
-        }
-
-        if (velocityValue) {
-            filtered = filtered.filter(function (item) {
-                return item.salesVelocity === velocityValue;
-            });
-        }
-
         filtered.sort(function (a, b) {
-            if (sortValue === "stockGapHigh") {
-                return b.stockGap - a.stockGap;
-            }
-
-            if (sortValue === "salesVelocity") {
-                return getVelocityWeight(a.salesVelocity) - getVelocityWeight(b.salesVelocity);
-            }
-
-            if (sortValue === "outletName") {
-                return a.outletName.localeCompare(b.outletName);
-            }
-
             return new Date(a.requiredDate) - new Date(b.requiredDate);
         });
 
         if (!filtered.length) {
+            const emptyText = selectedOutletId
+                ? "No demand items found for the selected outlet."
+                : "No outlet demand items found.";
+
             catalogGrid.innerHTML = `
                 <div class="empty-cell">
-                    No outlet demand items found.
+                    ${emptyText}
                 </div>
             `;
             return;
@@ -165,7 +186,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div class="customer-order-image-wrap">
                         <img src="${escapeHtml(item.productImage)}"
                              alt="${escapeHtml(item.productName)}"
-                             onerror="this.src='/images/placeholder-product.png'" />
+                             onerror="this.src='${fallbackProductImage}'" />
 
                         <span class="catalog-status-chip ${isSelected ? "added" : ""}">
                             ${isSelected ? "Added" : "Ready"}
@@ -198,8 +219,8 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <strong>${formatDate(item.requiredDate)}</strong>
                             </div>
                             <div>
-                                <span>Sales Velocity</span>
-                                <strong>${escapeHtml(item.salesVelocity)}</strong>
+                                <span>Color Sets</span>
+                                <strong>${escapeHtml(getColorSummary(item))}</strong>
                             </div>
                         </div>
 
@@ -314,14 +335,22 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!body) return;
 
         if (!item.sizeGaps.length) {
-            body.innerHTML = `<tr><td colspan="4" class="empty-cell">No size gap data.</td></tr>`;
+            body.innerHTML = `<tr><td colspan="5" class="empty-cell">No size gap data.</td></tr>`;
             return;
         }
 
-        body.innerHTML = item.sizeGaps.map(function (row) {
+        const rows = getSizeColorGapRows(item);
+
+        if (!rows.length) {
+            body.innerHTML = `<tr><td colspan="5" class="empty-cell">No size/color gap data.</td></tr>`;
+            return;
+        }
+
+        body.innerHTML = rows.map(function (row) {
             return `
                 <tr>
                     <td>${escapeHtml(row.size)}</td>
+                    <td><span class="color-variant-chip">${escapeHtml(row.color)}</span></td>
                     <td>${formatNumber(row.currentStock)}</td>
                     <td>${formatNumber(row.reorderLevel)}</td>
                     <td>${formatNumber(row.suggestedQty)}</td>
@@ -531,7 +560,7 @@ function getDefaultMeasurementByType(size, productName) {
                     <div class="basket-item">
                         <img src="${escapeHtml(item.productImage)}"
                              alt="${escapeHtml(item.productName)}"
-                             onerror="this.src='/images/placeholder-product.png'" />
+                             onerror="this.src='${fallbackProductImage}'" />
 
                         <div>
                             <strong>${escapeHtml(item.productName)}</strong>
@@ -772,7 +801,7 @@ function getDefaultMeasurementByType(size, productName) {
             productName: item.productName || "",
             category: item.category || "",
             variant: item.variant || "",
-            productImage: item.productImage || "/images/placeholder-product.png",
+            productImage: item.productImage || fallbackProductImage,
 
             currentStock: Number(item.currentStock || 0),
             reorderLevel: Number(item.reorderLevel || 0),
@@ -796,6 +825,69 @@ function getDefaultMeasurementByType(size, productName) {
         };
     }
 
+    function getSizeColorGapRows(item) {
+        const rows = [];
+
+        (item.sizeGaps || []).forEach(function (sizeRow) {
+            const colorRows = sizeRow.colors || sizeRow.colorVariants || sizeRow.variants || [];
+
+            if (colorRows.length) {
+                colorRows.forEach(function (colorRow) {
+                    rows.push({
+                        size: sizeRow.size || "-",
+                        color: colorRow.color || colorRow.variant || colorRow.name || "-",
+                        currentStock: Number(colorRow.currentStock || colorRow.current || 0),
+                        reorderLevel: Number(colorRow.reorderLevel || colorRow.reorder || 0),
+                        suggestedQty: Number(colorRow.suggestedQty || colorRow.quantity || colorRow.qty || 0)
+                    });
+                });
+
+                return;
+            }
+
+            rows.push({
+                size: sizeRow.size || "-",
+                color: sizeRow.color || item.variant || "-",
+                currentStock: Number(sizeRow.currentStock || 0),
+                reorderLevel: Number(sizeRow.reorderLevel || 0),
+                suggestedQty: Number(sizeRow.suggestedQty || 0)
+            });
+        });
+
+        return rows;
+    }
+
+    function getColorSummary(item) {
+        const colors = [];
+
+        getSizeColorGapRows(item).forEach(function (row) {
+            if (row.color && !colors.includes(row.color)) {
+                colors.push(row.color);
+            }
+        });
+
+        if (!colors.length) {
+            return item.variant || "-";
+        }
+
+        if (colors.length <= 3) {
+            return colors.join(" / ");
+        }
+
+        return `${colors.slice(0, 3).join(" / ")} +${colors.length - 3}`;
+    }
+
+    function getInitials(value) {
+        return String(value || "Outlet")
+            .split(" ")
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(function (part) {
+                return part.charAt(0).toUpperCase();
+            })
+            .join("");
+    }
+
     function getStockStatusClass(status) {
         if (status === "Critical") return "priority-badge priority-urgent";
         if (status === "Reorder Soon") return "priority-badge priority-seasonal";
@@ -806,12 +898,6 @@ function getDefaultMeasurementByType(size, productName) {
         if (velocity === "Fast") return "material-shortage";
         if (velocity === "Slow") return "customer-delivery-normal";
         return "material-ok";
-    }
-
-    function getVelocityWeight(velocity) {
-        if (velocity === "Fast") return 1;
-        if (velocity === "Normal") return 2;
-        return 3;
     }
 
     function getDateBadgeClass(dateValue) {

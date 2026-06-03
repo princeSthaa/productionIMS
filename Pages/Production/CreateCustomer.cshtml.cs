@@ -7,6 +7,9 @@ namespace Kaam.Pages.Production
 {
     public class CreateCustomerModel : PageModel
     {
+        [BindProperty(SupportsGet = true)]
+        public int? CustomerId { get; set; }
+
         [BindProperty]
         public string DemandType { get; set; } = "Customer Order";
 

@@ -11,6 +11,7 @@ namespace Kaam.Pages.Production
       ViewData["SidebarLinks"] = new List<(string Name, string Url, string Icon)>
             {
                 ("Overview", "/Production/Index", "dashboard"),
+                ("Plans", "/Production/PlansDetails", "assignment"),
                 ("Create Plan", "/Production/Create", "add_circle")
             };
     }

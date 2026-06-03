@@ -1,15 +1,23 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const catalogItems = window.customerOrderCatalogData || window.customerMasterData || [];
+    const fallbackProductImage = "https://images.unsplash.com/photo-1523381294911-8d3cead13475?auto=format&fit=crop&w=480&q=80";
+    const pageRoot = document.getElementById("customerOrderPlanPage");
+    const selectedCustomerId = pageRoot ? String(pageRoot.dataset.selectedCustomerId || "").trim() : "";
+    const allCatalogItems = window.customerOrderCatalogData || window.customerMasterData || [];
+    const catalogItems = selectedCustomerId
+        ? allCatalogItems.filter(function (item) {
+            const normalizedItem = normalizeCatalogItem(item);
+            return String(normalizedItem.customerId) === selectedCustomerId;
+        })
+        : allCatalogItems;
+    const selectedCustomer = selectedCustomerId
+        ? catalogItems.map(normalizeCatalogItem)[0] || null
+        : null;
     const materials = window.materialMasterData || window.materials || window.materialsData || [];
     const bomData = window.bomMasterData || window.bomData || window.boms || [];
 
     let selectedPlanItems = [];
     let activeDetailItem = null;
 
-    const catalogSearch = document.getElementById("catalogSearch");
-    const customerTypeFilter = document.getElementById("customerTypeFilter");
-    const priorityFilter = document.getElementById("priorityFilter");
-    const catalogSort = document.getElementById("catalogSort");
     const catalogGrid = document.getElementById("customerOrderCatalogGrid");
 
     const selectedDraftJson = document.getElementById("selectedDraftJson");
@@ -35,15 +43,9 @@ document.addEventListener("DOMContentLoaded", function () {
     initialize();
 
     function initialize() {
+        renderSelectedCustomerSummary();
         renderCatalog();
         renderBasket();
-
-        [catalogSearch, customerTypeFilter, priorityFilter, catalogSort].forEach(function (element) {
-            if (element) {
-                element.addEventListener("input", renderCatalog);
-                element.addEventListener("change", renderCatalog);
-            }
-        });
 
         document.querySelectorAll("[data-close-modal]").forEach(function (button) {
             button.addEventListener("click", function () {
@@ -95,60 +97,86 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function renderSelectedCustomerSummary() {
+        const selectedCustomerCard = document.getElementById("selectedCustomerCard");
+        const customerSelectionWarning = document.getElementById("customerSelectionWarning");
+
+        if (!selectedCustomerId) {
+            if (customerSelectionWarning) {
+                customerSelectionWarning.classList.remove("hidden");
+            }
+
+            setText("customerOrderHeaderText", "No customer is selected yet. Choose a customer to narrow the order item catalog.");
+            setText("customerOrderCatalogTitle", "All Ready Customer Orders");
+            setText("customerOrderItemsTitle", "All Customer Order Items");
+            setText("customerOrderItemsText", "Choose a customer first for the normal customer-specific planning flow.");
+            return;
+        }
+
+        if (!selectedCustomer) {
+            if (customerSelectionWarning) {
+                customerSelectionWarning.classList.remove("hidden");
+                customerSelectionWarning.textContent = "The selected customer was not found in the current customer order data.";
+            }
+
+            setText("customerOrderHeaderText", "The selected customer was not found in the current customer order data.");
+            setText("customerOrderCatalogTitle", "No Orders Found");
+            setText("customerOrderItemsTitle", "No Customer Order Items");
+            setText("customerOrderItemsText", "Go back to the customer catalog and choose another customer.");
+            return;
+        }
+
+        if (customerSelectionWarning) {
+            customerSelectionWarning.classList.add("hidden");
+        }
+
+        if (selectedCustomerCard) {
+            selectedCustomerCard.classList.remove("hidden");
+        }
+
+        const normalizedItems = catalogItems.map(normalizeCatalogItem);
+        const totalQty = normalizedItems.reduce(function (sum, item) {
+            return sum + Number(item.quantity || 0);
+        }, 0);
+
+        const earliestDelivery = normalizedItems.length
+            ? normalizedItems.map(function (item) {
+                return item.deliveryDate;
+            }).sort()[0]
+            : "";
+
+        setText("customerOrderHeaderText", `Showing order items for ${selectedCustomer.customerName}. Add one or more items to the production plan basket.`);
+        setText("customerOrderCatalogTitle", `${selectedCustomer.customerName} Orders`);
+        setText("customerOrderItemsTitle", `${selectedCustomer.customerName} Order Items`);
+        setText("customerOrderItemsText", "Click View Details to inspect size chart, measurements, and material requirements before adding to plan.");
+
+        setText("selectedCustomerAvatar", getInitials(selectedCustomer.customerName));
+        setText("selectedCustomerName", selectedCustomer.customerName);
+        setText("selectedCustomerMeta", `${selectedCustomer.customerCode} | ${selectedCustomer.customerType} | ${selectedCustomer.paymentTerms || "Payment terms not set"}`);
+        setText("selectedCustomerPhone", selectedCustomer.phone || "-");
+        setText("selectedCustomerAddress", selectedCustomer.address || "-");
+        setText("selectedCustomerOrders", normalizedItems.length);
+        setText("selectedCustomerQty", `${formatNumber(totalQty)} pcs`);
+        setText("selectedCustomerDelivery", earliestDelivery ? formatDate(earliestDelivery) : "-");
+    }
+
     function renderCatalog() {
         if (!catalogGrid) return;
 
         let filtered = catalogItems.map(normalizeCatalogItem);
 
-        const searchText = catalogSearch ? catalogSearch.value.toLowerCase().trim() : "";
-        const typeValue = customerTypeFilter ? customerTypeFilter.value : "";
-        const priorityValue = priorityFilter ? priorityFilter.value : "";
-        const sortValue = catalogSort ? catalogSort.value : "deliveryDate";
-
-        if (searchText) {
-            filtered = filtered.filter(function (item) {
-                return item.orderNo.toLowerCase().includes(searchText) ||
-                    item.customerName.toLowerCase().includes(searchText) ||
-                    item.customerCode.toLowerCase().includes(searchText) ||
-                    item.productName.toLowerCase().includes(searchText) ||
-                    item.productCode.toLowerCase().includes(searchText) ||
-                    item.phone.toLowerCase().includes(searchText) ||
-                    item.deliveryLocation.toLowerCase().includes(searchText);
-            });
-        }
-
-        if (typeValue) {
-            filtered = filtered.filter(function (item) {
-                return item.customerType === typeValue;
-            });
-        }
-
-        if (priorityValue) {
-            filtered = filtered.filter(function (item) {
-                return item.priority === priorityValue;
-            });
-        }
-
         filtered.sort(function (a, b) {
-            if (sortValue === "customerName") {
-                return a.customerName.localeCompare(b.customerName);
-            }
-
-            if (sortValue === "quantityHigh") {
-                return b.quantity - a.quantity;
-            }
-
-            if (sortValue === "priority") {
-                return getPriorityWeight(a.priority) - getPriorityWeight(b.priority);
-            }
-
             return new Date(a.deliveryDate) - new Date(b.deliveryDate);
         });
 
         if (!filtered.length) {
+            const emptyText = selectedCustomerId
+                ? "No order items found for the selected customer."
+                : "No customer order items found.";
+
             catalogGrid.innerHTML = `
                 <div class="empty-cell">
-                    No customer order items found.
+                    ${emptyText}
                 </div>
             `;
             return;
@@ -168,7 +196,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div class="customer-order-image-wrap">
                         <img src="${escapeHtml(item.productImage)}"
                              alt="${escapeHtml(item.productName)}"
-                             onerror="this.src='/images/placeholder-product.png'" />
+                             onerror="this.src='${fallbackProductImage}'" />
 
                         <span class="catalog-status-chip ${isSelected ? "added" : ""}">
                             ${isSelected ? "Added" : "Ready"}
@@ -201,8 +229,8 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <strong>${formatDate(item.deliveryDate)}</strong>
                             </div>
                             <div>
-                                <span>Variant</span>
-                                <strong>${escapeHtml(item.variant)}</strong>
+                                <span>Color Sets</span>
+                                <strong>${escapeHtml(getColorSummary(item))}</strong>
                             </div>
                         </div>
 
@@ -267,7 +295,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("detailItemName", item.productName);
         setText("detailQuantity", `${formatNumber(item.quantity)} pcs`);
         setText("detailDeliveryDate", formatDate(item.deliveryDate));
-        setText("detailVariant", item.variant);
+        setText("detailVariant", getColorSummary(item));
         setText("detailDeliveryLocation", item.deliveryLocation);
         setText("detailProductionNotes", item.productionNotes);
 
@@ -301,14 +329,22 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!body) return;
 
         if (!item.sizes.length) {
-            body.innerHTML = `<tr><td colspan="2" class="empty-cell">No size data.</td></tr>`;
+            body.innerHTML = `<tr><td colspan="3" class="empty-cell">No size data.</td></tr>`;
             return;
         }
 
-        body.innerHTML = item.sizes.map(function (row) {
+        const rows = getSizeColorRows(item);
+
+        if (!rows.length) {
+            body.innerHTML = `<tr><td colspan="3" class="empty-cell">No size/color data.</td></tr>`;
+            return;
+        }
+
+        body.innerHTML = rows.map(function (row) {
             return `
                 <tr>
                     <td>${escapeHtml(row.size)}</td>
+                    <td><span class="color-variant-chip">${escapeHtml(row.color)}</span></td>
                     <td>${formatNumber(row.quantity)}</td>
                 </tr>
             `;
@@ -413,7 +449,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div class="basket-item">
                         <img src="${escapeHtml(item.productImage)}"
                              alt="${escapeHtml(item.productName)}"
-                             onerror="this.src='/images/placeholder-product.png'" />
+                             onerror="this.src='${fallbackProductImage}'" />
 
                         <div>
                             <strong>${escapeHtml(item.productName)}</strong>
@@ -641,13 +677,61 @@ document.addEventListener("DOMContentLoaded", function () {
             category: item.category || "",
             variant: item.variant || "",
             quantity: Number(item.quantity || item.orderQty || item.qty || 0),
-            productImage: item.productImage || item.orderImage || "/images/placeholder-product.png",
-            customerImage: item.customerImage || "/images/placeholder-customer.png",
+            productImage: item.productImage || item.orderImage || fallbackProductImage,
+            customerImage: item.customerImage || "",
             materialStatus: item.materialStatus || "Unchecked",
             productionNotes: item.productionNotes || "No special notes.",
             sizes: item.sizes || [],
             measurements: item.measurements || []
         };
+    }
+
+    function getSizeColorRows(item) {
+        const rows = [];
+
+        (item.sizes || []).forEach(function (sizeRow) {
+            const colorRows = sizeRow.colors || sizeRow.colorVariants || sizeRow.variants || [];
+
+            if (colorRows.length) {
+                colorRows.forEach(function (colorRow) {
+                    rows.push({
+                        size: sizeRow.size || "-",
+                        color: colorRow.color || colorRow.variant || colorRow.name || "-",
+                        quantity: Number(colorRow.quantity || colorRow.qty || 0)
+                    });
+                });
+
+                return;
+            }
+
+            rows.push({
+                size: sizeRow.size || "-",
+                color: sizeRow.color || item.variant || "-",
+                quantity: Number(sizeRow.quantity || sizeRow.qty || 0)
+            });
+        });
+
+        return rows;
+    }
+
+    function getColorSummary(item) {
+        const colors = [];
+
+        getSizeColorRows(item).forEach(function (row) {
+            if (row.color && !colors.includes(row.color)) {
+                colors.push(row.color);
+            }
+        });
+
+        if (!colors.length) {
+            return item.variant || "-";
+        }
+
+        if (colors.length <= 3) {
+            return colors.join(" / ");
+        }
+
+        return `${colors.slice(0, 3).join(" / ")} +${colors.length - 3}`;
     }
 
     function getPriorityWeight(priority) {
@@ -714,6 +798,17 @@ document.addEventListener("DOMContentLoaded", function () {
         return Number(value || 0).toLocaleString("en-US", {
             maximumFractionDigits: 2
         });
+    }
+
+    function getInitials(value) {
+        return String(value || "Customer")
+            .split(" ")
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(function (part) {
+                return part.charAt(0).toUpperCase();
+            })
+            .join("");
     }
 
     function setText(id, value) {
