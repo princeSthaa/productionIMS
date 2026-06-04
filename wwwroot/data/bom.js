@@ -1,55 +1,18 @@
 window.bomMasterData = [
-    // PRD-001 - School Uniform Set
-    {
-        productId: "PRD-001",
-        materialId: "MAT-001",
-        qtyPerUnit: 1.8,
-        wastagePercent: 5
-    },
-    {
-        productId: "PRD-001",
-        materialId: "MAT-002",
-        qtyPerUnit: 0.35,
-        wastagePercent: 3
-    },
-    {
-        productId: "PRD-001",
-        materialId: "MAT-003",
-        qtyPerUnit: 20,
-        wastagePercent: 2
-    },
-    {
-        productId: "PRD-001",
-        materialId: "MAT-004",
-        qtyPerUnit: 1,
-        wastagePercent: 0
-    },
+    // PROD-001 - Standard School Shirt
+    { productId: "PROD-001", materialId: "MAT-001", qtyPerUnit: 1.8, wastagePercent: 5 }, // Dyed Cotton Fabric
+    { productId: "PROD-001", materialId: "MAT-006", qtyPerUnit: 0.2, wastagePercent: 2 }, // Dyed Sewing Thread
+    { productId: "PROD-001", materialId: "MAT-007", qtyPerUnit: 0.15, wastagePercent: 5 }, // Collar Fusing
+    { productId: "PROD-001", materialId: "MAT-008", qtyPerUnit: 8, wastagePercent: 2 }, // Buttons
+    { productId: "PROD-001", materialId: "MAT-010", qtyPerUnit: 1, wastagePercent: 0 }, // Label
+    { productId: "PROD-001", materialId: "MAT-011", qtyPerUnit: 1, wastagePercent: 0 }, // Bag
 
-    // PRD-002 - School Tracksuit Set
-    {
-        productId: "PRD-002",
-        materialId: "MAT-005",
-        qtyPerUnit: 2.2,
-        wastagePercent: 5
-    },
-    {
-        productId: "PRD-002",
-        materialId: "MAT-002",
-        qtyPerUnit: 0.45,
-        wastagePercent: 3
-    },
-    {
-        productId: "PRD-002",
-        materialId: "MAT-003",
-        qtyPerUnit: 25,
-        wastagePercent: 2
-    },
-    {
-        productId: "PRD-002",
-        materialId: "MAT-004",
-        qtyPerUnit: 1,
-        wastagePercent: 0
-    },
+    // PROD-002 - Premium Polo T-Shirt
+    { productId: "PROD-002", materialId: "MAT-002", qtyPerUnit: 1.5, wastagePercent: 4 }, // Dyed Pique Fabric
+    { productId: "PROD-002", materialId: "MAT-006", qtyPerUnit: 0.15, wastagePercent: 2 }, // Dyed Sewing Thread
+    { productId: "PROD-002", materialId: "MAT-008", qtyPerUnit: 3, wastagePercent: 2 }, // Buttons
+    { productId: "PROD-002", materialId: "MAT-010", qtyPerUnit: 1, wastagePercent: 0 }, // Label
+    { productId: "PROD-002", materialId: "MAT-011", qtyPerUnit: 1, wastagePercent: 0 }, // Bag
 
     // PRD-003 - Men Casual Shirt
     {
@@ -158,3 +121,4 @@ window.bomMasterData = [
 
 window.bomData = window.bomMasterData;
 window.boms = window.bomMasterData;
+
