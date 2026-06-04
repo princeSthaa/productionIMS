@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <button type="button" class="btn btn-light" data-view-customer="${customer.id}">
                             View More
                         </button>
-                        <a class="btn btn-primary" href="/Production/CreateCustomer?customerId=${encodeURIComponent(customer.id)}">
+                        <a class="btn btn-primary" href="/Production/Customer/CreateCustomer?customerId=${encodeURIComponent(customer.id)}">
                             Create Plan
                         </a>
                     </div>
@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const createPlanLink = document.getElementById("customerDetailCreatePlanLink");
         if (createPlanLink) {
-            createPlanLink.href = `/Production/CreateCustomer?customerId=${encodeURIComponent(customer.id)}`;
+            createPlanLink.href = `/Production/Customer/CreateCustomer?customerId=${encodeURIComponent(customer.id)}`;
         }
 
         const productRefs = document.getElementById("customerDetailProductRefs");

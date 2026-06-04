@@ -4,7 +4,7 @@
     ViewData["Title"] = "Create Production Plan";
 }
 
-<link rel="stylesheet" href="~/css/plan.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/production/plan.css" asp-append-version="true" />
 
 <div class="pp-page">
 
@@ -15,7 +15,7 @@
         </div>
 
         <div class="pp-header-actions">
-            <a asp-page="/Production/PlansDetails" class="btn btn-light">
+            <a asp-page="/Production/Plan/PlansDetails" class="btn btn-light">
                 Back to Plans
             </a>
         </div>
@@ -45,7 +45,7 @@
                     <li>Plan product, size, materials, and stages</li>
                 </ul>
 
-                <a asp-page="/Production/Customers" class="btn btn-primary">
+                <a asp-page="/Production/Customer/Customers" class="btn btn-primary">
                     Start Customer Order Plan
                 </a>
             </div>
@@ -64,7 +64,7 @@
                     <li>Plan product, size, materials, and transfer</li>
                 </ul>
 
-                <a asp-page="/Production/Outlets" class="btn btn-primary">
+                <a asp-page="/Production/Outlet/Outlets" class="btn btn-primary">
                     Start Outlet Plan
                 </a>
             </div>
@@ -83,7 +83,7 @@
                     <li>Plan product, size, materials, and storage destination</li>
                 </ul>
 
-                <a asp-page="/Production/CreateInHouse" class="btn btn-primary">
+                <a asp-page="/Production/InHouse/CreateInHouse" class="btn btn-primary">
                     Start In-house Plan
                 </a>
             </div>

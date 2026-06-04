@@ -4,7 +4,7 @@
     ViewData["Title"] = "Production Plan Details";
 }
 
-<link rel="stylesheet" href="~/css/production-plans.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/production/production-plans.css" asp-append-version="true" />
 
 <div class="pp-page">
 
@@ -16,15 +16,15 @@
         </div>
 
         <div class="pp-header-actions">
-            <a asp-page="/Production/PlansDetails" asp-route-id="@Model.PlanId" class="btn btn-light">
+            <a asp-page="/Production/Plan/PlansDetails" asp-route-id="@Model.PlanId" class="btn btn-light">
                 Back to Plans
             </a>
 
-            <a id="editPlanBtn" asp-page="/Production/Edit" asp-route-id="@Model.PlanId" class="btn btn-primary">
+            <a id="editPlanBtn" asp-page="/Production/Plan/Edit" asp-route-id="@Model.PlanId" class="btn btn-primary">
                 Edit Plan
             </a>
 
-            <a id="stageUpdateBtn" asp-page="/Production/StageUpdate" asp-route-id="@Model.PlanId" class="btn btn-outline">
+            <a id="stageUpdateBtn" asp-page="/Production/Plan/StageUpdate" asp-route-id="@Model.PlanId" class="btn btn-outline">
                 Update Stage
             </a>
         </div>
@@ -403,13 +403,13 @@
 
 
 <script src="~/js/app.js" asp-append-version="true"></script>
-<script src="~/data/customers.js" asp-append-version="true"></script>
-<script src="~/data/outlets.js" asp-append-version="true"></script>
-<script src="~/data/products.js" asp-append-version="true"></script>
-<script src="~/data/materials.js" asp-append-version="true"></script>
-<script src="~/data/bom.js" asp-append-version="true"></script>
-<script src="~/data/warehouses.js" asp-append-version="true"></script>
-<script src="~/data/mock-production-plans.js" asp-append-version="true"></script>
-<script src="~/data/production-stages.js" asp-append-version="true"></script>
+<script src="~/data/crm/customers.js" asp-append-version="true"></script>
+<script src="~/data/shared/outlets.js" asp-append-version="true"></script>
+<script src="~/data/shared/products.js" asp-append-version="true"></script>
+<script src="~/data/shared/materials.js" asp-append-version="true"></script>
+<script src="~/data/shared/bom.js" asp-append-version="true"></script>
+<script src="~/data/warehouse/warehouses.js" asp-append-version="true"></script>
+<script src="~/data/production/mock-production-plans.js" asp-append-version="true"></script>
+<script src="~/data/production/production-stages.js" asp-append-version="true"></script>
 
-<script src="~/js/production-plan-details.js" asp-append-version="true"></script>
+<script src="~/js/production/production-plan-details.js" asp-append-version="true"></script>

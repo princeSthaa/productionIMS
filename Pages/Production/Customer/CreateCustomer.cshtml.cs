@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Kaam.Pages.Production
 {
-    public class CreateCustomerModel : PageModel
+    public class CreateCustomerModel : ProductionBasePageModel
     {
         [BindProperty(SupportsGet = true)]
         public int? CustomerId { get; set; }
@@ -27,6 +27,7 @@ namespace Kaam.Pages.Production
 
         public void OnGet()
         {
+            LoadSidebarMenu();
             DemandType = "Customer Order";
         }
 

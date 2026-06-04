@@ -1,12 +1,11 @@
 @page
 @model Kaam.Pages.Production.IndexModel
 @{
-  ViewData["Title"] = "Production Plans";
-
-  Layout = "_SidebarLayout";
+  ViewData["Title"] = "Production Menu";
+}
 }
 
-<link rel="stylesheet" href="~/css/production-plans.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/production/production-plans.css" asp-append-version="true" />
 
 <div class="pp-page production-overview-page">
 
@@ -18,7 +17,7 @@
     </div>
 
     <div class="pp-header-actions">
-      <a asp-page="/Production/PlansDetails" class="btn btn-light">
+      <a asp-page="/Production/Plan/PlansDetails" class="btn btn-light">
         View Plans
       </a>
       <a asp-page="/Production/Create" class="btn btn-primary">
@@ -118,5 +117,5 @@
   </section>
 </div>
 <script src="~/js/app.js" asp-append-version="true"></script>
-<script src="~/data/mock-production-plans.js" asp-append-version="true"></script>
-<script src="~/js/production-plan-index.js" asp-append-version="true"></script>
+<script src="~/data/production/mock-production-plans.js" asp-append-version="true"></script>
+<script src="~/js/production/production-plan-index.js" asp-append-version="true"></script>

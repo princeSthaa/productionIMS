@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Kaam.Pages.Production
 {
-    public class EditModel : PageModel
+    public class EditModel : ProductionBasePageModel
     {
         [BindProperty]
         public string PlanId { get; set; } = "PP-20260529-001";
@@ -66,6 +66,7 @@ namespace Kaam.Pages.Production
 
         public void OnGet(string? id)
         {
+            LoadSidebarMenu();
             if (!string.IsNullOrWhiteSpace(id))
             {
                 PlanId = id;

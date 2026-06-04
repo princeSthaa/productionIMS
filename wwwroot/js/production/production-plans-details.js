@@ -211,10 +211,10 @@ document.addEventListener("DOMContentLoaded", function () {
                             <button type="button" class="btn btn-light btn-sm" data-select-plan="${escapeHtml(plan.planNo)}">
                                 Quick View
                             </button>
-                            <a class="btn btn-light btn-sm" href="/Production/Details/${encodeURIComponent(plan.planNo)}">
+                            <a class="btn btn-light btn-sm" href="/Production/Plan/Details/${encodeURIComponent(plan.planNo)}">
                                 Details
                             </a>
-                            <a class="btn btn-primary btn-sm" href="/Production/Edit/${encodeURIComponent(plan.planNo)}">
+                            <a class="btn btn-primary btn-sm" href="/Production/Plan/Edit/${encodeURIComponent(plan.planNo)}">
                                 Edit
                             </a>
                         </div>
@@ -480,11 +480,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const encodedPlanNo = encodeURIComponent(planNo || "");
 
         if (viewPlanDetailsBtn) {
-            viewPlanDetailsBtn.href = encodedPlanNo ? `/Production/Details/${encodedPlanNo}` : "/Production/Details";
+            viewPlanDetailsBtn.href = encodedPlanNo ? `/Production/Plan/Details/${encodedPlanNo}` : "/Production/Plan/Details";
         }
 
         if (editPlanBtn) {
-            editPlanBtn.href = encodedPlanNo ? `/Production/Edit/${encodedPlanNo}` : "/Production/Edit";
+            editPlanBtn.href = encodedPlanNo ? `/Production/Plan/Edit/${encodedPlanNo}` : "/Production/Plan/Edit";
         }
     }
 

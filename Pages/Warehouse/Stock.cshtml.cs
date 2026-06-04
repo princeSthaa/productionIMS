@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace kaam.Pages.Warehouse
+namespace Kaam.Pages.Warehouse
 {
-    public class StockModel : PageModel
+    public class StockModel : WarehouseBasePageModel
     {
         public List<StockItemViewModel> StockItems { get; set; } = new();
 
         public void OnGet()
         {
+            LoadSidebarMenu();
             StockItems = new List<StockItemViewModel>
             {
                 new StockItemViewModel

@@ -1,31 +1,23 @@
 @page
-@model Kaam.Pages.Production.CreateCustomerModel
+@model Kaam.Pages.Production.CreateOutletModel
 @{
-  ViewData["Title"] = "Create Customer Production Plan";
+  ViewData["Title"] = "Create Outlet Production Plan";
 }
 
-<link rel="stylesheet" href="~/css/plan.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/production/plan.css" asp-append-version="true" />
 
-<div class="pp-page customer-order-page" id="customerOrderPlanPage" data-selected-customer-id="@Model.CustomerId">
+<div class="pp-page outlet-demand-page" id="outletDemandPlanPage" data-selected-outlet-id="@Model.OutletId">
 
   <div class="pp-page-header">
     <div>
-      <h1>Create Customer Order Plan</h1>
-      <p id="customerOrderHeaderText">Browse ready customer orders, check materials in bulk, and add selected items to a production plan.</p>
+      <h1>Create Outlet Production Plan</h1>
+      <p id="outletDemandHeaderText">Browse outlet stock demand, add replenishment items to plan, and check materials in bulk.</p>
     </div>
 
     <div class="pp-header-actions">
-      <a asp-page="/Production/Customers" class="btn btn-light">
-        Choose Customer
-      </a>
-
-      <a asp-page="/Production/Create" class="btn btn-light">
-        Change Demand Type
-      </a>
-
-      <a asp-page="/Production/PlansDetails" class="btn btn-light">
-        Back to Plans
-      </a>
+      <a asp-page="/Production/Outlet/Outlets" class="btn btn-light">Choose Outlet</a>
+      <a asp-page="/Production/Create" class="btn btn-light">Change Demand Type</a>
+      <a asp-page="/Production/Plan/PlansDetails" class="btn btn-light">Back to Plans</a>
     </div>
   </div>
 
@@ -39,72 +31,72 @@
     <div class="alert alert-danger">@Model.ErrorMessage</div>
   }
 
-  <section class="pp-card selected-customer-card hidden" id="selectedCustomerCard">
+  <section class="pp-card selected-customer-card hidden" id="selectedOutletCard">
     <div class="selected-customer-main">
-      <div class="selected-customer-avatar" id="selectedCustomerAvatar">CU</div>
+      <div class="selected-customer-avatar" id="selectedOutletAvatar">OU</div>
       <div>
-        <span class="catalog-eyebrow">Selected Customer</span>
-        <h2 id="selectedCustomerName">Customer</h2>
-        <p id="selectedCustomerMeta">Order items for the selected customer.</p>
+        <span class="catalog-eyebrow">Selected Outlet</span>
+        <h2 id="selectedOutletName">Outlet</h2>
+        <p id="selectedOutletMeta">Demand items for the selected outlet.</p>
       </div>
     </div>
 
     <div class="selected-customer-stats">
       <div>
-        <span>Phone</span>
-        <strong id="selectedCustomerPhone">-</strong>
+        <span>Manager</span>
+        <strong id="selectedOutletManager">-</strong>
       </div>
       <div>
         <span>Location</span>
-        <strong id="selectedCustomerAddress">-</strong>
+        <strong id="selectedOutletLocation">-</strong>
       </div>
       <div>
-        <span>Open Orders</span>
-        <strong id="selectedCustomerOrders">0</strong>
+        <span>Demand Items</span>
+        <strong id="selectedOutletDemandCount">0</strong>
       </div>
       <div>
         <span>Total Qty</span>
-        <strong id="selectedCustomerQty">0</strong>
+        <strong id="selectedOutletQty">0</strong>
       </div>
       <div>
-        <span>Earliest Delivery</span>
-        <strong id="selectedCustomerDelivery">-</strong>
+        <span>Earliest Required</span>
+        <strong id="selectedOutletRequired">-</strong>
       </div>
     </div>
   </section>
 
-  <div class="alert alert-warning hidden" id="customerSelectionWarning">
-    Choose a customer from the customer catalog to view only that customer's order items.
+  <div class="alert alert-warning hidden" id="outletSelectionWarning">
+    Choose an outlet from the outlet catalog to view only that outlet's demand items.
   </div>
 
-  <form method="post" id="productionPlanForm">
+  <form method="post" id="outletProductionPlanForm">
 
-    <input asp-for="DemandType" type="hidden" value="Customer Order" />
-    <input asp-for="SelectedDraftJson" type="hidden" id="selectedDraftJson" />
+    <input asp-for="DemandType" type="hidden" value="Outlet Demand" />
+    <input asp-for="SelectedDraftJson" type="hidden" id="selectedOutletDraftJson" />
 
     <section class="pp-card catalog-hero-card">
       <div class="catalog-hero-content">
         <div>
-          <span class="catalog-eyebrow">Customer Order Catalog</span>
-          <h2 id="customerOrderCatalogTitle">Ready Orders for Production Planning</h2>
-          <!--    <p>
-                        Select customer order items like an internal e-commerce catalog.
-                        View product image, size breakdown, delivery date, and material status before adding to plan.
-                    </p> -->
+          <span class="catalog-eyebrow">Outlet Demand Catalog</span>
+          <h2 id="outletDemandCatalogTitle">Outlet Replenishment Planning</h2>
+          <p>
+            Select products that need production for outlet stock replenishment.
+            Review stock gap, sales velocity, suggested quantity, and material availability.
+          </p>
         </div>
 
         <div class="catalog-hero-stats">
           <div>
             <span>Selected Items</span>
-            <strong id="selectedItemCount">0</strong>
+            <strong id="outletSelectedItemCount">0</strong>
           </div>
           <div>
-            <span>Total Quantity</span>
-            <strong id="selectedTotalQty">0</strong>
+            <span>Total Suggested Qty</span>
+            <strong id="outletSelectedTotalQty">0</strong>
           </div>
           <div>
-            <span>Earliest Delivery</span>
-            <strong id="selectedEarliestDelivery">-</strong>
+            <span>Earliest Required</span>
+            <strong id="outletSelectedEarliestDate">-</strong>
           </div>
         </div>
       </div>
@@ -115,61 +107,59 @@
       <main class="catalog-main">
         <div class="catalog-section-header">
           <div>
-            <h2 id="customerOrderItemsTitle">Customer Order Items</h2>
-            <p id="customerOrderItemsText">Click View Details to inspect size chart, measurements, and material requirements.</p>
+            <h2 id="outletDemandItemsTitle">Outlet Demand Items</h2>
+            <p id="outletDemandItemsText">Choose products that need production based on outlet stock gap and sales movement.</p>
           </div>
         </div>
 
-        <div id="customerOrderCatalogGrid" class="customer-order-catalog-grid">
+        <div id="outletDemandCatalogGrid" class="customer-order-catalog-grid outlet-demand-catalog-grid">
           <div class="empty-cell">
-            Loading customer orders...
+            Loading outlet demand...
           </div>
         </div>
       </main>
 
       <aside class="plan-basket-panel">
         <div class="plan-basket-header">
-          <div>
-            <h2>Production Plan Basket</h2>
-            <p>Selected items to convert into production plan.</p>
-          </div>
+          <h2>Plan Basket</h2>
+          <p>Review selected outlet demand items before creating the production plan.</p>
         </div>
 
-        <div id="planBasketItems" class="plan-basket-items">
+        <div id="outletPlanBasketItems" class="plan-basket-items">
           <div class="basket-empty-state">
-            No items added yet.
+            No outlet demand items added yet.
           </div>
         </div>
 
         <div class="plan-basket-summary">
           <div>
             <span>Total Items</span>
-            <strong id="basketTotalItems">0</strong>
+            <strong id="outletBasketTotalItems">0</strong>
           </div>
           <div>
             <span>Total Qty</span>
-            <strong id="basketTotalQty">0</strong>
+            <strong id="outletBasketTotalQty">0</strong>
           </div>
           <div>
-            <span>Earliest Delivery</span>
-            <strong id="basketEarliestDelivery">-</strong>
+            <span>Earliest Required</span>
+            <strong id="outletBasketEarliestDate">-</strong>
           </div>
           <div>
             <span>Material Status</span>
-            <strong id="basketMaterialStatus">Not checked</strong>
+            <strong id="outletBasketMaterialStatus">Not checked</strong>
           </div>
         </div>
 
         <div class="basket-actions">
-          <button type="button" class="btn btn-outline full-width" id="checkBulkMaterialBtn">
-            Check Materials in Bulk
-          </button>
-
-          <button type="submit" name="ActionType" value="Create" class="btn btn-primary full-width" id="createProductionPlanBtn">
+          <button type="submit" name="ActionType" value="Create" class="btn btn-primary full-width" id="createOutletProductionPlanBtn">
             Create Production Plan
           </button>
 
-          <button type="button" class="btn btn-danger-light full-width" id="clearBasketBtn">
+          <button type="button" class="btn btn-outline full-width" id="checkOutletBulkMaterialBtn">
+            Check Materials in Bulk
+          </button>
+
+          <button type="button" class="btn btn-danger-light full-width" id="clearOutletBasketBtn">
             Clear Basket
           </button>
         </div>
@@ -181,7 +171,7 @@
       <div class="pp-card-header">
         <div>
           <h2>Bulk Material Requirement</h2>
-          <p>Material requirement is calculated from all selected production plan items.</p>
+          <p>Material requirement is calculated from all selected outlet demand items.</p>
         </div>
       </div>
 
@@ -199,10 +189,10 @@
               <th>Status</th>
             </tr>
           </thead>
-          <tbody id="bulkMaterialBody">
+          <tbody id="outletBulkMaterialBody">
             <tr>
               <td colspan="8" class="empty-cell">
-                Add items to production plan basket, then click Check Materials in Bulk.
+                Add outlet demand items to plan basket, then click Check Materials in Bulk.
               </td>
             </tr>
           </tbody>
@@ -213,68 +203,76 @@
   </form>
 </div>
 
-<div class="pp-modal hidden" id="orderDetailModal">
-  <div class="pp-modal-backdrop" data-close-modal="orderDetailModal"></div>
+<div class="pp-modal hidden" id="outletDetailModal">
+  <div class="pp-modal-backdrop" data-close-modal="outletDetailModal"></div>
 
   <div class="pp-modal-panel large order-detail-modal-panel">
     <div class="pp-modal-header">
       <div>
-        <h2 id="detailProductName">Order Detail</h2>
-        <p id="detailOrderSubtitle">View customer order, size chart, measurements, and production information.</p>
+        <h2 id="outletDetailProductName">Outlet Demand Detail</h2>
+        <p id="outletDetailSubtitle">Review outlet stock gap, size-wise demand, and material requirement.</p>
       </div>
 
-      <button type="button" class="modal-close-btn" data-close-modal="orderDetailModal">&times;</button>
+      <button type="button" class="modal-close-btn" data-close-modal="outletDetailModal">&times;</button>
     </div>
 
     <div class="pp-modal-body">
       <div class="order-detail-layout">
 
         <div class="order-detail-media">
-          <img id="detailProductImage" src="/images/products/place-holder.png" alt="Product image" />
+          <img id="outletDetailProductImage" src="/images/products/place-holder.png" alt="Product image" />
 
           <div class="order-detail-thumbnail-row">
             <div>
-              <span>Customer</span>
-              <strong id="detailCustomerName">-</strong>
+              <span>Outlet</span>
+              <strong id="outletDetailOutletName">-</strong>
             </div>
             <div>
-              <span>Order No</span>
-              <strong id="detailOrderNo">-</strong>
+              <span>Demand No</span>
+              <strong id="outletDetailDemandNo">-</strong>
             </div>
           </div>
         </div>
 
         <div class="order-detail-info">
           <div class="detail-badge-row">
-            <span id="detailCustomerType" class="customer-type">-</span>
-            <span id="detailPriority" class="priority-badge">-</span>
-            <span id="detailDeliveryBadge" class="customer-delivery-normal">-</span>
+            <span id="outletDetailStockStatus" class="priority-badge">-</span>
+            <span id="outletDetailVelocity" class="customer-delivery-normal">-</span>
+            <span id="outletDetailRequiredBadge" class="customer-delivery-normal">-</span>
           </div>
 
-          <h3 id="detailItemName">-</h3>
+          <h3 id="outletDetailItemName">-</h3>
 
           <div class="detail-info-grid">
             <div>
-              <span>Quantity</span>
-              <strong id="detailQuantity">-</strong>
+              <span>Current Stock</span>
+              <strong id="outletDetailCurrentStock">-</strong>
             </div>
             <div>
-              <span>Delivery Date</span>
-              <strong id="detailDeliveryDate">-</strong>
+              <span>Reorder Level</span>
+              <strong id="outletDetailReorderLevel">-</strong>
             </div>
             <div>
-              <span>Color / Variant</span>
-              <strong id="detailVariant">-</strong>
+              <span>Suggested Qty</span>
+              <strong id="outletDetailSuggestedQty">-</strong>
             </div>
             <div>
-              <span>Delivery Location</span>
-              <strong id="detailDeliveryLocation">-</strong>
+              <span>Required Date</span>
+              <strong id="outletDetailRequiredDate">-</strong>
+            </div>
+            <div>
+              <span>Last 30 Days Sales</span>
+              <strong id="outletDetailLast30Sales">-</strong>
+            </div>
+            <div>
+              <span>Outlet Location</span>
+              <strong id="outletDetailLocation">-</strong>
             </div>
           </div>
 
           <div class="detail-note-box">
-            <span>Production Notes</span>
-            <p id="detailProductionNotes">-</p>
+            <span>Planning Notes</span>
+            <p id="outletDetailNotes">-</p>
           </div>
 
           <div class="detail-action-stack">
@@ -283,7 +281,7 @@
               3D Product Preview
             </button>
 
-            <button type="button" class="btn btn-primary full-width" id="addDetailToPlanBtn">
+            <button type="button" class="btn btn-primary full-width" id="addOutletDetailToPlanBtn">
               Add to Production Plan
             </button>
           </div>
@@ -292,29 +290,33 @@
       </div>
 
       <div class="order-detail-tabs">
-        <section class="detail-section">
+        <section class="detail-section full-detail-section">
           <div class="detail-section-header">
-            <h3>Size Breakdown</h3>
-            <p>Quantity required per size and color variant.</p>
+            <h3>Size-wise Stock Gap</h3>
+            <p>Suggested quantity per size and color variant.</p>
           </div>
 
-          <div class="pp-table-wrapper size-breakdown-wrapper">
-            <table class="pp-table compact-table size-breakdown-table">
+          <div class="pp-table-wrapper outlet-size-gap-wrapper">
+            <table class="pp-table compact-table outlet-size-gap-table">
               <colgroup>
                 <col class="size-col" />
                 <col class="color-col" />
-                <col class="qty-col" />
+                <col class="stock-col" />
+                <col class="stock-col" />
+                <col class="stock-col" />
               </colgroup>
               <thead>
                 <tr>
                   <th>Size</th>
                   <th>Color</th>
-                  <th>Quantity</th>
+                  <th>Current</th>
+                  <th>Reorder</th>
+                  <th>Plan Qty</th>
                 </tr>
               </thead>
-              <tbody id="detailSizeBreakdownBody">
+              <tbody id="outletDetailSizeGapBody">
                 <tr>
-                  <td colspan="3" class="empty-cell">No size data.</td>
+                  <td colspan="5" class="empty-cell">No size gap data.</td>
                 </tr>
               </tbody>
             </table>
@@ -339,7 +341,7 @@
                   <th style="width: 16.6666667%; white-space: nowrap;">Unit</th>
                 </tr>
               </thead>
-              <tbody id="detailMeasurementBody">
+              <tbody id="outletDetailMeasurementBody">
                 <tr>
                   <td colspan="6" class="empty-cell">No measurement data.</td>
                 </tr>
@@ -347,11 +349,10 @@
             </table>
           </div>
         </section>
-
         <section class="detail-section full-detail-section">
           <div class="detail-section-header">
             <h3>Material Requirement Preview</h3>
-            <p>Calculated only for this order item.</p>
+            <p>Calculated only for this outlet demand item.</p>
           </div>
 
           <div class="pp-table-wrapper">
@@ -365,7 +366,7 @@
                   <th>Status</th>
                 </tr>
               </thead>
-              <tbody id="detailMaterialBody">
+              <tbody id="outletDetailMaterialBody">
                 <tr>
                   <td colspan="5" class="empty-cell">No material data.</td>
                 </tr>
@@ -386,7 +387,7 @@
     <div class="pp-modal-header">
       <div>
         <h2 id="product3dPreviewTitle">3D Product Preview</h2>
-        <p id="product3dPreviewSubtitle">Product preview for the selected customer order item.</p>
+        <p id="product3dPreviewSubtitle">Product preview for the selected outlet demand item.</p>
       </div>
 
       <div class="product-3d-header-actions">
@@ -430,7 +431,7 @@
           <div>
             <span class="catalog-eyebrow">Mockup Preview</span>
             <h3 id="product3dProductName">Product Preview</h3>
-            <p id="product3dDescription">Front and back mockup image for the selected order item.</p>
+            <p id="product3dDescription">Front and back mockup image for the selected outlet demand item.</p>
           </div>
 
           <div class="product-3d-option-block">
@@ -449,11 +450,11 @@
 
           <div class="product-3d-meta-grid">
             <div>
-              <span>Order No</span>
+              <span>Demand No</span>
               <strong id="product3dOrderNo">-</strong>
             </div>
             <div>
-              <span>Customer</span>
+              <span>Outlet</span>
               <strong id="product3dCustomerName">-</strong>
             </div>
             <div>
@@ -473,10 +474,9 @@
 
 <script src="~/js/app.js" asp-append-version="true"></script>
 
-<script src="~/data/customers.js" asp-append-version="true"></script>
-<script src="~/data/products.js" asp-append-version="true"></script>
-<script src="~/data/materials.js" asp-append-version="true"></script>
-<script src="~/data/bom.js" asp-append-version="true"></script>
-<script src="~/data/production-stages.js" asp-append-version="true"></script>
+<script src="~/data/production/outlet-demands.js" asp-append-version="true"></script>
+<script src="~/data/shared/products.js" asp-append-version="true"></script>
+<script src="~/data/shared/materials.js" asp-append-version="true"></script>
+<script src="~/data/shared/bom.js" asp-append-version="true"></script>
 
-<script src="~/js/production-plan-create.js" asp-append-version="true"></script>
+<script src="~/js/production/outlet-plan-create.js" asp-append-version="true"></script>

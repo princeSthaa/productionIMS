@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace kaam.Pages.Warehouse
+namespace Kaam.Pages.Warehouse
 {
-    public class VisualizationModel : PageModel
+    public class VisualizationModel : WarehouseBasePageModel
     {
         public void OnGet()
         {
+            LoadSidebarMenu();
         }
     }
 }

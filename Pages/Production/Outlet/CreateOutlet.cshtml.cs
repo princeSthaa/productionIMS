@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Kaam.Pages.Production
 {
-    public class CreateOutletModel : PageModel
+    public class CreateOutletModel : ProductionBasePageModel
     {
         [BindProperty(SupportsGet = true)]
         public int? OutletId { get; set; }
@@ -27,6 +27,7 @@ namespace Kaam.Pages.Production
 
         public void OnGet()
         {
+            LoadSidebarMenu();
             DemandType = "Outlet Demand";
         }
 

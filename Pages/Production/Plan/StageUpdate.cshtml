@@ -4,7 +4,7 @@
     ViewData["Title"] = "Update Production Stage";
 }
 
-<link rel="stylesheet" href="~/css/production-plans.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/production/production-plans.css" asp-append-version="true" />
 
 <div class="pp-page">
 
@@ -16,7 +16,7 @@
         </div>
 
         <div class="pp-header-actions">
-            <a asp-page="/Production/Details" asp-route-id="@Model.PlanId" class="btn btn-light">
+            <a asp-page="/Production/Plan/Details" asp-route-id="@Model.PlanId" class="btn btn-light">
                 View Details
             </a>
 
@@ -251,7 +251,7 @@
                 Clear Form
             </button>
 
-            <a asp-page="/Production/Details" asp-route-id="@Model.PlanId" class="btn btn-outline">
+            <a asp-page="/Production/Plan/Details" asp-route-id="@Model.PlanId" class="btn btn-outline">
                 Cancel
             </a>
         </div>
@@ -260,7 +260,7 @@
 </div>
 
 <script src="~/js/app.js" asp-append-version="true"></script>
-<script src="~/data/mock-production-plans.js" asp-append-version="true"></script>
-<script src="~/data/production-stages.js" asp-append-version="true"></script>
+<script src="~/data/production/mock-production-plans.js" asp-append-version="true"></script>
+<script src="~/data/production/production-stages.js" asp-append-version="true"></script>
 
-<script src="~/js/production-plan-stage-update.js" asp-append-version="true"></script>
+<script src="~/js/production/production-plan-stage-update.js" asp-append-version="true"></script>

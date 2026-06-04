@@ -4,7 +4,7 @@
     ViewData["Title"] = "Edit Production Plan";
 }
 
-<link rel="stylesheet" href="~/css/production-plans.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/production/production-plans.css" asp-append-version="true" />
 
 <div class="pp-page">
 
@@ -16,7 +16,7 @@
         </div>
 
         <div class="pp-header-actions">
-            <a asp-page="/Production/Details" asp-route-id="@Model.PlanId" class="btn btn-light">
+            <a asp-page="/Production/Plan/Details" asp-route-id="@Model.PlanId" class="btn btn-light">
                 View Details
             </a>
 
@@ -448,7 +448,7 @@
                 Check Material Availability
             </button>
 
-            <a asp-page="/Production/Details" asp-route-id="@Model.PlanId" class="btn btn-light">
+            <a asp-page="/Production/Plan/Details" asp-route-id="@Model.PlanId" class="btn btn-light">
                 Cancel
             </a>
         </div>
@@ -553,13 +553,13 @@
 </div>
 
 <script src="~/js/app.js" asp-append-version="true"></script>
-<script src="~/data/customers.js" asp-append-version="true"></script>
-<script src="~/data/outlets.js" asp-append-version="true"></script>
-<script src="~/data/products.js" asp-append-version="true"></script>
-<script src="~/data/materials.js" asp-append-version="true"></script>
-<script src="~/data/bom.js" asp-append-version="true"></script>
-<script src="~/data/warehouses.js" asp-append-version="true"></script>
-<script src="~/data/production-stages.js" asp-append-version="true"></script>
-<script src="~/data/mock-production-plans.js" asp-append-version="true"></script>
+<script src="~/data/crm/customers.js" asp-append-version="true"></script>
+<script src="~/data/shared/outlets.js" asp-append-version="true"></script>
+<script src="~/data/shared/products.js" asp-append-version="true"></script>
+<script src="~/data/shared/materials.js" asp-append-version="true"></script>
+<script src="~/data/shared/bom.js" asp-append-version="true"></script>
+<script src="~/data/warehouse/warehouses.js" asp-append-version="true"></script>
+<script src="~/data/production/production-stages.js" asp-append-version="true"></script>
+<script src="~/data/production/mock-production-plans.js" asp-append-version="true"></script>
 
-<script src="~/js/production-plan-edit.js" asp-append-version="true"></script>
+<script src="~/js/production/production-plan-edit.js" asp-append-version="true"></script>

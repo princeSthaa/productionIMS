@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Kaam.Pages.Production
 {
-    public class CreateInHouseModel : PageModel
+    public class CreateInHouseModel : ProductionBasePageModel
     {
         [BindProperty]
         public string PlanNo { get; set; } = string.Empty;
@@ -60,6 +60,7 @@ namespace Kaam.Pages.Production
 
         public void OnGet()
         {
+            LoadSidebarMenu();
             LoadDefaultValues();
         }
 

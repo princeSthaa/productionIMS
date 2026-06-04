@@ -158,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <button type="button" class="btn btn-light" data-view-outlet="${outlet.id}">
                             View More
                         </button>
-                        <a class="btn btn-primary" href="/Production/CreateOutlet?outletId=${encodeURIComponent(outlet.id)}">
+                        <a class="btn btn-primary" href="/Production/Outlet/CreateOutlet?outletId=${encodeURIComponent(outlet.id)}">
                             Create Plan
                         </a>
                     </div>
@@ -183,7 +183,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const createPlanLink = document.getElementById("outletCatalogCreatePlanLink");
         if (createPlanLink) {
-            createPlanLink.href = `/Production/CreateOutlet?outletId=${encodeURIComponent(outlet.id)}`;
+            createPlanLink.href = `/Production/Outlet/CreateOutlet?outletId=${encodeURIComponent(outlet.id)}`;
         }
 
         const productRefs = document.getElementById("outletCatalogProductRefs");

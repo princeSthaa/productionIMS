@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Kaam.Pages.Production
 {
-    public class DetailsModel : PageModel
+    public class DetailsModel : ProductionBasePageModel
     {
         public string PageTitle { get; set; } = "Production Plan Details";
 
@@ -13,6 +13,7 @@ namespace Kaam.Pages.Production
 
         public void OnGet(string? id)
         {
+            LoadSidebarMenu();
             // For now, details are loaded from JavaScript mock data:
             // wwwroot/data/mock-production-plans.js
             //

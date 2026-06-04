@@ -2,7 +2,6 @@
 @model CreateOrder
 @{
   ViewData["Title"] = "Create Order";
-  Layout = "_SidebarLayout";
 }
 
 <style>
@@ -165,9 +164,9 @@
     </div>
 
     @section Scripts {
-      <script src="~/data/products.js"></script>
-      <script src="~/data/materials.js"></script>
-      <script src="~/data/bom.js"></script>
+      <script src="~/data/shared/products.js"></script>
+      <script src="~/data/shared/materials.js"></script>
+      <script src="~/data/shared/bom.js"></script>
 
       <script>
         document.addEventListener("DOMContentLoaded", function () {

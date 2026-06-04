@@ -4,7 +4,7 @@
     ViewData["Title"] = "Create In-house Production Plan";
 }
 
-<link rel="stylesheet" href="~/css/plan.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/production/plan.css" asp-append-version="true" />
 <link rel="stylesheet" href="https://nepalidatepicker.sajanmaharjan.com.np/v5/nepali.datepicker/css/nepali.datepicker.v5.0.6.min.css" />
 
 <div class="pp-page inhouse-plan-page" id="inHousePlanPage">
@@ -17,7 +17,7 @@
 
         <div class="pp-header-actions">
             <a asp-page="/Production/Create" class="btn btn-light">Change Demand Type</a>
-            <a asp-page="/Production/PlansDetails" class="btn btn-light">Back to Plans</a>
+            <a asp-page="/Production/Plan/PlansDetails" class="btn btn-light">Back to Plans</a>
         </div>
     </div>
 
@@ -193,12 +193,12 @@
 
 <script src="~/js/app.js" asp-append-version="true"></script>
 
-<script src="~/data/warehouses.js" asp-append-version="true"></script>
-<script src="~/data/products.js" asp-append-version="true"></script>
-<script src="~/data/materials.js" asp-append-version="true"></script>
-<script src="~/data/bom.js" asp-append-version="true"></script>
-<script src="~/data/production-stages.js" asp-append-version="true"></script>
+<script src="~/data/warehouse/warehouses.js" asp-append-version="true"></script>
+<script src="~/data/shared/products.js" asp-append-version="true"></script>
+<script src="~/data/shared/materials.js" asp-append-version="true"></script>
+<script src="~/data/shared/bom.js" asp-append-version="true"></script>
+<script src="~/data/production/production-stages.js" asp-append-version="true"></script>
 
 <script src="https://nepalidatepicker.sajanmaharjan.com.np/v5/nepali.datepicker/js/nepali.datepicker.v5.0.6.min.js"
         type="text/javascript"></script>
-<script src="~/js/inhouse-plan-create.js" asp-append-version="true"></script>
+<script src="~/js/production/inhouse-plan-create.js" asp-append-version="true"></script>
