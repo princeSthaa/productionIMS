@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -26,6 +29,9 @@ namespace Kaam.Pages.Production
 
         [BindProperty]
         public string? Variant { get; set; }
+
+        [BindProperty]
+        public string VariantBreakdownJson { get; set; } = string.Empty;
 
         [BindProperty]
         public int TotalQuantity { get; set; }
@@ -123,6 +129,25 @@ namespace Kaam.Pages.Production
                 ModelState.AddModelError(nameof(ProductId), "Product is required.");
             }
 
+            if (!TryReadVariantBreakdown(VariantBreakdownJson, out var variantTotal, out var variantSummary))
+            {
+                ModelState.AddModelError(nameof(VariantBreakdownJson), "At least one color variant quantity is required.");
+            }
+            else
+            {
+                Variant = variantSummary;
+
+                if (TotalQuantity <= 0)
+                {
+                    TotalQuantity = variantTotal;
+                }
+
+                if (TotalQuantity != variantTotal)
+                {
+                    ModelState.AddModelError(nameof(TotalQuantity), "Total quantity must match color variant quantities.");
+                }
+            }
+
             if (TotalQuantity <= 0)
             {
                 ModelState.AddModelError(nameof(TotalQuantity), "Total quantity must be greater than zero.");
@@ -165,6 +190,60 @@ namespace Kaam.Pages.Production
             if (string.IsNullOrWhiteSpace(OutputDestination))
             {
                 ModelState.AddModelError(nameof(OutputDestination), "Output destination is required.");
+            }
+        }
+
+        private static bool TryReadVariantBreakdown(string json, out int totalQuantity, out string variantSummary)
+        {
+            totalQuantity = 0;
+            variantSummary = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return false;
+            }
+
+            try
+            {
+                using var document = JsonDocument.Parse(json);
+
+                if (document.RootElement.ValueKind != JsonValueKind.Array)
+                {
+                    return false;
+                }
+
+                var variants = new List<string>();
+
+                foreach (var row in document.RootElement.EnumerateArray())
+                {
+                    if (!row.TryGetProperty("variant", out var variantElement) ||
+                        !row.TryGetProperty("quantity", out var quantityElement))
+                    {
+                        return false;
+                    }
+
+                    var variant = variantElement.GetString();
+                    var quantity = quantityElement.GetInt32();
+
+                    if (string.IsNullOrWhiteSpace(variant) || quantity <= 0)
+                    {
+                        return false;
+                    }
+
+                    variants.Add(variant);
+                    totalQuantity += quantity;
+                }
+
+                variantSummary = string.Join(" / ", variants.Distinct());
+                return totalQuantity > 0;
+            }
+            catch (JsonException)
+            {
+                return false;
+            }
+            catch (InvalidOperationException)
+            {
+                return false;
             }
         }
     }

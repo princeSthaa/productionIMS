@@ -169,11 +169,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 : "";
 
             const isActive = plan.planNo === activePlanNo ? "active" : "";
-            const isRisk = plan.products.some(function (product) {
-                return product.risk || String(product.priority).toLowerCase() === "urgent";
-            });
-            const duration = daysBetween(plan.factoryStart, plan.factoryFinish);
-            const barWidth = Math.min(duration * 10, 100);
 
             return `
                 <article class="plan-card ${isActive}" data-plan-no="${escapeHtml(plan.planNo)}">
@@ -207,13 +202,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         <div class="mini-box">
                             <span>Date Risk</span>
                             <strong>${escapeHtml(plan.riskText)}</strong>
-                        </div>
-                    </div>
-
-                    <div class="factory-window">
-                        <span>Factory window</span>
-                        <div class="bar-track">
-                            <div class="bar-fill ${isRisk ? "risk" : ""}" style="width:${barWidth}%"></div>
                         </div>
                     </div>
 

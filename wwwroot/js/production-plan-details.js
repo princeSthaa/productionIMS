@@ -126,6 +126,7 @@
 
         list.innerHTML = state.planProducts.map(function (product) {
             const image = product.productImage || getCatalogProduct(product)?.productImage || getCatalogProduct(product)?.imagePath || fallbackProductImage;
+            const variantQuantitySummary = getVariantQuantitySummary(product);
 
             return `
                 <article class="plan-product-card">
@@ -155,6 +156,10 @@
                             <div>
                                 <span>Quantity</span>
                                 <strong>${formatNumber(product.quantity)} pcs</strong>
+                            </div>
+                            <div class="full-meta">
+                                <span>Variant Quantities</span>
+                                <strong>${App.escapeHtml(variantQuantitySummary)}</strong>
                             </div>
                             <div>
                                 <span>Source</span>
@@ -583,6 +588,25 @@
         });
 
         return rows;
+    }
+
+    function getVariantQuantitySummary(product) {
+        const totalsByColor = {};
+
+        getSizeColorRows(product).forEach(function (row) {
+            const color = row.color || product.variant || "-";
+            totalsByColor[color] = (totalsByColor[color] || 0) + Number(row.quantity || 0);
+        });
+
+        const entries = Object.entries(totalsByColor);
+
+        if (!entries.length) {
+            return `${product.variant || "-"}: ${formatNumber(product.quantity)} pcs`;
+        }
+
+        return entries.map(function ([color, quantity]) {
+            return `${color}: ${formatNumber(quantity)} pcs`;
+        }).join(", ");
     }
 
     function getPlanQuantity() {

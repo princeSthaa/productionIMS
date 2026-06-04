@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -33,7 +34,7 @@ namespace Kaam.Pages.Production
         {
             DemandType = "Outlet Demand";
 
-            if (string.IsNullOrWhiteSpace(SelectedDraftJson))
+            if (!HasSelectedItems(SelectedDraftJson))
             {
                 ErrorMessage = "Please add at least one outlet demand item to the production plan.";
                 return Page();
@@ -63,6 +64,25 @@ namespace Kaam.Pages.Production
         private string GeneratePlanNo()
         {
             return $"OPP-{DateTime.Now:yyyyMMdd-HHmmss}";
+        }
+
+        private static bool HasSelectedItems(string selectedDraftJson)
+        {
+            if (string.IsNullOrWhiteSpace(selectedDraftJson))
+            {
+                return false;
+            }
+
+            try
+            {
+                using var document = JsonDocument.Parse(selectedDraftJson);
+                return document.RootElement.ValueKind == JsonValueKind.Array
+                    && document.RootElement.GetArrayLength() > 0;
+            }
+            catch (JsonException)
+            {
+                return false;
+            }
         }
     }
 }

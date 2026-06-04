@@ -23,7 +23,7 @@
         Change Demand Type
       </a>
 
-      <a asp-page="/Production/Index" class="btn btn-light">
+      <a asp-page="/Production/PlansDetails" class="btn btn-light">
         Back to Plans
       </a>
     </div>
@@ -165,7 +165,7 @@
             Check Materials in Bulk
           </button>
 
-          <button type="submit" name="ActionType" value="Create" class="btn btn-primary full-width">
+          <button type="submit" name="ActionType" value="Create" class="btn btn-primary full-width" id="createProductionPlanBtn">
             Create Production Plan
           </button>
 
@@ -223,7 +223,7 @@
         <p id="detailOrderSubtitle">View customer order, size chart, measurements, and production information.</p>
       </div>
 
-      <button type="button" class="modal-close-btn" data-close-modal="orderDetailModal">×</button>
+      <button type="button" class="modal-close-btn" data-close-modal="orderDetailModal">&times;</button>
     </div>
 
     <div class="pp-modal-body">

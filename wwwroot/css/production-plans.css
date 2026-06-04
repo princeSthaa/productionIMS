@@ -447,6 +447,10 @@
     background: var(--pp-surface-soft);
 }
 
+.plan-product-meta-grid .full-meta {
+    grid-column: 1 / -1;
+}
+
 .edit-product-head {
     align-items: center;
     padding: 14px;
@@ -773,6 +777,199 @@
     cursor: pointer;
 }
 
+.production-overview-page .pp-summary-grid {
+    margin-bottom: 20px;
+}
+
+.production-chart-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.85fr) minmax(0, 1.15fr);
+    gap: 20px;
+}
+
+.production-chart-card {
+    padding: 0;
+}
+
+.production-chart-card .pp-card-header {
+    margin: 0;
+}
+
+.status-chart-layout {
+    display: grid;
+    grid-template-columns: 190px minmax(0, 1fr);
+    gap: 20px;
+    align-items: center;
+    padding: 20px;
+}
+
+.donut-chart {
+    position: relative;
+    width: 176px;
+    height: 176px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: conic-gradient(#e5e7eb 0deg, #e5e7eb 360deg);
+}
+
+.donut-chart::after {
+    content: "";
+    position: absolute;
+    inset: 28px;
+    border-radius: inherit;
+    background: #ffffff;
+    box-shadow: inset 0 0 0 1px var(--pp-border);
+}
+
+.donut-chart-center {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 2px;
+    text-align: center;
+}
+
+.donut-chart-center strong {
+    color: var(--pp-text);
+    font-size: 30px;
+    line-height: 1;
+}
+
+.donut-chart-center span {
+    color: var(--pp-muted);
+    font-size: 12px;
+    font-weight: 850;
+}
+
+.chart-legend,
+.horizontal-chart {
+    display: grid;
+    gap: 12px;
+    padding: 20px;
+}
+
+.status-chart-layout .chart-legend {
+    padding: 0;
+}
+
+.chart-legend-item,
+.chart-bar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.chart-legend-item {
+    justify-content: flex-start;
+    min-width: 0;
+    color: var(--pp-muted);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.chart-legend-item strong,
+.chart-bar-head strong {
+    min-width: 0;
+    color: var(--pp-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chart-legend-item span:last-child,
+.chart-bar-head span {
+    margin-left: auto;
+    color: var(--pp-muted);
+    font-size: 12px;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+.chart-dot {
+    width: 11px;
+    height: 11px;
+    flex: 0 0 auto;
+    border-radius: 999px;
+}
+
+.chart-bar-row {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+}
+
+.horizontal-chart.compact {
+    gap: 10px;
+}
+
+.chart-track {
+    height: 12px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e5e7eb;
+}
+
+.chart-fill {
+    height: 100%;
+    border-radius: inherit;
+}
+
+.column-chart {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 16px;
+    align-items: end;
+    min-height: 290px;
+    padding: 20px;
+}
+
+.column-chart-item {
+    display: grid;
+    grid-template-rows: auto 1fr auto auto;
+    gap: 8px;
+    min-height: 250px;
+    min-width: 0;
+    text-align: center;
+}
+
+.column-value {
+    color: var(--pp-muted);
+    font-size: 12px;
+    font-weight: 850;
+}
+
+.column-track {
+    position: relative;
+    height: 170px;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #f1f5f9;
+}
+
+.column-fill {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: var(--column-height);
+    border-radius: 12px 12px 0 0;
+    background: var(--column-color);
+}
+
+.column-chart-item strong {
+    color: var(--pp-text);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.column-chart-item span {
+    color: var(--pp-muted);
+    font-size: 12px;
+    font-weight: 800;
+}
+
 @media (max-width: 1180px) {
     .pp-create-grid,
     .pp-section-grid.two-col,
@@ -785,6 +982,10 @@
     .size-grid,
     .size-summary-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .production-chart-grid {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -820,6 +1021,22 @@
 
     .plan-product-card img {
         height: 180px;
+    }
+
+    .status-chart-layout {
+        grid-template-columns: 1fr;
+        justify-items: center;
+    }
+
+    .chart-legend,
+    .horizontal-chart,
+    .column-chart,
+    .status-chart-layout {
+        padding: 16px;
+    }
+
+    .column-chart {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .btn,

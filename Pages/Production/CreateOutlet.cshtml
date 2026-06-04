@@ -17,7 +17,7 @@
     <div class="pp-header-actions">
       <a asp-page="/Production/Outlets" class="btn btn-light">Choose Outlet</a>
       <a asp-page="/Production/Create" class="btn btn-light">Change Demand Type</a>
-      <a asp-page="/Production/Index" class="btn btn-light">Back to Plans</a>
+      <a asp-page="/Production/PlansDetails" class="btn btn-light">Back to Plans</a>
     </div>
   </div>
 
@@ -151,7 +151,7 @@
         </div>
 
         <div class="basket-actions">
-          <button type="submit" name="ActionType" value="Create" class="btn btn-primary full-width">
+          <button type="submit" name="ActionType" value="Create" class="btn btn-primary full-width" id="createOutletProductionPlanBtn">
             Create Production Plan
           </button>
 
@@ -213,7 +213,7 @@
         <p id="outletDetailSubtitle">Review outlet stock gap, size-wise demand, and material requirement.</p>
       </div>
 
-      <button type="button" class="modal-close-btn" data-close-modal="outletDetailModal">×</button>
+      <button type="button" class="modal-close-btn" data-close-modal="outletDetailModal">&times;</button>
     </div>
 
     <div class="pp-modal-body">
@@ -304,7 +304,7 @@
                   <th>Color</th>
                   <th>Current</th>
                   <th>Reorder</th>
-                  <th>Suggested</th>
+                  <th>Plan Qty</th>
                 </tr>
               </thead>
               <tbody id="outletDetailSizeGapBody">

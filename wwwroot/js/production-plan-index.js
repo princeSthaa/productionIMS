@@ -3,84 +3,29 @@
 
     let plans = [];
 
+    const chartColors = [
+        "#2563eb",
+        "#16a34a",
+        "#f97316",
+        "#7c3aed",
+        "#dc2626",
+        "#0891b2"
+    ];
+
     document.addEventListener("DOMContentLoaded", init);
 
     function init() {
         plans = App.getData("mockProductionPlans", "productionPlans", "plans");
 
-        bindFilters();
         render();
     }
 
-    function bindFilters() {
-        [
-            "demandTypeFilter",
-            "statusFilter",
-            "fromDateFilter",
-            "toDateFilter",
-            "productSearch",
-            "sourceSearch"
-        ].forEach(function (id) {
-            const el = document.getElementById(id);
-            if (el) {
-                el.addEventListener("input", render);
-                el.addEventListener("change", render);
-            }
-        });
-
-        const reset = document.getElementById("resetFiltersBtn");
-        if (reset) {
-            reset.addEventListener("click", function () {
-                App.setValue("#demandTypeFilter", "");
-                App.setValue("#statusFilter", "");
-                App.setValue("#fromDateFilter", "");
-                App.setValue("#toDateFilter", "");
-                App.setValue("#productSearch", "");
-                App.setValue("#sourceSearch", "");
-                render();
-            });
-        }
-    }
-
-    function getFilteredPlans() {
-        const demandType = App.value("#demandTypeFilter");
-        const status = App.value("#statusFilter");
-        const fromDate = App.value("#fromDateFilter");
-        const toDate = App.value("#toDateFilter");
-        const productSearch = App.value("#productSearch").toLowerCase();
-        const sourceSearch = App.value("#sourceSearch").toLowerCase();
-
-        return plans.filter(function (plan) {
-            const planDemandType = plan.demandType || "";
-            const planStatus = plan.status || "";
-            const productName = plan.productName || plan.product || "";
-            const sourceName = plan.sourceName || plan.customerName || plan.outletName || plan.warehouseName || "";
-
-            if (demandType && planDemandType !== demandType) return false;
-            if (status && planStatus !== status) return false;
-
-            if (productSearch && !productName.toLowerCase().includes(productSearch)) return false;
-            if (sourceSearch && !sourceName.toLowerCase().includes(sourceSearch)) return false;
-
-            const start = plan.plannedStartDate ? new Date(plan.plannedStartDate) : null;
-
-            if (fromDate && start && start < new Date(fromDate)) return false;
-            if (toDate && start && start > new Date(toDate)) return false;
-
-            return true;
-        });
-    }
-
     function render() {
-        const filtered = getFilteredPlans();
-
         renderSummary();
-        renderTable(filtered);
-
-        const info = document.getElementById("tableInfoText");
-        if (info) {
-            info.textContent = `Showing ${filtered.length} of ${plans.length} production plans.`;
-        }
+        renderStatusChart();
+        renderDemandQuantityChart();
+        renderTimelineChart();
+        renderTopProductChart();
     }
 
     function renderSummary() {
@@ -100,44 +45,191 @@
         }).length);
     }
 
-    function renderTable(items) {
-        const body = document.getElementById("productionPlansTableBody");
-        if (!body) return;
+    function renderStatusChart() {
+        const statusEntries = toEntries(countBy(plans, function (plan) {
+            return plan.status || "Unknown";
+        }));
+        const total = statusEntries.reduce(function (sum, item) {
+            return sum + item.value;
+        }, 0);
 
-        if (!items.length) {
-            body.innerHTML = `
-                <tr>
-                    <td colspan="10" class="empty-cell">
-                        No production plans match your filters.
-                    </td>
-                </tr>
-            `;
+        App.setText("#statusDonutTotal", total);
+
+        const donut = document.getElementById("statusDonutChart");
+        if (donut) {
+            donut.style.background = buildConicGradient(statusEntries, total);
+        }
+
+        const legend = document.getElementById("statusLegend");
+        if (!legend) return;
+
+        if (!statusEntries.length) {
+            legend.innerHTML = '<div class="empty-cell">No status data available.</div>';
             return;
         }
 
-        body.innerHTML = items.map(function (plan) {
-            const id = plan.planId || plan.planNo;
-            const product = plan.productName || plan.product || "-";
-            const source = plan.sourceName || plan.customerName || plan.outletName || plan.warehouseName || "-";
-            const quantity = plan.quantity || plan.totalQuantity || 0;
-
+        legend.innerHTML = statusEntries.map(function (item, index) {
             return `
-                <tr>
-                    <td><strong>${App.escapeHtml(plan.planNo || id)}</strong></td>
-                    <td>${App.escapeHtml(plan.demandType || "-")}</td>
-                    <td>${App.escapeHtml(source)}</td>
-                    <td>${App.escapeHtml(product)}</td>
-                    <td>${Number(quantity).toLocaleString()}</td>
-                    <td>${App.formatDate(plan.plannedStartDate)}</td>
-                    <td>${App.formatDate(plan.plannedCompletionDate)}</td>
-                    <td>${App.formatDate(plan.requiredDate)}</td>
-                    <td>${App.badge(plan.status)}</td>
-                    <td class="text-right">
-                        <a class="btn btn-sm btn-light" href="/Production/Details/${encodeURIComponent(id)}">View</a>
-                        <a class="btn btn-sm btn-primary" href="/Production/Edit/${encodeURIComponent(id)}">Edit</a>
-                    </td>
-                </tr>
+                <div class="chart-legend-item">
+                    <span class="chart-dot" style="background:${chartColors[index % chartColors.length]}"></span>
+                    <strong>${App.escapeHtml(item.label)}</strong>
+                    <span>${item.value} plan${item.value === 1 ? "" : "s"}</span>
+                </div>
             `;
         }).join("");
+    }
+
+    function renderDemandQuantityChart() {
+        const demandEntries = toEntries(sumBy(plans, function (plan) {
+            return plan.demandType || "Unassigned";
+        }, getPlanQuantity));
+
+        renderHorizontalChart("demandQuantityChart", demandEntries, "pcs");
+    }
+
+    function renderTimelineChart() {
+        const items = plans
+            .slice()
+            .sort(function (a, b) {
+                return new Date(a.plannedStartDate || 0) - new Date(b.plannedStartDate || 0);
+            })
+            .map(function (plan, index) {
+                return {
+                    label: plan.planNo || plan.planId || `Plan ${index + 1}`,
+                    date: plan.plannedStartDate,
+                    value: getPlanQuantity(plan)
+                };
+            });
+
+        const chart = document.getElementById("quantityTimelineChart");
+        if (!chart) return;
+
+        if (!items.length) {
+            chart.innerHTML = '<div class="empty-cell">No timeline data available.</div>';
+            return;
+        }
+
+        const maxValue = Math.max.apply(null, items.map(function (item) {
+            return item.value;
+        })) || 1;
+
+        chart.innerHTML = items.map(function (item, index) {
+            const height = Math.max(8, Math.round((item.value / maxValue) * 100));
+            return `
+                <div class="column-chart-item" style="--column-height:${height}%; --column-color:${chartColors[index % chartColors.length]}">
+                    <div class="column-value">${formatNumber(item.value)} pcs</div>
+                    <div class="column-track">
+                        <div class="column-fill"></div>
+                    </div>
+                    <strong>${App.escapeHtml(shortPlanNo(item.label))}</strong>
+                    <span>${App.escapeHtml(App.formatDate(item.date))}</span>
+                </div>
+            `;
+        }).join("");
+    }
+
+    function renderTopProductChart() {
+        const productTotals = {};
+
+        plans.forEach(function (plan) {
+            const products = Array.isArray(plan.products) && plan.products.length
+                ? plan.products
+                : [plan];
+
+            products.forEach(function (product) {
+                const name = product.productName || product.product || plan.productName || "Unassigned Product";
+                productTotals[name] = (productTotals[name] || 0) + getPlanQuantity(product);
+            });
+        });
+
+        const productEntries = toEntries(productTotals)
+            .sort(function (a, b) {
+                return b.value - a.value;
+            })
+            .slice(0, 6);
+
+        renderHorizontalChart("topProductChart", productEntries, "pcs");
+    }
+
+    function renderHorizontalChart(id, entries, suffix) {
+        const chart = document.getElementById(id);
+        if (!chart) return;
+
+        if (!entries.length) {
+            chart.innerHTML = '<div class="empty-cell">No chart data available.</div>';
+            return;
+        }
+
+        const maxValue = Math.max.apply(null, entries.map(function (item) {
+            return item.value;
+        })) || 1;
+
+        chart.innerHTML = entries.map(function (item, index) {
+            const width = Math.max(5, Math.round((item.value / maxValue) * 100));
+
+            return `
+                <div class="chart-bar-row">
+                    <div class="chart-bar-head">
+                        <strong>${App.escapeHtml(item.label)}</strong>
+                        <span>${formatNumber(item.value)} ${suffix}</span>
+                    </div>
+                    <div class="chart-track" aria-hidden="true">
+                        <div class="chart-fill" style="width:${width}%; background:${chartColors[index % chartColors.length]}"></div>
+                    </div>
+                </div>
+            `;
+        }).join("");
+    }
+
+    function countBy(items, getKey) {
+        return items.reduce(function (result, item) {
+            const key = getKey(item);
+            result[key] = (result[key] || 0) + 1;
+            return result;
+        }, {});
+    }
+
+    function sumBy(items, getKey, getValue) {
+        return items.reduce(function (result, item) {
+            const key = getKey(item);
+            result[key] = (result[key] || 0) + getValue(item);
+            return result;
+        }, {});
+    }
+
+    function toEntries(map) {
+        return Object.entries(map).map(function ([label, value]) {
+            return { label, value };
+        });
+    }
+
+    function buildConicGradient(entries, total) {
+        if (!entries.length || !total) {
+            return "conic-gradient(#e5e7eb 0deg, #e5e7eb 360deg)";
+        }
+
+        let current = 0;
+        const segments = entries.map(function (item, index) {
+            const start = current;
+            const end = current + (item.value / total) * 360;
+            current = end;
+            return `${chartColors[index % chartColors.length]} ${start.toFixed(2)}deg ${end.toFixed(2)}deg`;
+        });
+
+        return `conic-gradient(${segments.join(", ")})`;
+    }
+
+    function getPlanQuantity(plan) {
+        return Number(plan.totalQuantity || plan.quantity || 0);
+    }
+
+    function formatNumber(value) {
+        return Number(value || 0).toLocaleString();
+    }
+
+    function shortPlanNo(value) {
+        const planNo = String(value || "");
+        const parts = planNo.split("-");
+        return parts.length > 1 ? parts[parts.length - 1] : planNo;
     }
 })();

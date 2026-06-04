@@ -716,6 +716,13 @@
     font-size: 12px;
 }
 
+.outlet-plan-qty-input {
+    min-width: 86px;
+    height: 34px;
+    padding: 6px 8px;
+    border-radius: 10px;
+}
+
 /* =========================
    CUSTOMER ORDER CATALOG RESPONSIVE
 ========================= */
@@ -1511,9 +1518,20 @@
     font-weight: 700;
 }
 
+.basket-actions .btn:disabled,
+#addDetailToPlanBtn:disabled {
+    opacity: 0.58;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
 /* Primary action */
 .basket-actions .btn.btn-primary {
     box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
+}
+
+.basket-actions .btn.btn-primary:disabled {
+    box-shadow: none;
 }
 
 /* Secondary action */
@@ -1965,6 +1983,63 @@
     color: #334155;
     font-size: 12px;
     font-weight: 800;
+}
+
+/* =========================================================
+   IN-HOUSE CREATE VARIANT PLANNING
+========================================================= */
+
+.inhouse-plan-page .variant-entry-grid {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.variant-breakdown-list {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.variant-breakdown-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 1fr) auto 32px;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+}
+
+.variant-breakdown-row strong {
+    color: #111827;
+    font-size: 14px;
+}
+
+.measurement-chart-card .pp-table {
+    min-width: 0;
+}
+
+.inhouse-bs-date {
+    cursor: pointer;
+    background: #ffffff;
+}
+
+.hidden-ad-date {
+    display: none;
+}
+
+@media (max-width: 700px) {
+    .inhouse-plan-page .variant-entry-grid,
+    .variant-breakdown-row {
+        grid-template-columns: 1fr;
+    }
+
+    .variant-breakdown-row .basket-remove-btn {
+        justify-self: start;
+    }
 }
 
 .customer-detail-orders-table {

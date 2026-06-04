@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
     const fallbackProductImage = "https://images.unsplash.com/photo-1523381294911-8d3cead13475?auto=format&fit=crop&w=480&q=80";
     const pageRoot = document.getElementById("customerOrderPlanPage");
+
+    if (!pageRoot) return;
+
     const selectedCustomerId = pageRoot ? String(pageRoot.dataset.selectedCustomerId || "").trim() : "";
     const allCatalogItems = window.customerOrderCatalogData || window.customerMasterData || [];
     const catalogItems = selectedCustomerId
@@ -34,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const checkBulkMaterialBtn = document.getElementById("checkBulkMaterialBtn");
     const clearBasketBtn = document.getElementById("clearBasketBtn");
+    const createProductionPlanBtn = document.getElementById("createProductionPlanBtn");
     const bulkMaterialBody = document.getElementById("bulkMaterialBody");
     const productionPlanForm = document.getElementById("productionPlanForm");
 
@@ -62,6 +66,9 @@ document.addEventListener("DOMContentLoaded", function () {
             addDetailToPlanBtn.addEventListener("click", function () {
                 if (activeDetailItem) {
                     addToPlan(activeDetailItem.id);
+
+                    if (!isItemSelected(activeDetailItem.id)) return;
+
                     closeModal("orderDetailModal");
                 }
             });
@@ -92,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                selectedDraftJson.value = JSON.stringify(selectedPlanItems);
+                syncSelectedDraftJson();
             });
         }
     }
@@ -183,9 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         catalogGrid.innerHTML = filtered.map(function (item) {
-            const isSelected = selectedPlanItems.some(function (selected) {
-                return Number(selected.id) === Number(item.id);
-            });
+            const isSelected = isItemSelected(item.id);
 
             const materialPreview = getItemMaterialPreview(item);
             const deliveryClass = getDeliveryBadgeClass(item.deliveryDate);
@@ -247,13 +252,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         <div class="catalog-card-actions">
                             <button type="button"
                                     class="btn btn-light view-detail-btn"
-                                    data-id="${item.id}">
+                                    data-id="${escapeHtml(item.id)}">
                                 View Details
                             </button>
 
                             <button type="button"
                                     class="btn btn-primary add-plan-btn"
-                                    data-id="${item.id}"
+                                    data-id="${escapeHtml(item.id)}"
                                     ${isSelected ? "disabled" : ""}>
                                 ${isSelected ? "Added" : "Add to Plan"}
                             </button>
@@ -265,20 +270,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.querySelectorAll(".view-detail-btn").forEach(function (button) {
             button.addEventListener("click", function () {
-                openDetailModal(Number(this.getAttribute("data-id")));
+                openDetailModal(this.getAttribute("data-id"));
             });
         });
 
         document.querySelectorAll(".add-plan-btn").forEach(function (button) {
             button.addEventListener("click", function () {
-                addToPlan(Number(this.getAttribute("data-id")));
+                addToPlan(this.getAttribute("data-id"));
             });
         });
     }
 
     function openDetailModal(id) {
         const item = catalogItems.map(normalizeCatalogItem).find(function (catalogItem) {
-            return Number(catalogItem.id) === Number(id);
+            return isSameItemId(catalogItem.id, id);
         });
 
         if (!item) return;
@@ -318,6 +323,12 @@ document.addEventListener("DOMContentLoaded", function () {
         renderDetailSizeBreakdown(item);
         renderDetailMeasurements(item);
         renderDetailMaterials(item);
+
+        if (addDetailToPlanBtn) {
+            const alreadyAdded = isItemSelected(item.id);
+            addDetailToPlanBtn.disabled = alreadyAdded;
+            addDetailToPlanBtn.textContent = alreadyAdded ? "Already Added to Plan" : "Add to Production Plan";
+        }
 
         if (orderDetailModal) {
             orderDetailModal.classList.remove("hidden");
@@ -404,16 +415,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function addToPlan(id) {
         const item = catalogItems.map(normalizeCatalogItem).find(function (catalogItem) {
-            return Number(catalogItem.id) === Number(id);
+            return isSameItemId(catalogItem.id, id);
         });
 
         if (!item) return;
 
-        const alreadyAdded = selectedPlanItems.some(function (selected) {
-            return Number(selected.id) === Number(id);
-        });
-
-        if (alreadyAdded) {
+        if (isItemSelected(id)) {
             alert("This order item is already added to the production plan.");
             return;
         }
@@ -426,7 +433,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function removeFromPlan(id) {
         selectedPlanItems = selectedPlanItems.filter(function (item) {
-            return Number(item.id) !== Number(id);
+            return !isSameItemId(item.id, id);
         });
 
         renderBasket();
@@ -459,7 +466,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         <button type="button"
                                 class="basket-remove-btn"
-                                data-id="${item.id}">
+                                data-id="${escapeHtml(item.id)}"
+                                aria-label="Remove ${escapeHtml(item.productName)} from basket">
                             ×
                         </button>
                     </div>
@@ -469,7 +477,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.querySelectorAll(".basket-remove-btn").forEach(function (button) {
             button.addEventListener("click", function () {
-                removeFromPlan(Number(this.getAttribute("data-id")));
+                removeFromPlan(this.getAttribute("data-id"));
             });
         });
 
@@ -496,13 +504,50 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("basketTotalQty", formatNumber(totalQty));
         setText("basketEarliestDelivery", earliestDelivery ? formatDate(earliestDelivery) : "-");
 
+        syncSelectedDraftJson();
+        updateBasketActionState();
+    }
+
+    function syncSelectedDraftJson() {
         if (selectedDraftJson) {
             selectedDraftJson.value = JSON.stringify(selectedPlanItems);
         }
     }
 
+    function updateBasketActionState() {
+        const hasItems = selectedPlanItems.length > 0;
+
+        if (checkBulkMaterialBtn) {
+            checkBulkMaterialBtn.disabled = !hasItems;
+        }
+
+        if (clearBasketBtn) {
+            clearBasketBtn.disabled = !hasItems;
+        }
+
+        if (createProductionPlanBtn) {
+            createProductionPlanBtn.disabled = !hasItems;
+        }
+    }
+
+    function setBasketMaterialStatus(value, state) {
+        if (!basketMaterialStatus) return;
+
+        basketMaterialStatus.textContent = value;
+        basketMaterialStatus.classList.remove("material-ok-text", "material-shortage-text");
+
+        if (state === "ok") {
+            basketMaterialStatus.classList.add("material-ok-text");
+        }
+
+        if (state === "shortage") {
+            basketMaterialStatus.classList.add("material-shortage-text");
+        }
+    }
+
     function checkBulkMaterials() {
         if (!selectedPlanItems.length) {
+            resetBulkMaterialTable();
             alert("Please add at least one item to the production plan first.");
             return;
         }
@@ -510,6 +555,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const rows = calculateMaterialRequirementForItems(selectedPlanItems);
 
         if (!rows.length) {
+            if (!bulkMaterialBody) return;
+
             bulkMaterialBody.innerHTML = `
                 <tr>
                     <td colspan="8" class="empty-cell">
@@ -518,13 +565,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 </tr>
             `;
 
-            setText("basketMaterialStatus", "No BOM found");
+            setBasketMaterialStatus("No BOM found");
             return;
         }
 
         const hasShortage = rows.some(function (row) {
             return row.shortageQty > 0;
         });
+
+        if (!bulkMaterialBody) return;
 
         bulkMaterialBody.innerHTML = rows.map(function (row) {
             return `
@@ -545,7 +594,7 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
         }).join("");
 
-        setText("basketMaterialStatus", hasShortage ? "Shortage" : "Available");
+        setBasketMaterialStatus(hasShortage ? "Shortage" : "Available", hasShortage ? "shortage" : "ok");
     }
 
     function calculateMaterialRequirementForItems(items) {
@@ -653,7 +702,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </tr>
         `;
 
-        setText("basketMaterialStatus", "Not checked");
+        setBasketMaterialStatus("Not checked");
     }
 
     function normalizeCatalogItem(item) {
@@ -732,6 +781,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         return `${colors.slice(0, 3).join(" / ")} +${colors.length - 3}`;
+    }
+
+    function isItemSelected(id) {
+        return selectedPlanItems.some(function (selected) {
+            return isSameItemId(selected.id, id);
+        });
+    }
+
+    function isSameItemId(left, right) {
+        return String(left || "") === String(right || "");
     }
 
     function getPriorityWeight(priority) {

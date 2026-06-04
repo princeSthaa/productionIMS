@@ -5,8 +5,9 @@
 }
 
 <link rel="stylesheet" href="~/css/plan.css" asp-append-version="true" />
+<link rel="stylesheet" href="https://nepalidatepicker.sajanmaharjan.com.np/v5/nepali.datepicker/css/nepali.datepicker.v5.0.6.min.css" />
 
-<div class="pp-page">
+<div class="pp-page inhouse-plan-page" id="inHousePlanPage">
 
     <div class="pp-page-header">
         <div>
@@ -16,7 +17,7 @@
 
         <div class="pp-header-actions">
             <a asp-page="/Production/Create" class="btn btn-light">Change Demand Type</a>
-            <a asp-page="/Production/Index" class="btn btn-light">Back to Plans</a>
+            <a asp-page="/Production/PlansDetails" class="btn btn-light">Back to Plans</a>
         </div>
     </div>
 
@@ -33,6 +34,8 @@
     <form method="post" id="productionPlanForm">
 
         <input asp-for="DemandType" type="hidden" id="demandType" value="In-house Stock" />
+        <input asp-for="Variant" type="hidden" id="variantSummaryInput" />
+        <input asp-for="VariantBreakdownJson" type="hidden" id="variantBreakdownJson" />
 
         <div class="pp-create-grid">
 
@@ -51,8 +54,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="PlanDate">Plan Date</label>
-                        <input asp-for="PlanDate" type="date" class="form-control" readonly />
+                        <label for="planDateBs">Plan Date (BS)</label>
+                        <input type="text" id="planDateBs" class="form-control nepali-date inhouse-bs-date" placeholder="YYYY-MM-DD" readonly />
+                        <input asp-for="PlanDate" type="date" id="planDate" class="form-control hidden-ad-date" readonly />
                     </div>
                 </div>
 
@@ -71,14 +75,12 @@
                                 <option value="Sample Production">Sample Production</option>
                             </select>
                         </div>
-                        <!--
                         <div class="form-group">
                             <label asp-for="WarehouseId">Warehouse</label>
                             <select asp-for="WarehouseId" id="warehouseDropdown" class="form-control">
                                 <option value="">Select Warehouse</option>
                             </select>
                         </div>
-                        -->
                     </div>
                 </div>
             </section>
@@ -100,15 +102,15 @@
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="Variant">Color / Variant</label>
-                        <select asp-for="Variant" id="variantDropdown" class="form-control">
+                        <label for="variantDropdown">Color / Variant</label>
+                        <select id="variantDropdown" class="form-control">
                             <option value="">Select Color / Variant</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label asp-for="TotalQuantity">Total Quantity</label>
-                        <input asp-for="TotalQuantity" type="number" min="1" id="totalQuantity" class="form-control" placeholder="Example: 220" />
+                        <input asp-for="TotalQuantity" type="number" min="1" id="totalQuantity" class="form-control" placeholder="Example: 220" readonly />
                     </div>
 
                     <div class="form-group">
@@ -131,6 +133,59 @@
 
         </div>
 
+        <section class="pp-card variant-quantity-card">
+            <div class="pp-card-header">
+                <div>
+                    <h2>Color Variant Quantities</h2>
+                    <p>Plan quantity by color variant for the selected in-house product.</p>
+                </div>
+            </div>
+
+            <div class="variant-entry-grid">
+                <div class="form-group">
+                    <label for="inhouseVariantQty">Variant Quantity</label>
+                    <input type="number" min="1" id="inhouseVariantQty" class="form-control" placeholder="Example: 120" />
+                </div>
+
+                <button type="button" class="btn btn-primary" id="addInhouseVariantBtn">
+                    Add Variant Quantity
+                </button>
+            </div>
+
+            <div id="inhouseVariantRows" class="variant-breakdown-list">
+                <div class="basket-empty-state">No color variant quantity added.</div>
+            </div>
+        </section>
+
+        <section class="pp-card measurement-chart-card">
+            <div class="pp-card-header">
+                <div>
+                    <h2>Measurement Chart</h2>
+                    <p>Specification used by production team.</p>
+                </div>
+            </div>
+
+            <div class="pp-table-wrapper">
+                <table class="pp-table compact-table">
+                    <thead>
+                        <tr>
+                            <th>Size</th>
+                            <th>Chest</th>
+                            <th>Shoulder</th>
+                            <th>Sleeve</th>
+                            <th>Length</th>
+                            <th>Unit</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inhouseMeasurementBody">
+                        <tr>
+                            <td colspan="6" class="empty-cell">Select product to view measurement data.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
         @await Html.PartialAsync("_PlanCommonSections")
 
     </form>
@@ -144,4 +199,6 @@
 <script src="~/data/bom.js" asp-append-version="true"></script>
 <script src="~/data/production-stages.js" asp-append-version="true"></script>
 
-<script src="~/js/production-plan-create.js" asp-append-version="true"></script>
+<script src="https://nepalidatepicker.sajanmaharjan.com.np/v5/nepali.datepicker/js/nepali.datepicker.v5.0.6.min.js"
+        type="text/javascript"></script>
+<script src="~/js/inhouse-plan-create.js" asp-append-version="true"></script>

@@ -6,19 +6,23 @@
   Layout = "_SidebarLayout";
 }
 
+<link rel="stylesheet" href="~/css/production-plans.css" asp-append-version="true" />
 
-<div class="pp-page">
+<div class="pp-page production-overview-page">
 
   <!-- Page Header -->
   <div class="pp-page-header">
     <div>
-      <h1>Production Plans</h1>
-      <p>View, filter, and manage garment production plans.</p>
+      <h1>Production Overview</h1>
+      <p>Plan count, demand mix, quantity load, and product distribution.</p>
     </div>
 
     <div class="pp-header-actions">
+      <a asp-page="/Production/PlansDetails" class="btn btn-light">
+        View Plans
+      </a>
       <a asp-page="/Production/Create" class="btn btn-primary">
-        + Create Production Plan
+        Create Production Plan
       </a>
     </div>
   </div>
@@ -49,6 +53,69 @@
       <small>Finished plans</small>
     </div>
   </div>
+
+  <div class="production-chart-grid">
+    <section class="pp-card production-chart-card">
+      <div class="pp-card-header">
+        <div>
+          <h2>Status Mix</h2>
+          <p>Current plan count by production status.</p>
+        </div>
+      </div>
+
+      <div class="status-chart-layout">
+        <div id="statusDonutChart" class="donut-chart" aria-label="Production status chart">
+          <div class="donut-chart-center">
+            <strong id="statusDonutTotal">0</strong>
+            <span>Plans</span>
+          </div>
+        </div>
+
+        <div id="statusLegend" class="chart-legend">
+          Loading status data...
+        </div>
+      </div>
+    </section>
+
+    <section class="pp-card production-chart-card">
+      <div class="pp-card-header">
+        <div>
+          <h2>Demand Quantity</h2>
+          <p>Planned quantity grouped by demand source.</p>
+        </div>
+      </div>
+
+      <div id="demandQuantityChart" class="horizontal-chart">
+        Loading demand chart...
+      </div>
+    </section>
+  </div>
+
+  <section class="pp-card production-chart-card">
+    <div class="pp-card-header">
+      <div>
+        <h2>Production Quantity Timeline</h2>
+        <p>Quantity load by planned start date.</p>
+      </div>
+    </div>
+
+    <div id="quantityTimelineChart" class="column-chart">
+      Loading timeline chart...
+    </div>
+  </section>
+
+  <section class="pp-card production-chart-card">
+    <div class="pp-card-header">
+      <div>
+        <h2>Top Products By Quantity</h2>
+        <p>Product quantity aggregated across all current plans.</p>
+      </div>
+    </div>
+
+    <div id="topProductChart" class="horizontal-chart compact">
+      Loading product chart...
+    </div>
+  </section>
 </div>
 <script src="~/js/app.js" asp-append-version="true"></script>
 <script src="~/data/mock-production-plans.js" asp-append-version="true"></script>

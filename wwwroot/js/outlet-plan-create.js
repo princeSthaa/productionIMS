@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const checkBulkMaterialBtn = document.getElementById("checkOutletBulkMaterialBtn");
     const clearBasketBtn = document.getElementById("clearOutletBasketBtn");
+    const createProductionPlanBtn = document.getElementById("createOutletProductionPlanBtn");
     const bulkMaterialBody = document.getElementById("outletBulkMaterialBody");
     const productionPlanForm = document.getElementById("outletProductionPlanForm");
 
@@ -48,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (addDetailToPlanBtn) {
             addDetailToPlanBtn.addEventListener("click", function () {
                 if (activeDetailItem) {
-                    addToPlan(activeDetailItem.id);
+                    addToPlan(activeDetailItem);
                     closeModal("outletDetailModal");
                 }
             });
@@ -277,7 +278,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!item) return;
 
-        activeDetailItem = item;
+        activeDetailItem = cloneOutletDemandItem(item);
 
         setText("outletDetailProductName", item.productName);
         setText("outletDetailSubtitle", `${item.demandNo} • ${item.outletName}`);
@@ -321,9 +322,9 @@ document.addEventListener("DOMContentLoaded", function () {
             requiredElement.className = getDateBadgeClass(item.requiredDate);
         }
 
-        renderDetailSizeGaps(item);
-        renderOutletMeasurementChart(item);
-        renderDetailMaterials(item);
+        renderDetailSizeGaps(activeDetailItem);
+        renderOutletMeasurementChart(activeDetailItem);
+        renderDetailMaterials(activeDetailItem);
 
         if (outletDetailModal) {
             outletDetailModal.classList.remove("hidden");
@@ -353,10 +354,68 @@ document.addEventListener("DOMContentLoaded", function () {
                     <td><span class="color-variant-chip">${escapeHtml(row.color)}</span></td>
                     <td>${formatNumber(row.currentStock)}</td>
                     <td>${formatNumber(row.reorderLevel)}</td>
-                    <td>${formatNumber(row.suggestedQty)}</td>
+                    <td>
+                        <input type="number"
+                               min="0"
+                               class="form-control outlet-plan-qty-input"
+                               data-size="${escapeHtml(row.size)}"
+                               data-color="${escapeHtml(row.color)}"
+                               value="${Number(row.suggestedQty || 0)}" />
+                    </td>
                 </tr>
             `;
         }).join("");
+
+        body.querySelectorAll(".outlet-plan-qty-input").forEach(function (input) {
+            input.addEventListener("input", syncOutletDetailQuantities);
+        });
+    }
+
+    function syncOutletDetailQuantities() {
+        if (!activeDetailItem) return;
+
+        const body = document.getElementById("outletDetailSizeGapBody");
+        if (!body) return;
+
+        const values = {};
+
+        body.querySelectorAll(".outlet-plan-qty-input").forEach(function (input) {
+            const key = `${input.getAttribute("data-size")}|${input.getAttribute("data-color")}`;
+            values[key] = Number(input.value || 0);
+        });
+
+        activeDetailItem.sizeGaps = (activeDetailItem.sizeGaps || []).map(function (sizeRow) {
+            const clonedSizeRow = { ...sizeRow };
+            const colorRows = sizeRow.colors || sizeRow.colorVariants || sizeRow.variants || [];
+
+            if (colorRows.length) {
+                clonedSizeRow.colors = colorRows.map(function (colorRow) {
+                    const color = colorRow.color || colorRow.variant || colorRow.name || "-";
+                    const key = `${sizeRow.size || "-"}|${color}`;
+                    return {
+                        ...colorRow,
+                        suggestedQty: Number(values[key] || 0)
+                    };
+                });
+
+                clonedSizeRow.suggestedQty = clonedSizeRow.colors.reduce(function (sum, colorRow) {
+                    return sum + Number(colorRow.suggestedQty || 0);
+                }, 0);
+
+                return clonedSizeRow;
+            }
+
+            const key = `${sizeRow.size || "-"}|${sizeRow.color || activeDetailItem.variant || "-"}`;
+            clonedSizeRow.suggestedQty = Number(values[key] || 0);
+            return clonedSizeRow;
+        });
+
+        activeDetailItem.suggestedQty = getSizeColorGapRows(activeDetailItem).reduce(function (sum, row) {
+            return sum + Number(row.suggestedQty || 0);
+        }, 0);
+
+        setText("outletDetailSuggestedQty", `${formatNumber(activeDetailItem.suggestedQty)} pcs`);
+        renderDetailMaterials(activeDetailItem);
     }
 
     function renderOutletMeasurementChart(item) {
@@ -511,15 +570,22 @@ function getDefaultMeasurementByType(size, productName) {
         }).join("");
     }
 
-    function addToPlan(id) {
-        const item = catalogItems.map(normalizeOutletDemandItem).find(function (catalogItem) {
-            return Number(catalogItem.id) === Number(id);
-        });
+    function addToPlan(itemOrId) {
+        const item = typeof itemOrId === "object" && itemOrId !== null
+            ? cloneOutletDemandItem(itemOrId)
+            : catalogItems.map(normalizeOutletDemandItem).find(function (catalogItem) {
+                return Number(catalogItem.id) === Number(itemOrId);
+            });
 
         if (!item) return;
 
+        if (Number(item.suggestedQty || 0) <= 0) {
+            alert("Please enter at least one planned quantity for this outlet demand item.");
+            return;
+        }
+
         const alreadyAdded = selectedPlanItems.some(function (selected) {
-            return Number(selected.id) === Number(id);
+            return Number(selected.id) === Number(item.id);
         });
 
         if (alreadyAdded) {
@@ -527,7 +593,7 @@ function getDefaultMeasurementByType(size, productName) {
             return;
         }
 
-        selectedPlanItems.push(item);
+        selectedPlanItems.push(cloneOutletDemandItem(item));
         renderBasket();
         renderCatalog();
         resetBulkMaterialTable();
@@ -609,6 +675,24 @@ function getDefaultMeasurementByType(size, productName) {
 
         if (selectedDraftJson) {
             selectedDraftJson.value = JSON.stringify(selectedPlanItems);
+        }
+
+        updateBasketActionState();
+    }
+
+    function updateBasketActionState() {
+        const hasItems = selectedPlanItems.length > 0;
+
+        if (checkBulkMaterialBtn) {
+            checkBulkMaterialBtn.disabled = !hasItems;
+        }
+
+        if (clearBasketBtn) {
+            clearBasketBtn.disabled = !hasItems;
+        }
+
+        if (createProductionPlanBtn) {
+            createProductionPlanBtn.disabled = !hasItems;
         }
     }
 
@@ -783,6 +867,10 @@ function getDefaultMeasurementByType(size, productName) {
         `;
 
         setText("outletBasketMaterialStatus", "Not checked");
+    }
+
+    function cloneOutletDemandItem(item) {
+        return normalizeOutletDemandItem(JSON.parse(JSON.stringify(item || {})));
     }
 
     function normalizeOutletDemandItem(item) {
