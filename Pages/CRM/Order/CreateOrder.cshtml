@@ -5,15 +5,37 @@
   Layout = "_SidebarLayout";
 }
 
-<link rel="stylesheet" href="~/css/orders.css" asp-append-version="true" />
-<link href="https://nepalidatepicker.sajanmaharjan.com.np/v5/nepali.datepicker/css/nepali.datepicker.v5.0.6.min.css"
-      rel="stylesheet" type="text/css" />
-
 <style>
-  .product-block { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 8px; background: #fff; }
-  .color-block { border: 1px dashed #ccc; padding: 10px; margin-top: 15px; border-radius: 6px; background: #fafafa; }
-  .size-row { display: flex; gap: 10px; margin-top: 10px; align-items: flex-end; }
-  .central-material-calc { padding: 15px; background: #eef7f2; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid #4CAF50; }
+  .product-block {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    background: #fff;
+  }
+
+  .color-block {
+    border: 1px dashed #ccc;
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 6px;
+    background: #fafafa;
+  }
+
+  .size-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    align-items: flex-end;
+  }
+
+  .central-material-calc {
+    padding: 15px;
+    background: #eef7f2;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border-left: 4px solid #4CAF50;
+  }
 </style>
 
 <div class="pp-page">
@@ -57,117 +79,98 @@
 
           <div id="prebuiltSection">
             <div id="dynamicProductsSection"></div>
-            <button type="button" id="addProductBtn" class="btn btn-outline-primary" style="margin-bottom: 30px;">+ Add Product</button>
-          </div>
+            <button type="button" id="addProductBtn" class="btn btn-outline-primary" style="margin-bottom: 30px;">+ Add
+              Product</button>
+            </div>
 
-          <div class="form-group" id="newDesignSection"
-               style="display: none; background: #f9f9f9; padding: 15px; border-radius: 6px; margin-bottom: 30px;">
-            <div class="pp-filter-grid" style="grid-template-columns: repeat(2, 1fr); gap: 20px;">
-              <div class="form-group">
-                <label for="CustomDesignName">Design Name / Title <span class="text-danger">*</span></label>
-                <input type="text" id="CustomDesignName" name="CustomDesignName" class="form-control"
-                       placeholder="e.g. Custom School Uniform" />
-              </div>
-              <div class="form-group">
-                <label for="DesignReference">Reference Link / Notes</label>
-                <input type="text" id="DesignReference" name="DesignReference" class="form-control"
-                       placeholder="Link to drive/images or short note" />
-              </div>
-              <div class="form-group">
-                <label for="OrderQuantity">Total Quantity Required <span class="text-danger">*</span></label>
-                <input type="number" id="OrderQuantity" name="OrderQuantity" class="form-control" min="1" />
+            <div class="form-group" id="newDesignSection"
+                 style="display: none; background: #f9f9f9; padding: 15px; border-radius: 6px; margin-bottom: 30px;">
+              <div class="pp-filter-grid" style="grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                <div class="form-group">
+                  <label for="CustomDesignName">Design Name / Title <span class="text-danger">*</span></label>
+                  <input type="text" id="CustomDesignName" name="CustomDesignName" class="form-control"
+                         placeholder="e.g. Custom School Uniform" />
+                </div>
+                <div class="form-group">
+                  <label for="DesignReference">Reference Link / Notes</label>
+                  <input type="text" id="DesignReference" name="DesignReference" class="form-control"
+                         placeholder="Link to drive/images or short note" />
+                </div>
+                <div class="form-group">
+                  <label for="OrderQuantity">Total Quantity Required <span class="text-danger">*</span></label>
+                  <input type="number" id="OrderQuantity" name="OrderQuantity" class="form-control" min="1" />
+                </div>
               </div>
             </div>
-          </div>
 
-          <h3 style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">3. Material Sourcing</h3>
-          <div class="form-group" style="margin-bottom: 20px;">
-            <label><strong>Who is providing the raw material?</strong></label>
-            <div style="display: flex; gap: 20px; margin-top: 10px;">
-              <label><input type="radio" name="MaterialSource" value="InHouse" checked /> Factory / In-house</label>
-              <label><input type="radio" name="MaterialSource" value="CustomerProvided" /> Customer Provided</label>
-            </div>
-          </div>
-
-          <div id="centralMaterialBOM" class="central-material-calc" style="display:none;"></div>
-
-          <div id="customerMaterialSection"
-               style="display: none; background: #fff4e5; padding: 15px; border-radius: 6px; border-left: 4px solid #ff9800; margin-bottom: 30px;">
-            <div class="pp-filter-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px;">
-              <div class="form-group">
-                <label for="MaterialReceived">Fabric/Material Received?</label>
-                <select id="MaterialReceived" name="MaterialReceived" class="form-control">
-                  <option value="No">No, waiting for delivery</option>
-                  <option value="Yes">Yes, already in warehouse</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="MaterialQuantity">Quantity Received (Meters/Kg)</label>
-                <input type="number" id="MaterialQuantity" name="MaterialQuantity" class="form-control" placeholder="0"
-                       step="0.01" />
-              </div>
-              <div class="form-group">
-                <label for="IsMaterialEnough">Is the material enough for the order?</label>
-                <select id="IsMaterialEnough" name="IsMaterialEnough" class="form-control">
-                  <option value="PendingCheck">Pending Measurement Check</option>
-                  <option value="Yes">Yes, Sufficient</option>
-                  <option value="No">No, Shortage</option>
-                </select>
+            <h3 style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">3. Material Sourcing</h3>
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label><strong>Who is providing the raw material?</strong></label>
+              <div style="display: flex; gap: 20px; margin-top: 10px;">
+                <label><input type="radio" name="MaterialSource" value="InHouse" checked /> Factory / In-house</label>
+                <label><input type="radio" name="MaterialSource" value="CustomerProvided" /> Customer Provided</label>
               </div>
             </div>
-          </div>
 
-          <h3 style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">4. Delivery Details</h3>
-          <div class="pp-filter-grid" style="grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
-            <div class="form-group">
-              <label for="DeliveryDate">Required Delivery Date (BS) <span class="text-danger">*</span></label>
-              <input type="text" id="DeliveryDate" name="DeliveryDate" class="form-control nepali-date"
-                     placeholder="YYYY-MM-DD" readonly required />
+            <div id="centralMaterialBOM" class="central-material-calc" style="display:none;"></div>
+
+            <div id="customerMaterialSection"
+                 style="display: none; background: #fff4e5; padding: 15px; border-radius: 6px; border-left: 4px solid #ff9800; margin-bottom: 30px;">
+              <div class="pp-filter-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                <div class="form-group">
+                  <label for="MaterialReceived">Fabric/Material Received?</label>
+                  <select id="MaterialReceived" name="MaterialReceived" class="form-control">
+                    <option value="No">No, waiting for delivery</option>
+                    <option value="Yes">Yes, already in warehouse</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="MaterialQuantity">Quantity Received (Meters/Kg)</label>
+                  <input type="number" id="MaterialQuantity" name="MaterialQuantity" class="form-control" placeholder="0"
+                         step="0.01" />
+                </div>
+                <div class="form-group">
+                  <label for="IsMaterialEnough">Is the material enough for the order?</label>
+                  <select id="IsMaterialEnough" name="IsMaterialEnough" class="form-control">
+                    <option value="PendingCheck">Pending Measurement Check</option>
+                    <option value="Yes">Yes, Sufficient</option>
+                    <option value="No">No, Shortage</option>
+                  </select>
+                </div>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="Remarks">Additional Instructions</label>
-              <textarea id="Remarks" name="Remarks" class="form-control" rows="1"></textarea>
+
+            <h3 style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">4. Delivery Details</h3>
+            <div class="pp-filter-grid" style="grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
+              <div class="form-group">
+                <label for="DeliveryDate">Required Delivery Date (BS) <span class="text-danger">*</span></label>
+                <input type="text" id="DeliveryDate" name="DeliveryDate" class="form-control nepali-date"
+                       placeholder="DD-MM-YYYY" readonly required />
+              </div>
+              <div class="form-group">
+                <label for="Remarks">Additional Instructions</label>
+                <textarea id="Remarks" name="Remarks" class="form-control" rows="1"></textarea>
+              </div>
             </div>
-          </div>
 
-          <div class="form-actions"
-               style="margin-top: 30px; display: flex; gap: 15px; justify-content: flex-end; border-top: 1px solid #eee; padding-top: 20px;">  
-            <button type="reset" class="btn btn-light">Clear Form</button>
-            <button type="submit" class="btn btn-primary">Save Order & Create Plan</button>
-          </div>
+            <div class="form-actions"
+                 style="margin-top: 30px; display: flex; gap: 15px; justify-content: flex-end; border-top: 1px solid #eee; padding-top: 20px;">
+              <button type="reset" class="btn btn-light">Clear Form</button>
+              <button type="submit" class="btn btn-primary">Save Order & Create Plan</button>
+            </div>
 
-        </form>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
 
-  @section Scripts {
-    <script src="https://nepalidatepicker.sajanmaharjan.com.np/v5/nepali.datepicker/js/nepali.datepicker.v5.0.6.min.js"
-            type="text/javascript"></script>
-    <script src="~/data/products.js"></script>
-    <script src="~/data/materials.js"></script>
-    <script src="~/data/bom.js"></script>
+    @section Scripts {
+      <script src="~/data/products.js"></script>
+      <script src="~/data/materials.js"></script>
+      <script src="~/data/bom.js"></script>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-
-        // 1. Initialize Nepali Datepicker
-        var deliveryDateInput = document.getElementById("DeliveryDate");
-        if (deliveryDateInput) {
-          try {
-            if (typeof deliveryDateInput.nepaliDatePicker === 'function') {
-              deliveryDateInput.nepaliDatePicker({
-                miniEnglishDates: true
-              });
-            } else if (typeof $ !== 'undefined' && typeof $(deliveryDateInput).nepaliDatePicker === 'function') {
-              $(deliveryDateInput).nepaliDatePicker({
-                miniEnglishDates: true
-              });
-            }
-          } catch(e) {
-            console.warn("Nepali Datepicker initialization failed:", e);
-          }
-        }
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
 
         // 2. Handle Product Toggle (Prebuilt vs Custom Design)
         const productRadios = document.querySelectorAll('input[name="ProductMode"]');
@@ -175,21 +178,21 @@
         const newDesignSection = document.getElementById('newDesignSection');
 
         productRadios.forEach(radio => {
-          radio.addEventListener('change', function () {
-            if (this.value === 'Prebuilt') {
-              prebuiltSection.style.display = 'block';
-              newDesignSection.style.display = 'none';
-              // Required attributes toggle
-              document.getElementById('CustomDesignName').removeAttribute('required');
-              document.getElementById('OrderQuantity').removeAttribute('required');
-            } else {
-              prebuiltSection.style.display = 'none';
-              newDesignSection.style.display = 'block';
-              // Required attributes toggle
-              document.getElementById('CustomDesignName').setAttribute('required', 'required');
-              document.getElementById('OrderQuantity').setAttribute('required', 'required');
-            }
-          });
+        radio.addEventListener('change', function () {
+        if (this.value === 'Prebuilt') {
+        prebuiltSection.style.display = 'block';
+        newDesignSection.style.display = 'none';
+        // Required attributes toggle
+        document.getElementById('CustomDesignName').removeAttribute('required');
+        document.getElementById('OrderQuantity').removeAttribute('required');
+        } else {
+        prebuiltSection.style.display = 'none';
+        newDesignSection.style.display = 'block';
+        // Required attributes toggle
+        document.getElementById('CustomDesignName').setAttribute('required', 'required');
+        document.getElementById('OrderQuantity').setAttribute('required', 'required');
+        }
+        });
         });
 
         // 3. Handle Material Source Toggle (InHouse vs CustomerProvided)
@@ -197,16 +200,16 @@
         const customerMaterialSection = document.getElementById('customerMaterialSection');
 
         materialRadios.forEach(radio => {
-          radio.addEventListener('change', function () {
-            if (this.value === 'CustomerProvided') {
-              customerMaterialSection.style.display = 'block';
-            } else {
-              customerMaterialSection.style.display = 'none';
-              document.getElementById('MaterialReceived').value = 'No';
-              document.getElementById('MaterialQuantity').value = '';
-              document.getElementById('IsMaterialEnough').value = 'PendingCheck';
-            }
-          });
+        radio.addEventListener('change', function () {
+        if (this.value === 'CustomerProvided') {
+        customerMaterialSection.style.display = 'block';
+        } else {
+        customerMaterialSection.style.display = 'none';
+        document.getElementById('MaterialReceived').value = 'No';
+        document.getElementById('MaterialQuantity').value = '';
+        document.getElementById('IsMaterialEnough').value = 'PendingCheck';
+        }
+        });
         });
 
         // 4. Dynamic Product Builder Logic
@@ -214,280 +217,280 @@
         const sizeMultipliers = { "XS": 0.8, "S": 0.9, "M": 1.0, "L": 1.1, "XL": 1.2, "XXL": 1.3 };
 
         function createProductBlock() {
-            const pIdx = productIndex++;
-            const block = document.createElement('div');
-            block.className = 'product-block';
-            block.dataset.index = pIdx;
-            
-            let productOptions = '<option value="">-- Select Product --</option>';
-            if(window.products && Array.isArray(window.products)) {
-                window.products.forEach(p => {
-                    productOptions += `<option value="${p.productId}">${p.name}</option>`;
-                });
-            }
+        const pIdx = productIndex++;
+        const block = document.createElement('div');
+        block.className = 'product-block';
+        block.dataset.index = pIdx;
 
-            block.innerHTML = `
-                <div style="display:flex; justify-content: space-between; align-items:center;">
-                    <h5 style="margin:0;">Product ${pIdx + 1}</h5>
-                    <button type="button" class="btn btn-sm btn-outline-danger remove-product-btn">Remove Product</button>
-                </div>
-                <div class="form-group" style="margin-top:15px; margin-bottom:10px;">
-                    <label>Select Product <span class="text-danger">*</span></label>
-                    <select class="form-control product-select" name="Products[${pIdx}].ProductId" required>
-                        ${productOptions}
-                    </select>
-                </div>
-                <div class="colors-container"></div>
-                <button type="button" class="btn btn-sm btn-outline-secondary add-color-btn" style="display:none; margin-top:10px;">+ Add Color</button>
-                <div style="margin-top:15px; font-size:1.1em;">Total Quantity for Product: <strong class="product-total-qty">0</strong></div>
-            `;
-            
-            document.getElementById('dynamicProductsSection').appendChild(block);
-            
-            const prodSelect = block.querySelector('.product-select');
-            const addColorBtn = block.querySelector('.add-color-btn');
-            const colorsContainer = block.querySelector('.colors-container');
-            
-            prodSelect.addEventListener('change', function() {
-                colorsContainer.innerHTML = ''; 
-                block.querySelector('.product-total-qty').textContent = '0';
-                if(this.value) {
-                    addColorBtn.style.display = 'inline-block';
-                    addColorBlock(block, this.value);
-                } else {
-                    addColorBtn.style.display = 'none';
-                }
-                recalculateGlobalTotals();
-            });
-            
-            addColorBtn.addEventListener('click', () => {
-                if(prodSelect.value) addColorBlock(block, prodSelect.value);
-            });
-            
-            block.querySelector('.remove-product-btn').addEventListener('click', () => {
-                block.remove();
-                recalculateGlobalTotals();
-            });
+        let productOptions = '<option value="">-- Select Product --</option>';
+        if (window.products && Array.isArray(window.products)) {
+        window.products.forEach(p => {
+        productOptions += `<option value="${p.productId}">${p.name}</option>`;
+        });
+        }
+
+        block.innerHTML = `
+        <div style="display:flex; justify-content: space-between; align-items:center;">
+        <h5 style="margin:0;">Product ${pIdx + 1}</h5>
+        <button type="button" class="btn btn-sm btn-outline-danger remove-product-btn">Remove Product</button>
+        </div>
+        <div class="form-group" style="margin-top:15px; margin-bottom:10px;">
+        <label>Select Product <span class="text-danger">*</span></label>
+        <select class="form-control product-select" name="Products[${pIdx}].ProductId" required>
+        ${productOptions}
+        </select>
+        </div>
+        <div class="colors-container"></div>
+        <button type="button" class="btn btn-sm btn-outline-secondary add-color-btn" style="display:none; margin-top:10px;">+ Add Color</button>
+        <div style="margin-top:15px; font-size:1.1em;">Total Quantity for Product: <strong class="product-total-qty">0</strong></div>
+        `;
+
+        document.getElementById('dynamicProductsSection').appendChild(block);
+
+        const prodSelect = block.querySelector('.product-select');
+        const addColorBtn = block.querySelector('.add-color-btn');
+        const colorsContainer = block.querySelector('.colors-container');
+
+        prodSelect.addEventListener('change', function () {
+        colorsContainer.innerHTML = '';
+        block.querySelector('.product-total-qty').textContent = '0';
+        if (this.value) {
+        addColorBtn.style.display = 'inline-block';
+        addColorBlock(block, this.value);
+        } else {
+        addColorBtn.style.display = 'none';
+        }
+        recalculateGlobalTotals();
+        });
+
+        addColorBtn.addEventListener('click', () => {
+        if (prodSelect.value) addColorBlock(block, prodSelect.value);
+        });
+
+        block.querySelector('.remove-product-btn').addEventListener('click', () => {
+        block.remove();
+        recalculateGlobalTotals();
+        });
         }
 
         function addColorBlock(productBlock, productId) {
-            const product = window.products.find(p => p.productId === productId);
-            if(!product) return;
-            
-            const colorsContainer = productBlock.querySelector('.colors-container');
-            const cIdx = colorsContainer.children.length;
-            const pIdx = productBlock.dataset.index;
-            
-            const cBlock = document.createElement('div');
-            cBlock.className = 'color-block';
-            
-            let colorOptions = '<option value="">-- Select Color --</option>';
-            product.colors.forEach(c => {
-                colorOptions += `<option value="${c}">${c}</option>`;
-            });
-            
-            cBlock.innerHTML = `
-                <div style="display:flex; justify-content: space-between; align-items:center;">
-                    <div class="form-group" style="flex:1; margin-right:15px; margin-bottom:0;">
-                        <select class="form-control color-select" name="Products[${pIdx}].Colors[${cIdx}].ColorName" required>
-                            ${colorOptions}
-                        </select>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-outline-danger remove-color-btn" title="Remove Color">X</button>
-                </div>
-                <div class="sizes-container" style="margin-top:10px;"></div>
-                <button type="button" class="btn btn-sm btn-outline-info add-size-btn" style="display:none; margin-top:10px;">+ Add Size</button>
-            `;
-            
-            colorsContainer.appendChild(cBlock);
-            
-            const colorSelect = cBlock.querySelector('.color-select');
-            const addSizeBtn = cBlock.querySelector('.add-size-btn');
-            const sizesContainer = cBlock.querySelector('.sizes-container');
-            
-            colorSelect.addEventListener('change', function() {
-                sizesContainer.innerHTML = '';
-                if(this.value) {
-                    addSizeBtn.style.display = 'inline-block';
-                    addSizeRow(cBlock, product, pIdx, cIdx);
-                } else {
-                    addSizeBtn.style.display = 'none';
-                }
-                recalculateProductQty(productBlock);
-                recalculateGlobalTotals();
-            });
-            
-            addSizeBtn.addEventListener('click', () => {
-                if(colorSelect.value) addSizeRow(cBlock, product, pIdx, cIdx);
-            });
-            
-            cBlock.querySelector('.remove-color-btn').addEventListener('click', () => {
-                cBlock.remove();
-                recalculateProductQty(productBlock);
-                recalculateGlobalTotals();
-            });
+        const product = window.products.find(p => p.productId === productId);
+        if (!product) return;
+
+        const colorsContainer = productBlock.querySelector('.colors-container');
+        const cIdx = colorsContainer.children.length;
+        const pIdx = productBlock.dataset.index;
+
+        const cBlock = document.createElement('div');
+        cBlock.className = 'color-block';
+
+        let colorOptions = '<option value="">-- Select Color --</option>';
+        product.colors.forEach(c => {
+        colorOptions += `<option value="${c}">${c}</option>`;
+        });
+
+        cBlock.innerHTML = `
+        <div style="display:flex; justify-content: space-between; align-items:center;">
+        <div class="form-group" style="flex:1; margin-right:15px; margin-bottom:0;">
+        <select class="form-control color-select" name="Products[${pIdx}].Colors[${cIdx}].ColorName" required>
+        ${colorOptions}
+        </select>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-danger remove-color-btn" title="Remove Color">X</button>
+        </div>
+        <div class="sizes-container" style="margin-top:10px;"></div>
+        <button type="button" class="btn btn-sm btn-outline-info add-size-btn" style="display:none; margin-top:10px;">+ Add Size</button>
+        `;
+
+        colorsContainer.appendChild(cBlock);
+
+        const colorSelect = cBlock.querySelector('.color-select');
+        const addSizeBtn = cBlock.querySelector('.add-size-btn');
+        const sizesContainer = cBlock.querySelector('.sizes-container');
+
+        colorSelect.addEventListener('change', function () {
+        sizesContainer.innerHTML = '';
+        if (this.value) {
+        addSizeBtn.style.display = 'inline-block';
+        addSizeRow(cBlock, product, pIdx, cIdx);
+        } else {
+        addSizeBtn.style.display = 'none';
+        }
+        recalculateProductQty(productBlock);
+        recalculateGlobalTotals();
+        });
+
+        addSizeBtn.addEventListener('click', () => {
+        if (colorSelect.value) addSizeRow(cBlock, product, pIdx, cIdx);
+        });
+
+        cBlock.querySelector('.remove-color-btn').addEventListener('click', () => {
+        cBlock.remove();
+        recalculateProductQty(productBlock);
+        recalculateGlobalTotals();
+        });
         }
 
         function addSizeRow(colorBlock, product, pIdx, cIdx) {
-            const sizesContainer = colorBlock.querySelector('.sizes-container');
-            const sIdx = sizesContainer.children.length;
-            
-            const sRow = document.createElement('div');
-            sRow.className = 'size-row';
-            
-            let sizeOptions = '<option value="">Size</option>';
-            product.sizes.forEach(s => {
-                sizeOptions += `<option value="${s}">${s}</option>`;
-            });
-            
-            sRow.innerHTML = `
-                <select class="form-control size-select" style="width:120px;" name="Products[${pIdx}].Colors[${cIdx}].Sizes[${sIdx}].Size" required>
-                    ${sizeOptions}
-                </select>
-                <input type="number" class="form-control qty-input" style="width:120px;" name="Products[${pIdx}].Colors[${cIdx}].Sizes[${sIdx}].Quantity" placeholder="Qty" min="1" required />
-                <button type="button" class="btn btn-sm btn-outline-danger remove-size-btn">Delete</button>
-            `;
-            
-            sizesContainer.appendChild(sRow);
-            
-            sRow.querySelector('.size-select').addEventListener('change', () => {
-                recalculateProductQty(colorBlock.closest('.product-block'));
-                recalculateGlobalTotals();
-            });
-            sRow.querySelector('.qty-input').addEventListener('input', () => {
-                recalculateProductQty(colorBlock.closest('.product-block'));
-                recalculateGlobalTotals();
-            });
-            sRow.querySelector('.remove-size-btn').addEventListener('click', () => {
-                sRow.remove();
-                recalculateProductQty(colorBlock.closest('.product-block'));
-                recalculateGlobalTotals();
-            });
+        const sizesContainer = colorBlock.querySelector('.sizes-container');
+        const sIdx = sizesContainer.children.length;
+
+        const sRow = document.createElement('div');
+        sRow.className = 'size-row';
+
+        let sizeOptions = '<option value="">Size</option>';
+        product.sizes.forEach(s => {
+        sizeOptions += `<option value="${s}">${s}</option>`;
+        });
+
+        sRow.innerHTML = `
+        <select class="form-control size-select" style="width:120px;" name="Products[${pIdx}].Colors[${cIdx}].Sizes[${sIdx}].Size" required>
+        ${sizeOptions}
+        </select>
+        <input type="number" class="form-control qty-input" style="width:120px;" name="Products[${pIdx}].Colors[${cIdx}].Sizes[${sIdx}].Quantity" placeholder="Qty" min="1" required />
+        <button type="button" class="btn btn-sm btn-outline-danger remove-size-btn">Delete</button>
+        `;
+
+        sizesContainer.appendChild(sRow);
+
+        sRow.querySelector('.size-select').addEventListener('change', () => {
+        recalculateProductQty(colorBlock.closest('.product-block'));
+        recalculateGlobalTotals();
+        });
+        sRow.querySelector('.qty-input').addEventListener('input', () => {
+        recalculateProductQty(colorBlock.closest('.product-block'));
+        recalculateGlobalTotals();
+        });
+        sRow.querySelector('.remove-size-btn').addEventListener('click', () => {
+        sRow.remove();
+        recalculateProductQty(colorBlock.closest('.product-block'));
+        recalculateGlobalTotals();
+        });
         }
 
         function recalculateProductQty(productBlock) {
-            let totalQty = 0;
-            const sizeRows = productBlock.querySelectorAll('.size-row');
-            sizeRows.forEach(sRow => {
-                const size = sRow.querySelector('.size-select').value;
-                const qty = parseInt(sRow.querySelector('.qty-input').value) || 0;
-                if(size && qty > 0) {
-                    totalQty += qty;
-                }
-            });
-            productBlock.querySelector('.product-total-qty').textContent = totalQty;
+        let totalQty = 0;
+        const sizeRows = productBlock.querySelectorAll('.size-row');
+        sizeRows.forEach(sRow => {
+        const size = sRow.querySelector('.size-select').value;
+        const qty = parseInt(sRow.querySelector('.qty-input').value) || 0;
+        if (size && qty > 0) {
+        totalQty += qty;
+        }
+        });
+        productBlock.querySelector('.product-total-qty').textContent = totalQty;
         }
 
         function recalculateGlobalTotals() {
-            let aggregatedMaterials = {}; // Key: "MaterialId|ColorName" or just modified MaterialName
-            
-            const productBlocks = document.querySelectorAll('.product-block');
-            productBlocks.forEach(pBlock => {
-                const prodSelect = pBlock.querySelector('.product-select');
-                if(!prodSelect || !prodSelect.value) return;
-                
-                const colorBlocks = pBlock.querySelectorAll('.color-block');
-                colorBlocks.forEach(cBlock => {
-                    const colorName = cBlock.querySelector('.color-select').value;
-                    if(!colorName) return;
-                    
-                    let sizeCounts = {};
-                    const sizeRows = cBlock.querySelectorAll('.size-row');
-                    sizeRows.forEach(sRow => {
-                        const size = sRow.querySelector('.size-select').value;
-                        const qty = parseInt(sRow.querySelector('.qty-input').value) || 0;
-                        if(size && qty > 0) {
-                            sizeCounts[size] = (sizeCounts[size] || 0) + qty;
-                        }
-                    });
-                    
-                    if(Object.keys(sizeCounts).length > 0 && window.bomData && window.materials) {
-                        let boms = window.bomData.filter(b => b.productId === prodSelect.value);
-                        boms.forEach(bom => {
-                            let mat = window.materials.find(m => m.materialId === bom.materialId);
-                            if(mat) {
-                                let matName = mat.name;
-                                let isColorSpecific = (mat.type === "Fabric" || mat.type === "Thread" || mat.type === "Accessory");
-                                if(isColorSpecific && matName.includes("Dyed") && colorName) {
-                                   matName = matName.replace("Dyed", colorName);
-                                }
-                                
-                                let totalReq = 0;
-                                for(let size in sizeCounts) {
-                                    let multiplier = sizeMultipliers[size] || 1.0;
-                                    let count = sizeCounts[size];
-                                    let req = count * bom.qtyPerUnit * multiplier;
-                                    req = req + (req * ((bom.wastagePercent || 0) / 100));
-                                    totalReq += req;
-                                }
-                                
-                                let key = matName;
-                                if(!aggregatedMaterials[key]) {
-                                    aggregatedMaterials[key] = {
-                                        materialId: mat.materialId,
-                                        name: matName,
-                                        unit: mat.unit,
-                                        required: 0
-                                    };
-                                }
-                                aggregatedMaterials[key].required += totalReq;
-                            }
-                        });
-                    }
-                });
-            });
-            
-            const centralBOM = document.getElementById('centralMaterialBOM');
-            
-            let keys = Object.keys(aggregatedMaterials);
-            if(keys.length > 0) {
-                let tableHtml = `
-                    <h4 style="margin-top:0; margin-bottom:15px; color:#2e7d32;">Consolidated Material Requirements</h4>
-                    <div class="table-responsive">
-                    <table class="table table-bordered table-sm" style="background: #fff; margin-bottom: 0;">
-                        <thead style="background: #f1f1f1;">
-                            <tr>
-                                <th>Material Name</th>
-                                <th>Unit</th>
-                                <th>Calculated Req.</th>
-                                <th>Final Qty (To Source)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
-                
-                let mIdx = 0;
-                keys.forEach(key => {
-                    let mat = aggregatedMaterials[key];
-                    tableHtml += `
-                        <tr>
-                            <td style="vertical-align: middle;">
-                                ${mat.name}
-                                <input type="hidden" name="OrderMaterials[${mIdx}].MaterialName" value="${mat.name}" />
-                                <input type="hidden" name="OrderMaterials[${mIdx}].MaterialId" value="${mat.materialId}" />
-                            </td>
-                            <td style="vertical-align: middle;">${mat.unit}</td>
-                            <td style="vertical-align: middle;">${mat.required.toFixed(2)}</td>
-                            <td>
-                                <input type="number" step="0.01" class="form-control form-control-sm" name="OrderMaterials[${mIdx}].Quantity" value="${mat.required.toFixed(2)}" style="width: 120px;" required />
-                            </td>
-                        </tr>
-                    `;
-                    mIdx++;
-                });
-                
-                tableHtml += `
-                        </tbody>
-                    </table>
-                    </div>
-                `;
-                
-                centralBOM.innerHTML = tableHtml;
-                centralBOM.style.display = 'block';
-            } else {
-                centralBOM.style.display = 'none';
-                centralBOM.innerHTML = '';
-            }
+        let aggregatedMaterials = {}; // Key: "MaterialId|ColorName" or just modified MaterialName
+
+        const productBlocks = document.querySelectorAll('.product-block');
+        productBlocks.forEach(pBlock => {
+        const prodSelect = pBlock.querySelector('.product-select');
+        if (!prodSelect || !prodSelect.value) return;
+
+        const colorBlocks = pBlock.querySelectorAll('.color-block');
+        colorBlocks.forEach(cBlock => {
+        const colorName = cBlock.querySelector('.color-select').value;
+        if (!colorName) return;
+
+        let sizeCounts = {};
+        const sizeRows = cBlock.querySelectorAll('.size-row');
+        sizeRows.forEach(sRow => {
+        const size = sRow.querySelector('.size-select').value;
+        const qty = parseInt(sRow.querySelector('.qty-input').value) || 0;
+        if (size && qty > 0) {
+        sizeCounts[size] = (sizeCounts[size] || 0) + qty;
+        }
+        });
+
+        if (Object.keys(sizeCounts).length > 0 && window.bomData && window.materials) {
+        let boms = window.bomData.filter(b => b.productId === prodSelect.value);
+        boms.forEach(bom => {
+        let mat = window.materials.find(m => m.materialId === bom.materialId);
+        if (mat) {
+        let matName = mat.name;
+        let isColorSpecific = (mat.type === "Fabric" || mat.type === "Thread" || mat.type === "Accessory");
+        if (isColorSpecific && matName.includes("Dyed") && colorName) {
+        matName = matName.replace("Dyed", colorName);
+        }
+
+        let totalReq = 0;
+        for (let size in sizeCounts) {
+        let multiplier = sizeMultipliers[size] || 1.0;
+        let count = sizeCounts[size];
+        let req = count * bom.qtyPerUnit * multiplier;
+        req = req + (req * ((bom.wastagePercent || 0) / 100));
+        totalReq += req;
+        }
+
+        let key = matName;
+        if (!aggregatedMaterials[key]) {
+        aggregatedMaterials[key] = {
+        materialId: mat.materialId,
+        name: matName,
+        unit: mat.unit,
+        required: 0
+        };
+        }
+        aggregatedMaterials[key].required += totalReq;
+        }
+        });
+        }
+        });
+        });
+
+        const centralBOM = document.getElementById('centralMaterialBOM');
+
+        let keys = Object.keys(aggregatedMaterials);
+        if (keys.length > 0) {
+        let tableHtml = `
+        <h4 style="margin-top:0; margin-bottom:15px; color:#2e7d32;">Consolidated Material Requirements</h4>
+        <div class="table-responsive">
+        <table class="table table-bordered table-sm" style="background: #fff; margin-bottom: 0;">
+        <thead style="background: #f1f1f1;">
+        <tr>
+        <th>Material Name</th>
+        <th>Unit</th>
+        <th>Calculated Req.</th>
+        <th>Final Qty (To Source)</th>
+        </tr>
+        </thead>
+        <tbody>
+        `;
+
+        let mIdx = 0;
+        keys.forEach(key => {
+        let mat = aggregatedMaterials[key];
+        tableHtml += `
+        <tr>
+        <td style="vertical-align: middle;">
+        ${mat.name}
+        <input type="hidden" name="OrderMaterials[${mIdx}].MaterialName" value="${mat.name}" />
+        <input type="hidden" name="OrderMaterials[${mIdx}].MaterialId" value="${mat.materialId}" />
+        </td>
+        <td style="vertical-align: middle;">${mat.unit}</td>
+        <td style="vertical-align: middle;">${mat.required.toFixed(2)}</td>
+        <td>
+        <input type="number" step="0.01" class="form-control form-control-sm" name="OrderMaterials[${mIdx}].Quantity" value="${mat.required.toFixed(2)}" style="width: 120px;" required />
+        </td>
+        </tr>
+        `;
+        mIdx++;
+        });
+
+        tableHtml += `
+        </tbody>
+        </table>
+        </div>
+        `;
+
+        centralBOM.innerHTML = tableHtml;
+        centralBOM.style.display = 'block';
+        } else {
+        centralBOM.style.display = 'none';
+        centralBOM.innerHTML = '';
+        }
         }
 
         // Initialize with one empty product block
@@ -495,6 +498,6 @@
 
         document.getElementById('addProductBtn').addEventListener('click', createProductBlock);
 
-      });
-    </script>
-  }
+        });
+      </script>
+    }

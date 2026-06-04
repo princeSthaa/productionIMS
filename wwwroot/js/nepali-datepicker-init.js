@@ -1,15 +1,11 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Find all input fields that need the datepicker
     const nepaliDateInputs = document.querySelectorAll('.nepali-date');
 
-    // If there are no such inputs on this page, do nothing!
     if (nepaliDateInputs.length === 0) return;
 
-    // URLs for the Nepali Datepicker dependencies
     const cssUrl = "https://nepalidatepicker.sajanmaharjan.com.np/v5/nepali.datepicker/css/nepali.datepicker.v5.0.6.min.css";
     const jsUrl = "https://nepalidatepicker.sajanmaharjan.com.np/v5/nepali.datepicker/js/nepali.datepicker.v5.0.6.min.js";
 
-    // 2. Dynamically load the CSS (if not already loaded)
     if (!document.querySelector(`link[href="${cssUrl}"]`)) {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
@@ -18,44 +14,89 @@ document.addEventListener("DOMContentLoaded", function() {
         document.head.appendChild(link);
     }
 
-    // 3. Dynamically load the JS (if not already loaded)
     if (!document.querySelector(`script[src="${jsUrl}"]`)) {
         const script = document.createElement('script');
         script.type = 'text/javascript';
         script.src = jsUrl;
-
-        // 4. Wait for the script to finish downloading before initializing
         script.onload = function() {
             initializeDatePickers(nepaliDateInputs);
         };
-
         document.body.appendChild(script);
     } else {
-        // If the script tag is already there, just initialize
-        // Small delay ensures the library has completely mounted
         setTimeout(() => initializeDatePickers(nepaliDateInputs), 100);
     }
 });
 
-// The initialization function
 function initializeDatePickers(inputs) {
+    // 1. Calculate the EARLIEST ALLOWED DATE (Today + 8 days)
+    // If today is the 4th, this sets the minimum limit to the 12th.
+    const earliestAllowedAD = new Date();
+    earliestAllowedAD.setDate(earliestAllowedAD.getDate() + 8);
+
+    const earliestAllowedBS = NepaliFunctions.AD2BS({
+        year: earliestAllowedAD.getFullYear(),
+        month: earliestAllowedAD.getMonth() + 1,
+        day: earliestAllowedAD.getDate()
+    });
+
+    // Create our strict 8-digit number (e.g., 20830212)
+    const minInt = parseInt(`${earliestAllowedBS.year}${String(earliestAllowedBS.month).padStart(2, '0')}${String(earliestAllowedBS.day).padStart(2, '0')}`);
+
     const datePickerOptions = {
         miniEnglishDates: true,
-        dateFormat: "DD-MM-YYYY",
-        // Force the input to broadcast a standard 'change' event when a date is selected
-        onChange: function(e) {
-            if (e && e.object) {
-                const changeEvent = new Event('change', { bubbles: true });
-                e.object.dispatchEvent(changeEvent);
-            }
-        }
+        dateFormat: "DD-MM-YYYY"
     };
 
     inputs.forEach(function(input) {
-        // The library requires an ID to work, so generate a random one if missing
-        if (!input.id) {
-            input.id = 'ndp-' + Math.random().toString(36).substr(2, 9);
-        }
+        if (!input.id) input.id = 'ndp-' + Math.random().toString(36).substr(2, 9);
+
         input.nepaliDatePicker(datePickerOptions);
+
+        // 2. The Native Trap Function
+        function enforceDateLimits() {
+            if (!input.value) return;
+
+            const parts = input.value.split('-');
+
+            if (parts.length === 3) {
+                let yyyy, mm, dd;
+
+                // SMART DETECT + FORCE PADDING
+                if (parts[0].length === 4) {
+                    // Format: YYYY-MM-DD
+                    yyyy = parts[0];
+                    mm = String(parts[1]).padStart(2, '0');
+                    dd = String(parts[2]).padStart(2, '0');
+                } else {
+                    // Format: DD-MM-YYYY
+                    yyyy = parts[2];
+                    mm = String(parts[1]).padStart(2, '0');
+                    dd = String(parts[0]).padStart(2, '0');
+                }
+
+                const selectedInt = parseInt(`${yyyy}${mm}${dd}`);
+
+                // THE NEW TRAP: Block anything BEFORE the minimum allowed date
+                if (selectedInt < minInt) {
+                    input.value = "";
+                    alert("You must select a date that is at least a week away.");
+                }
+            }
+        }
+
+        // 3. Attach standard native event listeners
+        input.addEventListener('change', enforceDateLimits);
+        input.addEventListener('blur', enforceDateLimits);
+        input.addEventListener('dateSelect', enforceDateLimits);
+
+        // 4. The rapid-fire safety net
+        input.addEventListener('focus', function() {
+            const watcher = setInterval(function() {
+                enforceDateLimits();
+                if (document.activeElement !== input) {
+                    clearInterval(watcher);
+                }
+            }, 100);
+        });
     });
 }
