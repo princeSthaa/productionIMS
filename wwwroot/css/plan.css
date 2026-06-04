@@ -599,6 +599,19 @@
     color: #475569;
 }
 
+.detail-action-stack {
+    display: grid;
+    gap: 10px;
+}
+
+.product-3d-preview-btn {
+    min-height: 44px;
+}
+
+.product-3d-preview-btn .material-symbols-outlined {
+    font-size: 20px;
+}
+
 .order-detail-tabs {
     display: grid;
     grid-template-columns: 280px minmax(0, 1fr);
@@ -699,6 +712,192 @@
     width: 20%;
 }
 
+/* =========================
+   CUSTOMER PRODUCT 3D PREVIEW
+========================= */
+
+.product-3d-modal {
+    z-index: 1010;
+}
+
+.product-3d-modal-panel {
+    width: min(1040px, calc(100vw - 40px));
+}
+
+.product-3d-modal-body {
+    display: grid;
+    gap: 16px;
+}
+
+.product-3d-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+}
+
+.product-3d-header-actions .btn {
+    min-height: 36px;
+    border-radius: 10px;
+}
+
+.product-3d-header-actions .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.product-3d-scene {
+    position: relative;
+    min-height: 430px;
+    height: min(58vh, 560px);
+    overflow: hidden;
+    border: 1px solid #dbe4ef;
+    border-radius: 20px;
+    background:
+        radial-gradient(circle at 50% 18%, rgba(37, 99, 235, 0.12), transparent 32%),
+        linear-gradient(180deg, #f8fafc 0%, #eef4fb 100%);
+    cursor: grab;
+    touch-action: none;
+}
+
+.product-3d-scene:active {
+    cursor: grabbing;
+}
+
+.product-3d-scene canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.product-3d-loading,
+.product-3d-fallback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+}
+
+.product-3d-loading {
+    color: #475569;
+    font-weight: 800;
+}
+
+.product-3d-fallback {
+    perspective: 900px;
+}
+
+.product-3d-css-model {
+    --product-preview-color: #2563eb;
+    position: relative;
+    width: min(360px, 72vw);
+    aspect-ratio: 3 / 4;
+    transform-style: preserve-3d;
+    transform: rotateX(8deg) rotateY(-28deg);
+    animation: productFallbackRotate 7s linear infinite;
+}
+
+.product-3d-css-model img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 1px solid #dbe4ef;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 24px 50px rgba(15, 23, 42, 0.18);
+    transform: translateZ(24px);
+}
+
+.product-3d-css-side {
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    width: 48px;
+    border-radius: 14px;
+    background: var(--product-preview-color);
+    opacity: 0.9;
+}
+
+.product-3d-css-side.left {
+    left: -24px;
+    transform: rotateY(90deg);
+}
+
+.product-3d-css-side.right {
+    right: -24px;
+    transform: rotateY(90deg);
+}
+
+.product-3d-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.product-3d-meta-grid div {
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
+.product-3d-meta-grid span {
+    display: block;
+    margin-bottom: 4px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.product-3d-meta-grid strong {
+    display: block;
+    color: #111827;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.product-3d-variant-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+@keyframes productFallbackRotate {
+    from {
+        transform: rotateX(8deg) rotateY(-28deg);
+    }
+
+    to {
+        transform: rotateX(8deg) rotateY(332deg);
+    }
+}
+
+@media (max-width: 700px) {
+    .product-3d-header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .product-3d-modal-panel {
+        width: min(100vw - 24px, 100%);
+    }
+
+    .product-3d-scene {
+        min-height: 300px;
+        border-radius: 16px;
+    }
+
+    .product-3d-css-model {
+        width: min(250px, 68vw);
+    }
+
+    .product-3d-meta-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .outlet-size-gap-table th {
     padding: 8px;
     font-size: 11px;
@@ -777,6 +976,15 @@
 
     .order-detail-tabs {
         grid-template-columns: 1fr;
+    }
+
+    .product-3d-scene {
+        min-height: 340px;
+        height: 48vh;
+    }
+
+    .product-3d-meta-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .catalog-card-actions {

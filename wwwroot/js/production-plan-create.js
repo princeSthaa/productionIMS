@@ -43,6 +43,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const orderDetailModal = document.getElementById("orderDetailModal");
     const addDetailToPlanBtn = document.getElementById("addDetailToPlanBtn");
+    const openProduct3dPreviewBtn = document.getElementById("openProduct3dPreviewBtn");
+    const product3dPreviewModal = document.getElementById("product3dPreviewModal");
+    const product3dScene = document.getElementById("product3dScene");
+    const product3dCanvas = document.getElementById("product3dCanvas");
+    const product3dLoading = document.getElementById("product3dLoading");
+    const product3dFallback = document.getElementById("product3dFallback");
+    const product3dFallbackImage = document.getElementById("product3dFallbackImage");
+    const saveProduct3dImageBtn = document.getElementById("saveProduct3dImageBtn");
+
+    const threeJsCdnUrl = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
+    let threeJsLoadPromise = null;
+    let product3dState = null;
 
     initialize();
 
@@ -59,8 +71,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (modal) {
                     modal.classList.add("hidden");
                 }
+
+                if (modalId === "product3dPreviewModal") {
+                    stopProduct3dPreview();
+                }
             });
         });
+
+        if (openProduct3dPreviewBtn) {
+            openProduct3dPreviewBtn.addEventListener("click", function () {
+                if (activeDetailItem) {
+                    openProduct3dPreview(activeDetailItem);
+                }
+            });
+        }
+
+        if (saveProduct3dImageBtn) {
+            saveProduct3dImageBtn.addEventListener("click", saveProduct3dImage);
+        }
 
         if (addDetailToPlanBtn) {
             addDetailToPlanBtn.addEventListener("click", function () {
@@ -102,6 +130,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 syncSelectedDraftJson();
             });
         }
+
+        window.addEventListener("resize", resizeProduct3dPreview);
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+                stopProduct3dPreview();
+            }
+        });
     }
 
     function renderSelectedCustomerSummary() {
@@ -324,6 +360,10 @@ document.addEventListener("DOMContentLoaded", function () {
         renderDetailMeasurements(item);
         renderDetailMaterials(item);
 
+        if (openProduct3dPreviewBtn) {
+            openProduct3dPreviewBtn.disabled = false;
+        }
+
         if (addDetailToPlanBtn) {
             const alreadyAdded = isItemSelected(item.id);
             addDetailToPlanBtn.disabled = alreadyAdded;
@@ -332,6 +372,374 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (orderDetailModal) {
             orderDetailModal.classList.remove("hidden");
+        }
+    }
+
+    function openProduct3dPreview(item) {
+        if (!item || !product3dPreviewModal) return;
+
+        populateProduct3dPreview(item);
+        product3dPreviewModal.classList.remove("hidden");
+        setProduct3dLoading(true);
+
+        ensureThreeJs()
+            .then(function (THREE) {
+                if (!product3dPreviewModal || product3dPreviewModal.classList.contains("hidden")) return;
+                renderThreeProductPreview(THREE, item);
+            })
+            .catch(function () {
+                showProduct3dFallback(item);
+            });
+    }
+
+    function populateProduct3dPreview(item) {
+        setText("product3dPreviewTitle", item.productName || "3D Product Preview");
+        setText("product3dPreviewSubtitle", `${item.orderNo} | ${item.customerName}`);
+        setText("product3dOrderNo", item.orderNo);
+        setText("product3dCustomerName", item.customerName);
+        setText("product3dQuantity", `${formatNumber(item.quantity)} pcs`);
+        setText("product3dVariant", getColorSummary(item));
+
+        const chips = document.getElementById("product3dVariantChips");
+        const colors = getUniqueColors(item);
+
+        if (chips) {
+            chips.innerHTML = colors.length
+                ? colors.map(function (color) {
+                    return `<span class="color-variant-chip">${escapeHtml(color)}</span>`;
+                }).join("")
+                : `<span class="color-variant-chip">${escapeHtml(item.variant || "Default Variant")}</span>`;
+        }
+
+        if (product3dFallbackImage) {
+            product3dFallbackImage.src = item.productImage || fallbackProductImage;
+            product3dFallbackImage.alt = `${item.productName || "Product"} preview`;
+        }
+
+        const cssModel = document.getElementById("product3dCssModel");
+        if (cssModel) {
+            cssModel.style.setProperty("--product-preview-color", getPreviewColor(item));
+        }
+    }
+
+    function ensureThreeJs() {
+        if (window.THREE) {
+            return Promise.resolve(window.THREE);
+        }
+
+        if (!threeJsLoadPromise) {
+            threeJsLoadPromise = new Promise(function (resolve, reject) {
+                const script = document.createElement("script");
+                script.src = threeJsCdnUrl;
+                script.crossOrigin = "anonymous";
+                script.onload = function () {
+                    if (window.THREE) {
+                        resolve(window.THREE);
+                        return;
+                    }
+
+                    reject(new Error("THREE global was not available after script load."));
+                };
+                script.onerror = function () {
+                    reject(new Error("Unable to load Three.js."));
+                };
+
+                document.head.appendChild(script);
+            });
+        }
+
+        return threeJsLoadPromise;
+    }
+
+    function renderThreeProductPreview(THREE, item) {
+        if (!product3dScene || !product3dCanvas) {
+            showProduct3dFallback(item);
+            return;
+        }
+
+        disposeProduct3dPreview();
+        setProduct3dLoading(false);
+
+        if (product3dFallback) {
+            product3dFallback.classList.add("hidden");
+        }
+
+        product3dCanvas.classList.remove("hidden");
+
+        const size = getProduct3dSize();
+        const renderer = new THREE.WebGLRenderer({
+            canvas: product3dCanvas,
+            antialias: true,
+            alpha: true,
+            preserveDrawingBuffer: true
+        });
+
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.setSize(size.width, size.height, false);
+
+        if (THREE.sRGBEncoding) {
+            renderer.outputEncoding = THREE.sRGBEncoding;
+        }
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(35, size.width / size.height, 0.1, 100);
+        camera.position.set(0, 0.25, 6);
+
+        const fabricColor = getPreviewColor(item);
+        const group = new THREE.Group();
+        group.rotation.x = -0.08;
+        group.rotation.y = -0.35;
+
+        const fabricMaterial = new THREE.MeshStandardMaterial({
+            color: fabricColor,
+            roughness: 0.72,
+            metalness: 0.04
+        });
+
+        const imageMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffffff
+        });
+
+        const body = new THREE.Mesh(new THREE.BoxGeometry(2.22, 3.02, 0.22), fabricMaterial);
+        const leftSleeve = new THREE.Mesh(new THREE.BoxGeometry(0.72, 1.12, 0.18), fabricMaterial);
+        const rightSleeve = new THREE.Mesh(new THREE.BoxGeometry(0.72, 1.12, 0.18), fabricMaterial);
+        const imagePlane = new THREE.Mesh(new THREE.PlaneGeometry(2.04, 2.72), imageMaterial);
+
+        leftSleeve.position.set(-1.28, 0.58, 0);
+        leftSleeve.rotation.z = -0.42;
+        rightSleeve.position.set(1.28, 0.58, 0);
+        rightSleeve.rotation.z = 0.42;
+        imagePlane.position.set(0, -0.05, 0.121);
+
+        group.add(body);
+        group.add(leftSleeve);
+        group.add(rightSleeve);
+        group.add(imagePlane);
+
+        scene.add(group);
+
+        const ambient = new THREE.AmbientLight(0xffffff, 0.78);
+        const keyLight = new THREE.DirectionalLight(0xffffff, 0.95);
+        const fillLight = new THREE.DirectionalLight(0xdbeafe, 0.35);
+        keyLight.position.set(2.5, 3, 4);
+        fillLight.position.set(-3, 1.5, 2.5);
+        scene.add(ambient);
+        scene.add(keyLight);
+        scene.add(fillLight);
+
+        const grid = new THREE.GridHelper(5.4, 9, 0xcbd5e1, 0xe2e8f0);
+        grid.position.y = -1.82;
+        scene.add(grid);
+
+        product3dState = {
+            itemId: item.id,
+            THREE: THREE,
+            renderer: renderer,
+            scene: scene,
+            camera: camera,
+            group: group,
+            frame: null,
+            dragging: false,
+            lastX: 0,
+            lastY: 0,
+            sceneEl: product3dScene
+        };
+
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.setCrossOrigin("anonymous");
+        textureLoader.load(item.productImage || fallbackProductImage, function (texture) {
+            if (!product3dState || !isSameItemId(product3dState.itemId, item.id)) return;
+
+            if (THREE.sRGBEncoding) {
+                texture.encoding = THREE.sRGBEncoding;
+            }
+
+            imageMaterial.map = texture;
+            imageMaterial.needsUpdate = true;
+        }, undefined, function () {
+            imageMaterial.color.set(fabricColor);
+            imageMaterial.needsUpdate = true;
+        });
+
+        bindProduct3dPointerControls();
+        animateProduct3dPreview();
+    }
+
+    function bindProduct3dPointerControls() {
+        if (!product3dState || !product3dState.sceneEl) return;
+
+        const sceneEl = product3dState.sceneEl;
+
+        sceneEl.onpointerdown = function (event) {
+            if (!product3dState) return;
+
+            product3dState.dragging = true;
+            product3dState.lastX = event.clientX;
+            product3dState.lastY = event.clientY;
+            sceneEl.setPointerCapture(event.pointerId);
+        };
+
+        sceneEl.onpointermove = function (event) {
+            if (!product3dState || !product3dState.dragging) return;
+
+            const deltaX = event.clientX - product3dState.lastX;
+            const deltaY = event.clientY - product3dState.lastY;
+            product3dState.group.rotation.y += deltaX * 0.012;
+            product3dState.group.rotation.x += deltaY * 0.008;
+            product3dState.group.rotation.x = Math.max(-0.7, Math.min(0.45, product3dState.group.rotation.x));
+            product3dState.lastX = event.clientX;
+            product3dState.lastY = event.clientY;
+        };
+
+        sceneEl.onpointerup = function (event) {
+            if (!product3dState) return;
+
+            product3dState.dragging = false;
+            sceneEl.releasePointerCapture(event.pointerId);
+        };
+
+        sceneEl.onpointercancel = function () {
+            if (product3dState) {
+                product3dState.dragging = false;
+            }
+        };
+    }
+
+    function animateProduct3dPreview() {
+        if (!product3dState) return;
+
+        if (!product3dState.dragging) {
+            product3dState.group.rotation.y += 0.007;
+        }
+
+        product3dState.renderer.render(product3dState.scene, product3dState.camera);
+        product3dState.frame = window.requestAnimationFrame(animateProduct3dPreview);
+    }
+
+    function resizeProduct3dPreview() {
+        if (!product3dState || !product3dScene) return;
+
+        const size = getProduct3dSize();
+        product3dState.renderer.setSize(size.width, size.height, false);
+        product3dState.camera.aspect = size.width / size.height;
+        product3dState.camera.updateProjectionMatrix();
+    }
+
+    function getProduct3dSize() {
+        const rect = product3dScene
+            ? product3dScene.getBoundingClientRect()
+            : { width: 720, height: 420 };
+
+        return {
+            width: Math.max(Math.round(rect.width || 720), 320),
+            height: Math.max(Math.round(rect.height || 420), 320)
+        };
+    }
+
+    function showProduct3dFallback(item) {
+        disposeProduct3dPreview();
+        setProduct3dLoading(false);
+
+        if (product3dCanvas) {
+            product3dCanvas.classList.add("hidden");
+        }
+
+        if (product3dFallback) {
+            product3dFallback.classList.remove("hidden");
+        }
+
+        populateProduct3dPreview(item);
+    }
+
+    function setProduct3dLoading(isLoading) {
+        if (product3dLoading) {
+            product3dLoading.classList.toggle("hidden", !isLoading);
+        }
+
+        if (product3dCanvas) {
+            product3dCanvas.classList.toggle("hidden", isLoading);
+        }
+
+        if (product3dFallback && isLoading) {
+            product3dFallback.classList.add("hidden");
+        }
+    }
+
+    function stopProduct3dPreview() {
+        disposeProduct3dPreview();
+
+        if (product3dPreviewModal) {
+            product3dPreviewModal.classList.add("hidden");
+        }
+
+        if (product3dLoading) {
+            product3dLoading.classList.add("hidden");
+        }
+    }
+
+    function disposeProduct3dPreview() {
+        if (!product3dState) return;
+
+        if (product3dState.frame) {
+            window.cancelAnimationFrame(product3dState.frame);
+        }
+
+        if (product3dState.sceneEl) {
+            product3dState.sceneEl.onpointerdown = null;
+            product3dState.sceneEl.onpointermove = null;
+            product3dState.sceneEl.onpointerup = null;
+            product3dState.sceneEl.onpointercancel = null;
+        }
+
+        product3dState.scene.traverse(function (object) {
+            if (object.geometry && typeof object.geometry.dispose === "function") {
+                object.geometry.dispose();
+            }
+
+            if (object.material) {
+                const materialsToDispose = Array.isArray(object.material) ? object.material : [object.material];
+                materialsToDispose.forEach(function (material) {
+                    if (material.map && typeof material.map.dispose === "function") {
+                        material.map.dispose();
+                    }
+
+                    if (typeof material.dispose === "function") {
+                        material.dispose();
+                    }
+                });
+            }
+        });
+
+        product3dState.renderer.dispose();
+        product3dState = null;
+    }
+
+    function saveProduct3dImage() {
+        if (!product3dCanvas || product3dCanvas.classList.contains("hidden") || !product3dState) {
+            alert("3D preview is not ready to save yet.");
+            return;
+        }
+
+        product3dState.renderer.render(product3dState.scene, product3dState.camera);
+
+        try {
+            product3dCanvas.toBlob(function (blob) {
+                if (!blob) {
+                    alert("Could not create the preview image.");
+                    return;
+                }
+
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `${getSafeFileName(activeDetailItem ? activeDetailItem.productName : "product")}-3d-preview.png`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(url);
+            }, "image/png");
+        } catch (error) {
+            alert("This preview image cannot be saved because the product image source does not allow canvas export.");
         }
     }
 
@@ -781,6 +1189,60 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         return `${colors.slice(0, 3).join(" / ")} +${colors.length - 3}`;
+    }
+
+    function getUniqueColors(item) {
+        const colors = [];
+
+        getSizeColorRows(item).forEach(function (row) {
+            if (row.color && row.color !== "-" && !colors.includes(row.color)) {
+                colors.push(row.color);
+            }
+        });
+
+        if (!colors.length && item.variant) {
+            String(item.variant).split("/").forEach(function (part) {
+                const color = part.trim();
+                if (color && !colors.includes(color)) {
+                    colors.push(color);
+                }
+            });
+        }
+
+        return colors;
+    }
+
+    function getPreviewColor(item) {
+        const colorText = getUniqueColors(item).join(" ").toLowerCase();
+        const colorMap = [
+            { key: "navy", value: "#1e3a8a" },
+            { key: "royal", value: "#2563eb" },
+            { key: "blue", value: "#2563eb" },
+            { key: "sky", value: "#38bdf8" },
+            { key: "red", value: "#dc2626" },
+            { key: "green", value: "#16a34a" },
+            { key: "grey", value: "#64748b" },
+            { key: "gray", value: "#64748b" },
+            { key: "charcoal", value: "#334155" },
+            { key: "black", value: "#111827" },
+            { key: "white", value: "#f8fafc" },
+            { key: "cream", value: "#fdecc8" },
+            { key: "brown", value: "#92400e" }
+        ];
+
+        const match = colorMap.find(function (row) {
+            return colorText.includes(row.key);
+        });
+
+        return match ? match.value : "#2563eb";
+    }
+
+    function getSafeFileName(value) {
+        return String(value || "product")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "")
+            .slice(0, 64) || "product";
     }
 
     function isItemSelected(id) {

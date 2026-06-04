@@ -277,9 +277,16 @@
             <p id="detailProductionNotes">-</p>
           </div>
 
-          <button type="button" class="btn btn-primary full-width" id="addDetailToPlanBtn">
-            Add to Production Plan
-          </button>
+          <div class="detail-action-stack">
+            <button type="button" class="btn btn-outline full-width product-3d-preview-btn" id="openProduct3dPreviewBtn">
+              <span class="material-symbols-outlined">view_in_ar</span>
+              3D Product Preview
+            </button>
+
+            <button type="button" class="btn btn-primary full-width" id="addDetailToPlanBtn">
+              Add to Production Plan
+            </button>
+          </div>
         </div>
 
       </div>
@@ -368,6 +375,67 @@
         </section>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<div class="pp-modal product-3d-modal hidden" id="product3dPreviewModal">
+  <div class="pp-modal-backdrop" data-close-modal="product3dPreviewModal"></div>
+
+  <div class="pp-modal-panel large product-3d-modal-panel">
+    <div class="pp-modal-header">
+      <div>
+        <h2 id="product3dPreviewTitle">3D Product Preview</h2>
+        <p id="product3dPreviewSubtitle">Product preview for the selected customer order item.</p>
+      </div>
+
+      <div class="product-3d-header-actions">
+        <button type="button" class="btn btn-light btn-sm" id="saveProduct3dImageBtn">
+          <span class="material-symbols-outlined">download</span>
+          Save Image
+        </button>
+
+        <button type="button" class="modal-close-btn" data-close-modal="product3dPreviewModal">&times;</button>
+      </div>
+    </div>
+
+    <div class="pp-modal-body product-3d-modal-body">
+      <div class="product-3d-scene" id="product3dScene" aria-label="3D product preview">
+        <canvas id="product3dCanvas"></canvas>
+
+        <div class="product-3d-loading" id="product3dLoading">
+          Loading 3D preview...
+        </div>
+
+        <div class="product-3d-fallback hidden" id="product3dFallback">
+          <div class="product-3d-css-model" id="product3dCssModel">
+            <div class="product-3d-css-side left"></div>
+            <div class="product-3d-css-side right"></div>
+            <img id="product3dFallbackImage" src="/images/products/place-holder.png" alt="3D product fallback preview" />
+          </div>
+        </div>
+      </div>
+
+      <div class="product-3d-meta-grid">
+        <div>
+          <span>Order No</span>
+          <strong id="product3dOrderNo">-</strong>
+        </div>
+        <div>
+          <span>Customer</span>
+          <strong id="product3dCustomerName">-</strong>
+        </div>
+        <div>
+          <span>Quantity</span>
+          <strong id="product3dQuantity">-</strong>
+        </div>
+        <div>
+          <span>Variant</span>
+          <strong id="product3dVariant">-</strong>
+        </div>
+      </div>
+
+      <div class="product-3d-variant-row" id="product3dVariantChips"></div>
     </div>
   </div>
 </div>
