@@ -2,9 +2,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const plans = (window.mockProductionPlans || window.productionPlans || window.plans || []).map(normalizePlan);
 
     const selectedPlanNoFromRoute = document.getElementById("selectedPlanNoFromRoute")?.value || "";
+    const planTableView = document.getElementById("planTableView");
+    const planCardView = document.getElementById("planCardView");
+    const planTableBody = document.getElementById("planTableBody");
+    const planTablePagination = document.getElementById("planTablePagination");
     const planList = document.getElementById("planList");
     const planPagination = document.getElementById("planPagination");
     const detailBody = document.getElementById("planDetailBody");
+    const viewToggleButtons = document.querySelectorAll("[data-plan-view]");
     const demandTypeFilter = document.getElementById("demandTypeFilter");
     const statusFilter = document.getElementById("statusFilter");
     const fromDateFilter = document.getElementById("fromDateFilter");
@@ -16,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const editPlanBtn = document.getElementById("editPlanBtn");
     const pageSize = 5;
 
+    let activeView = "table";
     let activePlanNo = selectedPlanNoFromRoute || plans[0]?.planNo || "";
     let currentPage = 1;
     let shouldPageToActivePlan = Boolean(selectedPlanNoFromRoute);
@@ -53,6 +59,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 renderPlans();
             });
         }
+
+        viewToggleButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                setActiveView(button.getAttribute("data-plan-view") || "table");
+            });
+        });
     }
 
     function resetToFirstPageAndRender() {
@@ -62,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function renderPlans() {
-        if (!planList) return;
+        if (!planList && !planTableBody) return;
 
         let filteredPlans = plans.slice();
 
@@ -121,8 +133,17 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (!filteredPlans.length) {
-            planList.innerHTML = `<div class="empty-cell">No plans found.</div>`;
-            renderPagination(0);
+            if (planTableBody) {
+                planTableBody.innerHTML = `<tr><td colspan="9" class="empty-cell">No plans found.</td></tr>`;
+            }
+
+            if (planList) {
+                planList.innerHTML = `<div class="empty-cell">No plans found.</div>`;
+            }
+
+            renderPagination(planTablePagination, 0);
+            renderPagination(planPagination, 0);
+
             if (!plans.some(function (plan) { return plan.planNo === activePlanNo; })) {
                 activePlanNo = plans[0]?.planNo || "";
                 renderDetails();
@@ -159,15 +180,73 @@ document.addEventListener("DOMContentLoaded", function () {
             renderDetails();
         }
 
+        renderTableRows(pagePlans);
+        renderCardRows(pagePlans);
+        renderPagination(planTablePagination, filteredPlans.length);
+        renderPagination(planPagination, filteredPlans.length);
+    }
+
+    function renderTableRows(pagePlans) {
+        if (!planTableBody) return;
+
+        planTableBody.innerHTML = pagePlans.map(function (plan) {
+            const productSummary = getProductSummary(plan);
+
+            return `
+                <tr class="${plan.planNo === activePlanNo ? "active" : ""}" data-table-plan-no="${escapeHtml(plan.planNo)}">
+                    <td><strong>${escapeHtml(plan.planNo)}</strong></td>
+                    <td>${escapeHtml(plan.demandType)}</td>
+                    <td>${escapeHtml(plan.sourceName)}</td>
+                    <td>${escapeHtml(productSummary)}</td>
+                    <td>${formatNumber(plan.totalQty)} pcs</td>
+                    <td>${formatDateShort(plan.earliestRequired)} - ${formatDateShort(plan.latestRequired)}</td>
+                    <td>
+                        <span class="status-badge ${statusClass(plan.status)}">
+                            ${escapeHtml(plan.status)}
+                        </span>
+                    </td>
+                    <td>${escapeHtml(plan.riskText)}</td>
+                    <td>
+                        <div class="table-action-row">
+                            <button type="button" class="btn btn-light btn-sm" data-select-plan="${escapeHtml(plan.planNo)}">
+                                Quick View
+                            </button>
+                            <a class="btn btn-light btn-sm" href="/Production/Details/${encodeURIComponent(plan.planNo)}">
+                                Details
+                            </a>
+                            <a class="btn btn-primary btn-sm" href="/Production/Edit/${encodeURIComponent(plan.planNo)}">
+                                Edit
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+
+        planTableBody.querySelectorAll("[data-select-plan]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                activePlanNo = button.getAttribute("data-select-plan") || activePlanNo;
+                setActiveView("card");
+                renderPlans();
+                renderDetails();
+            });
+        });
+
+        planTableBody.querySelectorAll("[data-table-plan-no]").forEach(function (row) {
+            row.addEventListener("click", function (event) {
+                if (event.target.closest("a, button")) return;
+
+                activePlanNo = row.getAttribute("data-table-plan-no") || activePlanNo;
+                renderPlans();
+                renderDetails();
+            });
+        });
+    }
+
+    function renderCardRows(pagePlans) {
+        if (!planList) return;
+
         planList.innerHTML = pagePlans.map(function (plan) {
-            const productNames = plan.products.slice(0, 3).map(function (product) {
-                return product.productName;
-            }).join(", ");
-
-            const moreText = plan.products.length > 3
-                ? ` +${plan.products.length - 3} more`
-                : "";
-
             const isActive = plan.planNo === activePlanNo ? "active" : "";
 
             return `
@@ -206,13 +285,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     </div>
 
                     <div class="product-chips">
-                        <span class="product-chip">${escapeHtml(productNames)}${escapeHtml(moreText)}</span>
+                        <span class="product-chip">${escapeHtml(getProductSummary(plan))}</span>
                     </div>
                 </article>
             `;
         }).join("");
-
-        renderPagination(filteredPlans.length);
 
         document.querySelectorAll(".plan-card").forEach(function (card) {
             card.addEventListener("click", function () {
@@ -223,11 +300,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function renderPagination(totalItems) {
-        if (!planPagination) return;
+    function renderPagination(paginationHost, totalItems) {
+        if (!paginationHost) return;
 
         if (!totalItems) {
-            planPagination.innerHTML = "";
+            paginationHost.innerHTML = "";
             return;
         }
 
@@ -247,7 +324,7 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
         }).join("");
 
-        planPagination.innerHTML = `
+        paginationHost.innerHTML = `
             <div class="pagination-info">
                 Showing ${formatNumber(startItem)}-${formatNumber(endItem)} of ${formatNumber(totalItems)}
             </div>
@@ -271,7 +348,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         `;
 
-        planPagination.querySelectorAll("[data-page]").forEach(function (button) {
+        paginationHost.querySelectorAll("[data-page]").forEach(function (button) {
             button.addEventListener("click", function (event) {
                 event.stopPropagation();
 
@@ -283,6 +360,32 @@ document.addEventListener("DOMContentLoaded", function () {
                 renderPlans();
             });
         });
+    }
+
+    function setActiveView(view) {
+        activeView = view === "card" ? "card" : "table";
+
+        if (planTableView) {
+            planTableView.classList.toggle("hidden", activeView !== "table");
+        }
+
+        if (planCardView) {
+            planCardView.classList.toggle("hidden", activeView !== "card");
+        }
+
+        viewToggleButtons.forEach(function (button) {
+            button.classList.toggle("active", button.getAttribute("data-plan-view") === activeView);
+        });
+    }
+
+    function getProductSummary(plan) {
+        const productNames = plan.products.slice(0, 3).map(function (product) {
+            return product.productName;
+        }).join(", ");
+
+        return plan.products.length > 3
+            ? `${productNames} +${plan.products.length - 3} more`
+            : productNames;
     }
 
     function renderDetails() {

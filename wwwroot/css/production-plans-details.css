@@ -102,6 +102,43 @@
     font-size: 12px;
 }
 
+.hidden {
+    display: none !important;
+}
+
+.plan-view-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 18px 0;
+}
+
+.view-toggle-btn {
+    min-height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--muted);
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 850;
+    cursor: pointer;
+}
+
+.view-toggle-btn.active {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #ffffff;
+}
+
+.plans-table-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
 .plans-detail-layout {
     display: grid;
     grid-template-columns: 520px minmax(0, 1fr);
@@ -614,6 +651,25 @@
     border-bottom: none;
 }
 
+.plan-table tbody tr {
+    cursor: pointer;
+}
+
+.plan-table tbody tr:hover,
+.plan-table tbody tr.active {
+    background: var(--primary-soft);
+}
+
+.plan-table td:first-child strong {
+    color: var(--primary-dark);
+}
+
+.table-action-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
 .empty-cell {
     padding: 18px;
     color: var(--muted);
@@ -642,6 +698,14 @@
     .plans-page-header,
     .selected-plan-head {
         flex-direction: column;
+    }
+
+    .plan-view-toolbar {
+        justify-content: stretch;
+    }
+
+    .view-toggle-btn {
+        flex: 1;
     }
 
     .plans-filter-row,

@@ -87,12 +87,55 @@
     </div>
     </div>
 
-    <div class="plans-detail-layout">
+    <div class="plan-view-toolbar" role="group" aria-label="Production plan view">
+        <button type="button" class="view-toggle-btn active" data-plan-view="table">
+            Table View
+        </button>
+        <button type="button" class="view-toggle-btn" data-plan-view="card">
+            Card View
+        </button>
+    </div>
+
+    <section class="plans-table-card" id="planTableView">
+        <div class="plans-card-header">
+            <div>
+                <h2>Plan Table</h2>
+                <p>Scan production plans quickly and open the full details when needed.</p>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table class="plan-table">
+                <thead>
+                    <tr>
+                        <th>Plan No</th>
+                        <th>Demand Type</th>
+                        <th>Source</th>
+                        <th>Products</th>
+                        <th>Total Qty</th>
+                        <th>Required Range</th>
+                        <th>Status</th>
+                        <th>Risk</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="planTableBody">
+                    <tr>
+                        <td colspan="9" class="empty-cell">Loading plans...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="planTablePagination" class="plan-pagination"></div>
+    </section>
+
+    <div class="plans-detail-layout hidden" id="planCardView">
 
         <section class="plans-list-card">
             <div class="plans-card-header">
                 <div>
-                    <h2>Plan List</h2>
+                    <h2>Plan Cards</h2>
                     <p>One card represents one production plan.</p>
                 </div>
             </div>

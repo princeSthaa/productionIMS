@@ -142,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <strong>${formatDate(customer.earliestDelivery)}</strong>
                         </div>
                         <div>
-                            <span>Next Item</span>
+                            <span>Earliest Delivery Item</span>
                             <strong>${escapeHtml(primaryOrder.productName || "-")}</strong>
                         </div>
                     </div>

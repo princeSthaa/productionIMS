@@ -12,7 +12,7 @@ namespace Kaam.Pages.Production
             {
                 ("Overview", "/Production/Index", "dashboard"),
                 ("Plans", "/Production/PlansDetails", "assignment"),
-                ("Create Plan", "/Production/Create", "add_circle")
+                ("Demands", "/Production/Create", "dynamic_feed")
             };
     }
 
