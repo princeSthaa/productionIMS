@@ -275,9 +275,16 @@
             <p id="outletDetailNotes">-</p>
           </div>
 
-          <button type="button" class="btn btn-primary full-width" id="addOutletDetailToPlanBtn">
-            Add to Production Plan
-          </button>
+          <div class="detail-action-stack">
+            <button type="button" class="btn btn-outline full-width product-3d-preview-btn" id="openProduct3dPreviewBtn">
+              <span class="material-symbols-outlined">view_in_ar</span>
+              3D Product Preview
+            </button>
+
+            <button type="button" class="btn btn-primary full-width" id="addOutletDetailToPlanBtn">
+              Add to Production Plan
+            </button>
+          </div>
         </div>
 
       </div>
@@ -369,6 +376,98 @@
         </section>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<div class="pp-modal product-3d-modal hidden" id="product3dPreviewModal">
+  <div class="pp-modal-backdrop" data-close-modal="product3dPreviewModal"></div>
+
+  <div class="pp-modal-panel large product-3d-modal-panel">
+    <div class="pp-modal-header">
+      <div>
+        <h2 id="product3dPreviewTitle">3D Product Preview</h2>
+        <p id="product3dPreviewSubtitle">Product preview for the selected outlet demand item.</p>
+      </div>
+
+      <div class="product-3d-header-actions">
+        <button type="button" class="btn btn-light btn-sm" id="saveProduct3dImageBtn">
+          <span class="material-symbols-outlined">download</span>
+          Save Image
+        </button>
+
+        <button type="button" class="modal-close-btn" data-close-modal="product3dPreviewModal">&times;</button>
+      </div>
+    </div>
+
+    <div class="pp-modal-body product-3d-modal-body">
+      <div class="product-3d-layout">
+        <section class="product-3d-viewer-card">
+          <div class="product-3d-viewer-head">
+            <div class="product-3d-segmented">
+              <button class="product-3d-view-btn active" id="product3dFrontBtn" type="button">Front</button>
+              <button class="product-3d-view-btn" id="product3dBackBtn" type="button">Back</button>
+            </div>
+            <div class="product-3d-hint">Click Front / Back to flip the shirt</div>
+          </div>
+
+          <div class="product-3d-stage">
+            <div class="product-3d-view-pill" id="product3dViewPill">FRONT VIEW</div>
+
+            <div class="product-3d-flip-card" id="product3dFlipCard">
+              <div class="product-3d-shirt-side product-3d-front-side">
+                <img class="product-3d-shirt-img" id="product3dFrontImage" src="/images/mockup3dimages/whiteshirtfront.png" alt="White shirt front" />
+              </div>
+              <div class="product-3d-shirt-side product-3d-back-side">
+                <img class="product-3d-shirt-img" id="product3dBackImage" src="/images/mockup3dimages/whiteshirtback.png" alt="White shirt back" />
+              </div>
+            </div>
+          </div>
+
+          <div class="product-3d-thumbs" id="product3dThumbs"></div>
+        </section>
+
+        <aside class="product-3d-details-card">
+          <div>
+            <span class="catalog-eyebrow">Mockup Preview</span>
+            <h3 id="product3dProductName">Product Preview</h3>
+            <p id="product3dDescription">Front and back mockup image for the selected outlet demand item.</p>
+          </div>
+
+          <div class="product-3d-option-block">
+            <div class="product-3d-option-title">Color <span id="product3dColorLabel">White</span></div>
+            <div class="product-3d-variant-grid" id="product3dVariantButtons"></div>
+          </div>
+
+          <div class="product-3d-option-block">
+            <div class="product-3d-option-title">Size <span id="product3dSizeLabel">M</span></div>
+            <div class="product-3d-size-row" id="product3dSizeButtons"></div>
+          </div>
+
+          <div class="product-3d-selection-summary" id="product3dSummary">
+            Selected: White / M / Front view
+          </div>
+
+          <div class="product-3d-meta-grid">
+            <div>
+              <span>Demand No</span>
+              <strong id="product3dOrderNo">-</strong>
+            </div>
+            <div>
+              <span>Outlet</span>
+              <strong id="product3dCustomerName">-</strong>
+            </div>
+            <div>
+              <span>Quantity</span>
+              <strong id="product3dQuantity">-</strong>
+            </div>
+            <div>
+              <span>Variant</span>
+              <strong id="product3dVariant">-</strong>
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
   </div>
 </div>

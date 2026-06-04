@@ -127,6 +127,32 @@ window.bomMasterData = [
         materialId: "MAT-004",
         qtyPerUnit: 1,
         wastagePercent: 0
+    },
+
+    // PRD-006 - Mountain Sunrise Tee
+    {
+        productId: "PRD-006",
+        materialId: "MAT-001",
+        qtyPerUnit: 1.2,
+        wastagePercent: 4
+    },
+    {
+        productId: "PRD-006",
+        materialId: "MAT-006",
+        qtyPerUnit: 0.08,
+        wastagePercent: 2
+    },
+    {
+        productId: "PRD-006",
+        materialId: "MAT-010",
+        qtyPerUnit: 1,
+        wastagePercent: 0
+    },
+    {
+        productId: "PRD-006",
+        materialId: "MAT-011",
+        qtyPerUnit: 1,
+        wastagePercent: 0
     }
 ];
 

@@ -898,6 +898,342 @@
     }
 }
 
+.product-3d-modal-panel {
+    width: min(1240px, calc(100vw - 40px));
+}
+
+.product-3d-modal-body {
+    padding: 22px;
+    background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.10), transparent 360px),
+        radial-gradient(circle at bottom right, rgba(239, 68, 68, 0.08), transparent 320px),
+        #f5f7fb;
+}
+
+.product-3d-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+    gap: 22px;
+    align-items: stretch;
+}
+
+.product-3d-viewer-card,
+.product-3d-details-card {
+    overflow: hidden;
+    border: 1px solid rgba(229, 231, 235, 0.92);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+}
+
+.product-3d-viewer-card {
+    padding: 24px;
+}
+
+.product-3d-viewer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.product-3d-segmented {
+    display: inline-flex;
+    gap: 6px;
+    padding: 6px;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    background: #f1f5f9;
+}
+
+.product-3d-view-btn,
+.product-3d-size,
+.product-3d-variant,
+.product-3d-thumb {
+    font: inherit;
+    border: 0;
+    cursor: pointer;
+}
+
+.product-3d-view-btn {
+    padding: 11px 20px;
+    border-radius: 13px;
+    background: transparent;
+    color: #475569;
+    font-weight: 900;
+    transition: 0.2s ease;
+}
+
+.product-3d-view-btn.active {
+    background: #111827;
+    color: #ffffff;
+    box-shadow: 0 12px 22px rgba(15, 23, 42, 0.18);
+}
+
+.product-3d-hint {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.product-3d-stage {
+    position: relative;
+    min-height: 500px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid #edf2f7;
+    border-radius: 26px;
+    background:
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 100%),
+        repeating-linear-gradient(90deg, transparent 0 36px, rgba(15, 23, 42, 0.035) 36px 37px);
+    perspective: 1200px;
+}
+
+.product-3d-stage::after {
+    content: "";
+    position: absolute;
+    left: 22%;
+    bottom: 54px;
+    width: 56%;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.14);
+    filter: blur(18px);
+    transform: scaleX(0.9);
+}
+
+.product-3d-flip-card {
+    position: relative;
+    z-index: 2;
+    width: min(480px, 78vw);
+    height: 480px;
+    transform-style: preserve-3d;
+    transition: transform 0.75s cubic-bezier(0.19, 0.75, 0.2, 1);
+}
+
+.product-3d-flip-card.back {
+    transform: rotateY(180deg);
+}
+
+.product-3d-shirt-side {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    backface-visibility: hidden;
+}
+
+.product-3d-back-side {
+    transform: rotateY(180deg);
+}
+
+.product-3d-shirt-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    object-fit: contain;
+    filter: drop-shadow(0 24px 22px rgba(15, 23, 42, 0.10));
+}
+
+.product-3d-view-pill {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    z-index: 5;
+    padding: 9px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.88);
+    color: #334155;
+    font-size: 12px;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+}
+
+.product-3d-thumbs {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.product-3d-thumb {
+    height: 82px;
+    overflow: hidden;
+    padding: 4px;
+    border: 2px solid transparent;
+    border-radius: 18px;
+    background: #f8fafc;
+    transition: 0.2s ease;
+}
+
+.product-3d-thumb.active {
+    border-color: #111827;
+    box-shadow: 0 12px 25px rgba(15, 23, 42, 0.12);
+    transform: translateY(-2px);
+}
+
+.product-3d-thumb img {
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+    object-fit: contain;
+}
+
+.product-3d-details-card {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 28px;
+}
+
+.product-3d-details-card h3 {
+    margin: 0;
+    color: #111827;
+    font-size: 28px;
+    line-height: 1.1;
+    font-weight: 950;
+}
+
+.product-3d-details-card p {
+    margin: 10px 0 0;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.product-3d-option-block {
+    display: grid;
+    gap: 12px;
+}
+
+.product-3d-option-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #111827;
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.product-3d-option-title span {
+    color: #475569;
+    font-weight: 800;
+}
+
+.product-3d-variant-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.product-3d-variant {
+    display: grid;
+    gap: 8px;
+    padding: 10px;
+    border: 2px solid #e5e7eb;
+    border-radius: 20px;
+    background: #f8fafc;
+    color: #334155;
+    text-align: center;
+    font-weight: 850;
+    transition: 0.2s ease;
+}
+
+.product-3d-variant.active {
+    border-color: #111827;
+    background: #ffffff;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.10);
+}
+
+.product-3d-variant img {
+    width: 100%;
+    height: 92px;
+    border-radius: 14px;
+    background: #ffffff;
+    object-fit: contain;
+}
+
+.product-3d-size-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.product-3d-size {
+    min-width: 58px;
+    padding: 14px 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: #f8fafc;
+    color: #334155;
+    font-weight: 950;
+    transition: 0.2s ease;
+}
+
+.product-3d-size.active {
+    border-color: #111827;
+    background: #111827;
+    color: #ffffff;
+}
+
+.product-3d-selection-summary {
+    padding: 15px 16px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 18px;
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 800;
+    line-height: 1.5;
+}
+
+.product-3d-details-card .product-3d-meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 1040px) {
+    .product-3d-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .product-3d-stage {
+        min-height: 430px;
+    }
+
+    .product-3d-flip-card {
+        width: min(420px, 82vw);
+        height: 420px;
+    }
+}
+
+@media (max-width: 620px) {
+    .product-3d-modal-body {
+        padding: 14px;
+    }
+
+    .product-3d-viewer-card,
+    .product-3d-details-card {
+        border-radius: 22px;
+        padding: 18px;
+    }
+
+    .product-3d-viewer-head {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .product-3d-thumbs {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .product-3d-variant-grid,
+    .product-3d-details-card .product-3d-meta-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .outlet-size-gap-table th {
     padding: 8px;
     font-size: 11px;

@@ -31,6 +31,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const outletDetailModal = document.getElementById("outletDetailModal");
     const addDetailToPlanBtn = document.getElementById("addOutletDetailToPlanBtn");
+    const openProduct3dPreviewBtn = document.getElementById("openProduct3dPreviewBtn");
+    const product3dPreviewModal = document.getElementById("product3dPreviewModal");
+    const saveProduct3dImageBtn = document.getElementById("saveProduct3dImageBtn");
+    const product3dFrontBtn = document.getElementById("product3dFrontBtn");
+    const product3dBackBtn = document.getElementById("product3dBackBtn");
+    const product3dFlipCard = document.getElementById("product3dFlipCard");
+    const product3dFrontImage = document.getElementById("product3dFrontImage");
+    const product3dBackImage = document.getElementById("product3dBackImage");
+    const product3dViewPill = document.getElementById("product3dViewPill");
+    const product3dVariantButtons = document.getElementById("product3dVariantButtons");
+    const product3dThumbs = document.getElementById("product3dThumbs");
+    const product3dSizeButtons = document.getElementById("product3dSizeButtons");
+
+    const mockup3dAssets = {
+        white: {
+            label: "White",
+            front: "/images/mockup3dimages/whiteshirtfront.png",
+            back: "/images/mockup3dimages/whiteshirtback.png"
+        },
+        black: {
+            label: "Black",
+            front: "/images/mockup3dimages/blackshirtfront.png",
+            back: "/images/mockup3dimages/blackshirtback.png"
+        },
+        red: {
+            label: "Red",
+            front: "/images/mockup3dimages/redshirtfront.png",
+            back: "/images/mockup3dimages/redshirtback.png"
+        }
+    };
+
+    let product3dSelection = {
+        item: null,
+        color: "white",
+        view: "front",
+        size: "M"
+    };
 
     initialize();
 
@@ -45,6 +82,63 @@ document.addEventListener("DOMContentLoaded", function () {
                 closeModal(modalId);
             });
         });
+
+        if (openProduct3dPreviewBtn) {
+            openProduct3dPreviewBtn.addEventListener("click", function () {
+                if (activeDetailItem) {
+                    openProduct3dPreview(activeDetailItem);
+                }
+            });
+        }
+
+        if (saveProduct3dImageBtn) {
+            saveProduct3dImageBtn.addEventListener("click", saveProduct3dImage);
+        }
+
+        if (product3dFrontBtn) {
+            product3dFrontBtn.addEventListener("click", function () {
+                product3dSelection.view = "front";
+                renderProduct3dPreview();
+            });
+        }
+
+        if (product3dBackBtn) {
+            product3dBackBtn.addEventListener("click", function () {
+                product3dSelection.view = "back";
+                renderProduct3dPreview();
+            });
+        }
+
+        if (product3dVariantButtons) {
+            product3dVariantButtons.addEventListener("click", function (event) {
+                const button = event.target.closest("[data-product-3d-color]");
+                if (!button) return;
+
+                product3dSelection.color = button.getAttribute("data-product-3d-color") || "white";
+                renderProduct3dPreview();
+            });
+        }
+
+        if (product3dThumbs) {
+            product3dThumbs.addEventListener("click", function (event) {
+                const button = event.target.closest("[data-product-3d-color][data-product-3d-view]");
+                if (!button) return;
+
+                product3dSelection.color = button.getAttribute("data-product-3d-color") || "white";
+                product3dSelection.view = button.getAttribute("data-product-3d-view") || "front";
+                renderProduct3dPreview();
+            });
+        }
+
+        if (product3dSizeButtons) {
+            product3dSizeButtons.addEventListener("click", function (event) {
+                const button = event.target.closest("[data-product-3d-size]");
+                if (!button) return;
+
+                product3dSelection.size = button.getAttribute("data-product-3d-size") || "M";
+                renderProduct3dPreview();
+            });
+        }
 
         if (addDetailToPlanBtn) {
             addDetailToPlanBtn.addEventListener("click", function () {
@@ -329,6 +423,166 @@ document.addEventListener("DOMContentLoaded", function () {
         if (outletDetailModal) {
             outletDetailModal.classList.remove("hidden");
         }
+    }
+
+    function openProduct3dPreview(item) {
+        if (!item || !product3dPreviewModal) return;
+
+        product3dSelection = {
+            item: item,
+            color: getInitialMockupColor(item),
+            view: "front",
+            size: getInitialMockupSize(item)
+        };
+
+        renderProduct3dPreview();
+        product3dPreviewModal.classList.remove("hidden");
+    }
+
+    function renderProduct3dPreview() {
+        const item = product3dSelection.item;
+        if (!item) return;
+
+        const selectedAsset = mockup3dAssets[product3dSelection.color] || mockup3dAssets.white;
+        const isBackView = product3dSelection.view === "back";
+        const availableSizes = getAvailableMockupSizes(item);
+
+        setText("product3dPreviewTitle", item.productName || "3D Product Preview");
+        setText("product3dPreviewSubtitle", `${item.demandNo} | ${item.outletName}`);
+        setText("product3dProductName", item.productName || "Product Preview");
+        setText("product3dDescription", `Mockup preview for ${item.demandNo}. Use Front / Back and color options to inspect the product.`);
+        setText("product3dOrderNo", item.demandNo);
+        setText("product3dCustomerName", item.outletName);
+        setText("product3dQuantity", `${formatNumber(item.suggestedQty)} pcs`);
+        setText("product3dVariant", getColorSummary(item));
+        setText("product3dColorLabel", selectedAsset.label);
+        setText("product3dSizeLabel", product3dSelection.size);
+
+        if (product3dFrontImage) {
+            product3dFrontImage.src = selectedAsset.front;
+            product3dFrontImage.alt = `${selectedAsset.label} shirt front`;
+        }
+
+        if (product3dBackImage) {
+            product3dBackImage.src = selectedAsset.back;
+            product3dBackImage.alt = `${selectedAsset.label} shirt back`;
+        }
+
+        if (product3dFlipCard) {
+            product3dFlipCard.classList.toggle("back", isBackView);
+        }
+
+        if (product3dFrontBtn) {
+            product3dFrontBtn.classList.toggle("active", !isBackView);
+        }
+
+        if (product3dBackBtn) {
+            product3dBackBtn.classList.toggle("active", isBackView);
+        }
+
+        if (product3dViewPill) {
+            product3dViewPill.textContent = isBackView ? "BACK VIEW" : "FRONT VIEW";
+        }
+
+        if (product3dVariantButtons) {
+            product3dVariantButtons.innerHTML = Object.entries(mockup3dAssets).map(function ([colorKey, asset]) {
+                const active = colorKey === product3dSelection.color;
+                return `
+                    <button type="button"
+                            class="product-3d-variant ${active ? "active" : ""}"
+                            data-product-3d-color="${escapeHtml(colorKey)}">
+                        <img src="${escapeHtml(asset.front)}" alt="${escapeHtml(asset.label)} shirt variant" />
+                        <span>${escapeHtml(asset.label)}</span>
+                    </button>
+                `;
+            }).join("");
+        }
+
+        if (product3dThumbs) {
+            product3dThumbs.innerHTML = Object.entries(mockup3dAssets).flatMap(function ([colorKey, asset]) {
+                return [
+                    { view: "front", image: asset.front, label: `${asset.label} front` },
+                    { view: "back", image: asset.back, label: `${asset.label} back` }
+                ].map(function (thumb) {
+                    const active = colorKey === product3dSelection.color && thumb.view === product3dSelection.view;
+                    return `
+                        <button type="button"
+                                class="product-3d-thumb ${active ? "active" : ""}"
+                                data-product-3d-color="${escapeHtml(colorKey)}"
+                                data-product-3d-view="${escapeHtml(thumb.view)}">
+                            <img src="${escapeHtml(thumb.image)}" alt="${escapeHtml(thumb.label)}" />
+                        </button>
+                    `;
+                });
+            }).flat().join("");
+        }
+
+        if (product3dSizeButtons) {
+            product3dSizeButtons.innerHTML = availableSizes.map(function (size) {
+                const active = size === product3dSelection.size;
+                return `
+                    <button type="button"
+                            class="product-3d-size ${active ? "active" : ""}"
+                            data-product-3d-size="${escapeHtml(size)}">
+                        ${escapeHtml(size)}
+                    </button>
+                `;
+            }).join("");
+        }
+
+        setText(
+            "product3dSummary",
+            `Selected: ${selectedAsset.label} / ${product3dSelection.size} / ${isBackView ? "Back" : "Front"} view`
+        );
+    }
+
+    function saveProduct3dImage() {
+        if (!product3dSelection.item) {
+            alert("Product preview is not ready to save yet.");
+            return;
+        }
+
+        const link = document.createElement("a");
+        link.href = getCurrentMockupImage();
+        link.download = `${getSafeFileName(product3dSelection.item.productName)}-${getSafeFileName(getCurrentMockupLabel())}-mockup.png`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    }
+
+    function getInitialMockupColor(item) {
+        const colors = getUniqueColors(item).join(" ").toLowerCase();
+
+        if (colors.includes("black") || colors.includes("charcoal")) return "black";
+        if (colors.includes("red")) return "red";
+        if (colors.includes("white") || colors.includes("cream")) return "white";
+
+        return "white";
+    }
+
+    function getAvailableMockupSizes(item) {
+        const sizes = (item.sizeGaps || []).map(function (row) {
+            return row.size;
+        }).filter(Boolean);
+
+        return sizes.length ? sizes : ["S", "M", "L", "XL"];
+    }
+
+    function getInitialMockupSize(item) {
+        const sizes = getAvailableMockupSizes(item);
+
+        if (sizes.includes("M")) return "M";
+        return sizes[0] || "M";
+    }
+
+    function getCurrentMockupImage() {
+        const selectedAsset = mockup3dAssets[product3dSelection.color] || mockup3dAssets.white;
+        return product3dSelection.view === "back" ? selectedAsset.back : selectedAsset.front;
+    }
+
+    function getCurrentMockupLabel() {
+        const selectedAsset = mockup3dAssets[product3dSelection.color] || mockup3dAssets.white;
+        return `${selectedAsset.label}-${product3dSelection.view}`;
     }
 
     function renderDetailSizeGaps(item) {
@@ -963,6 +1217,35 @@ function getDefaultMeasurementByType(size, productName) {
         }
 
         return `${colors.slice(0, 3).join(" / ")} +${colors.length - 3}`;
+    }
+
+    function getUniqueColors(item) {
+        const colors = [];
+
+        getSizeColorGapRows(item).forEach(function (row) {
+            if (row.color && row.color !== "-" && !colors.includes(row.color)) {
+                colors.push(row.color);
+            }
+        });
+
+        if (!colors.length && item.variant) {
+            String(item.variant).split("/").forEach(function (part) {
+                const color = part.trim();
+                if (color && !colors.includes(color)) {
+                    colors.push(color);
+                }
+            });
+        }
+
+        return colors;
+    }
+
+    function getSafeFileName(value) {
+        return String(value || "product")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "")
+            .slice(0, 64) || "product";
     }
 
     function getInitials(value) {

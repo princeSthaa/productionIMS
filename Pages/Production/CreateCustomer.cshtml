@@ -400,42 +400,73 @@
     </div>
 
     <div class="pp-modal-body product-3d-modal-body">
-      <div class="product-3d-scene" id="product3dScene" aria-label="3D product preview">
-        <canvas id="product3dCanvas"></canvas>
-
-        <div class="product-3d-loading" id="product3dLoading">
-          Loading 3D preview...
-        </div>
-
-        <div class="product-3d-fallback hidden" id="product3dFallback">
-          <div class="product-3d-css-model" id="product3dCssModel">
-            <div class="product-3d-css-side left"></div>
-            <div class="product-3d-css-side right"></div>
-            <img id="product3dFallbackImage" src="/images/products/place-holder.png" alt="3D product fallback preview" />
+      <div class="product-3d-layout">
+        <section class="product-3d-viewer-card">
+          <div class="product-3d-viewer-head">
+            <div class="product-3d-segmented">
+              <button class="product-3d-view-btn active" id="product3dFrontBtn" type="button">Front</button>
+              <button class="product-3d-view-btn" id="product3dBackBtn" type="button">Back</button>
+            </div>
+            <div class="product-3d-hint">Click Front / Back to flip the shirt</div>
           </div>
-        </div>
-      </div>
 
-      <div class="product-3d-meta-grid">
-        <div>
-          <span>Order No</span>
-          <strong id="product3dOrderNo">-</strong>
-        </div>
-        <div>
-          <span>Customer</span>
-          <strong id="product3dCustomerName">-</strong>
-        </div>
-        <div>
-          <span>Quantity</span>
-          <strong id="product3dQuantity">-</strong>
-        </div>
-        <div>
-          <span>Variant</span>
-          <strong id="product3dVariant">-</strong>
-        </div>
-      </div>
+          <div class="product-3d-stage">
+            <div class="product-3d-view-pill" id="product3dViewPill">FRONT VIEW</div>
 
-      <div class="product-3d-variant-row" id="product3dVariantChips"></div>
+            <div class="product-3d-flip-card" id="product3dFlipCard">
+              <div class="product-3d-shirt-side product-3d-front-side">
+                <img class="product-3d-shirt-img" id="product3dFrontImage" src="/images/mockup3dimages/whiteshirtfront.png" alt="White shirt front" />
+              </div>
+              <div class="product-3d-shirt-side product-3d-back-side">
+                <img class="product-3d-shirt-img" id="product3dBackImage" src="/images/mockup3dimages/whiteshirtback.png" alt="White shirt back" />
+              </div>
+            </div>
+          </div>
+
+          <div class="product-3d-thumbs" id="product3dThumbs"></div>
+        </section>
+
+        <aside class="product-3d-details-card">
+          <div>
+            <span class="catalog-eyebrow">Mockup Preview</span>
+            <h3 id="product3dProductName">Product Preview</h3>
+            <p id="product3dDescription">Front and back mockup image for the selected order item.</p>
+          </div>
+
+          <div class="product-3d-option-block">
+            <div class="product-3d-option-title">Color <span id="product3dColorLabel">White</span></div>
+            <div class="product-3d-variant-grid" id="product3dVariantButtons"></div>
+          </div>
+
+          <div class="product-3d-option-block">
+            <div class="product-3d-option-title">Size <span id="product3dSizeLabel">M</span></div>
+            <div class="product-3d-size-row" id="product3dSizeButtons"></div>
+          </div>
+
+          <div class="product-3d-selection-summary" id="product3dSummary">
+            Selected: White / M / Front view
+          </div>
+
+          <div class="product-3d-meta-grid">
+            <div>
+              <span>Order No</span>
+              <strong id="product3dOrderNo">-</strong>
+            </div>
+            <div>
+              <span>Customer</span>
+              <strong id="product3dCustomerName">-</strong>
+            </div>
+            <div>
+              <span>Quantity</span>
+              <strong id="product3dQuantity">-</strong>
+            </div>
+            <div>
+              <span>Variant</span>
+              <strong id="product3dVariant">-</strong>
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
   </div>
 </div>

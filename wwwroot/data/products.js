@@ -111,24 +111,44 @@ window.products = [
     },
 
     {
-    id: "PROD-006",
-    productId: "PROD-006",
-    productCode: "PRD-HOTEL-001",
-    name: "Hotel Staff Uniform",
-    productName: "Hotel Staff Uniform",
-    category: "Uniform",
-    availableColors: ["Black", "Navy", "White"],
-    colors: ["Black", "Navy", "White"],
-    sizes: ["S", "M", "L", "XL"],
-    imagePath: "/images/products/hotel-staff-uniform.png",
-    productImage: "/images/products/hotel-staff-uniform.png",
+        id: "PROD-006",
+        productId: "PROD-006",
+        productCode: "PRD-HOTEL-001",
+        name: "Hotel Staff Uniform",
+        productName: "Hotel Staff Uniform",
+        category: "Uniform",
+        availableColors: ["Black", "Navy", "White"],
+        colors: ["Black", "Navy", "White"],
+        sizes: ["S", "M", "L", "XL"],
+        imagePath: "/images/products/hotel-staff-uniform.png",
+        productImage: "/images/products/hotel-staff-uniform.png",
 
-    measurementChart: [
-        { size: "S", chest: 36, shoulder: 15, sleeve: 22, length: 26, unit: "inch" },
-        { size: "M", chest: 38, shoulder: 16, sleeve: 23, length: 27, unit: "inch" },
-        { size: "L", chest: 40, shoulder: 17, sleeve: 24, length: 28, unit: "inch" },
-        { size: "XL", chest: 42, shoulder: 18, sleeve: 25, length: 29, unit: "inch" }
-    ]
-}
+        measurementChart: [
+            { size: "S", chest: 36, shoulder: 15, sleeve: 22, length: 26, unit: "inch" },
+            { size: "M", chest: 38, shoulder: 16, sleeve: 23, length: 27, unit: "inch" },
+            { size: "L", chest: 40, shoulder: 17, sleeve: 24, length: 28, unit: "inch" },
+            { size: "XL", chest: 42, shoulder: 18, sleeve: 25, length: 29, unit: "inch" }
+        ]
+    },
+    {
+        id: "PRD-006",
+        productId: "PRD-006",
+        productCode: "PRD-006",
+        name: "Mountain Sunrise Tee",
+        productName: "Mountain Sunrise Tee",
+        category: "Mockup Shirt",
+        availableColors: ["White", "Black", "Red"],
+        colors: ["White", "Black", "Red"],
+        sizes: ["S", "M", "L", "XL"],
+        imagePath: "/images/mockup3dimages/whiteshirtfront.png",
+        productImage: "/images/mockup3dimages/whiteshirtfront.png",
+
+        measurementChart: [
+            { size: "S", chest: 36, shoulder: 15, sleeve: 8, length: 26, unit: "inch" },
+            { size: "M", chest: 38, shoulder: 16, sleeve: 8.5, length: 27, unit: "inch" },
+            { size: "L", chest: 40, shoulder: 17, sleeve: 9, length: 28, unit: "inch" },
+            { size: "XL", chest: 42, shoulder: 18, sleeve: 9.5, length: 29, unit: "inch" }
+        ]
+    }
 
 ];

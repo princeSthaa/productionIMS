@@ -206,4 +206,130 @@ window.outletDemandCatalogData = [
     }
 ];
 
+window.outletDemandCatalogData.push(
+    {
+        id: 6,
+        demandNo: "OUT-DEM-006",
+        outletId: 1,
+        outletCode: "OUT-NR-001",
+        outletName: "New Road Outlet",
+        outletLocation: "New Road, Kathmandu",
+        outletManager: "Suman Shrestha",
+        phone: "9801001001",
+
+        productId: "PRD-006",
+        productCode: "PRD-006",
+        productName: "Mountain Sunrise Tee",
+        category: "Mockup Shirt",
+        variant: "White / Black / Red",
+        productImage: "/images/mockup3dimages/whiteshirtfront.png",
+
+        currentStock: 20,
+        reorderLevel: 120,
+        maxStock: 220,
+        stockGap: 100,
+        suggestedQty: 160,
+
+        last7DaysSales: 42,
+        last30DaysSales: 168,
+        avgDailySales: 5.6,
+        salesVelocity: "Fast",
+
+        stockStatus: "Critical",
+        requiredDate: "2026-07-08",
+        priority: "Urgent",
+        materialStatus: "Unchecked",
+        planningNotes: "3D mockup shirt variant for outlet display and fast-moving retail stock.",
+
+        sizeGaps: [
+            { size: "S", currentStock: 4, reorderLevel: 24, suggestedQty: 32, colors: [{ color: "White", currentStock: 1, reorderLevel: 8, suggestedQty: 10 }, { color: "Black", currentStock: 2, reorderLevel: 8, suggestedQty: 12 }, { color: "Red", currentStock: 1, reorderLevel: 8, suggestedQty: 10 }] },
+            { size: "M", currentStock: 6, reorderLevel: 40, suggestedQty: 56, colors: [{ color: "White", currentStock: 2, reorderLevel: 14, suggestedQty: 18 }, { color: "Black", currentStock: 2, reorderLevel: 14, suggestedQty: 20 }, { color: "Red", currentStock: 2, reorderLevel: 12, suggestedQty: 18 }] },
+            { size: "L", currentStock: 6, reorderLevel: 36, suggestedQty: 48, colors: [{ color: "White", currentStock: 2, reorderLevel: 12, suggestedQty: 16 }, { color: "Black", currentStock: 2, reorderLevel: 12, suggestedQty: 16 }, { color: "Red", currentStock: 2, reorderLevel: 12, suggestedQty: 16 }] },
+            { size: "XL", currentStock: 4, reorderLevel: 20, suggestedQty: 24, colors: [{ color: "White", currentStock: 1, reorderLevel: 7, suggestedQty: 8 }, { color: "Black", currentStock: 2, reorderLevel: 7, suggestedQty: 8 }, { color: "Red", currentStock: 1, reorderLevel: 6, suggestedQty: 8 }] }
+        ]
+    },
+    {
+        id: 7,
+        demandNo: "OUT-DEM-007",
+        outletId: 2,
+        outletCode: "OUT-LTP-001",
+        outletName: "Lalitpur Outlet",
+        outletLocation: "Jawalakhel, Lalitpur",
+        outletManager: "Pratik Lama",
+        phone: "9802002002",
+
+        productId: "PRD-006",
+        productCode: "PRD-006",
+        productName: "Mountain Sunrise Tee",
+        category: "Mockup Shirt",
+        variant: "White / Black / Red",
+        productImage: "/images/mockup3dimages/whiteshirtfront.png",
+
+        currentStock: 24,
+        reorderLevel: 95,
+        maxStock: 180,
+        stockGap: 71,
+        suggestedQty: 120,
+
+        last7DaysSales: 28,
+        last30DaysSales: 116,
+        avgDailySales: 3.9,
+        salesVelocity: "Fast",
+
+        stockStatus: "Low Stock",
+        requiredDate: "2026-07-10",
+        priority: "Normal",
+        materialStatus: "Unchecked",
+        planningNotes: "3D mockup shirt variant for outlet retail replenishment.",
+
+        sizeGaps: [
+            { size: "S", currentStock: 5, reorderLevel: 20, suggestedQty: 24, colors: [{ color: "White", currentStock: 2, reorderLevel: 7, suggestedQty: 8 }, { color: "Black", currentStock: 2, reorderLevel: 7, suggestedQty: 8 }, { color: "Red", currentStock: 1, reorderLevel: 6, suggestedQty: 8 }] },
+            { size: "M", currentStock: 7, reorderLevel: 32, suggestedQty: 42, colors: [{ color: "White", currentStock: 3, reorderLevel: 11, suggestedQty: 14 }, { color: "Black", currentStock: 2, reorderLevel: 11, suggestedQty: 14 }, { color: "Red", currentStock: 2, reorderLevel: 10, suggestedQty: 14 }] },
+            { size: "L", currentStock: 7, reorderLevel: 28, suggestedQty: 36, colors: [{ color: "White", currentStock: 3, reorderLevel: 10, suggestedQty: 12 }, { color: "Black", currentStock: 2, reorderLevel: 9, suggestedQty: 12 }, { color: "Red", currentStock: 2, reorderLevel: 9, suggestedQty: 12 }] },
+            { size: "XL", currentStock: 5, reorderLevel: 15, suggestedQty: 18, colors: [{ color: "White", currentStock: 2, reorderLevel: 5, suggestedQty: 6 }, { color: "Black", currentStock: 2, reorderLevel: 5, suggestedQty: 6 }, { color: "Red", currentStock: 1, reorderLevel: 5, suggestedQty: 6 }] }
+        ]
+    },
+    {
+        id: 8,
+        demandNo: "OUT-DEM-008",
+        outletId: 3,
+        outletCode: "OUT-PKR-001",
+        outletName: "Pokhara Outlet",
+        outletLocation: "Lakeside, Pokhara",
+        outletManager: "Anita Gurung",
+        phone: "9803003003",
+
+        productId: "PRD-006",
+        productCode: "PRD-006",
+        productName: "Mountain Sunrise Tee",
+        category: "Mockup Shirt",
+        variant: "White / Black / Red",
+        productImage: "/images/mockup3dimages/whiteshirtfront.png",
+
+        currentStock: 12,
+        reorderLevel: 70,
+        maxStock: 140,
+        stockGap: 58,
+        suggestedQty: 90,
+
+        last7DaysSales: 18,
+        last30DaysSales: 82,
+        avgDailySales: 2.7,
+        salesVelocity: "Normal",
+
+        stockStatus: "Critical",
+        requiredDate: "2026-07-12",
+        priority: "Seasonal",
+        materialStatus: "Unchecked",
+        planningNotes: "3D mockup shirt variant for resort and tourism-season display stock.",
+
+        sizeGaps: [
+            { size: "S", currentStock: 3, reorderLevel: 15, suggestedQty: 18, colors: [{ color: "White", currentStock: 1, reorderLevel: 5, suggestedQty: 6 }, { color: "Black", currentStock: 1, reorderLevel: 5, suggestedQty: 6 }, { color: "Red", currentStock: 1, reorderLevel: 5, suggestedQty: 6 }] },
+            { size: "M", currentStock: 4, reorderLevel: 24, suggestedQty: 33, colors: [{ color: "White", currentStock: 2, reorderLevel: 8, suggestedQty: 11 }, { color: "Black", currentStock: 1, reorderLevel: 8, suggestedQty: 11 }, { color: "Red", currentStock: 1, reorderLevel: 8, suggestedQty: 11 }] },
+            { size: "L", currentStock: 3, reorderLevel: 21, suggestedQty: 27, colors: [{ color: "White", currentStock: 1, reorderLevel: 7, suggestedQty: 9 }, { color: "Black", currentStock: 1, reorderLevel: 7, suggestedQty: 9 }, { color: "Red", currentStock: 1, reorderLevel: 7, suggestedQty: 9 }] },
+            { size: "XL", currentStock: 2, reorderLevel: 10, suggestedQty: 12, colors: [{ color: "White", currentStock: 1, reorderLevel: 4, suggestedQty: 4 }, { color: "Black", currentStock: 1, reorderLevel: 3, suggestedQty: 4 }, { color: "Red", currentStock: 0, reorderLevel: 3, suggestedQty: 4 }] }
+        ]
+    }
+);
+
 window.outletDemands = window.outletDemandCatalogData;

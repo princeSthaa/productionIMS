@@ -260,5 +260,193 @@ window.customerOrderCatalogData = [
     }
 ];
 
+window.customerOrderCatalogData.push(
+    {
+        id: 8,
+        orderNo: "ORD-2026-008",
+        customerId: 1,
+        customerCode: "CUS-SCH-001",
+        customerName: "Himalayan Public School",
+        customerType: "School",
+        phone: "01-4521188",
+        address: "Maharajgunj, Kathmandu",
+        paymentTerms: "30 Days Credit",
+        deliveryLocation: "Maharajgunj, Kathmandu",
+        orderDate: "2026-06-06",
+        deliveryDate: "2026-07-08",
+        priority: "Normal",
+        productId: "PRD-006",
+        productCode: "PRD-006",
+        productName: "Mountain Sunrise Tee",
+        category: "Mockup Shirt",
+        variant: "White / Black / Red",
+        quantity: 150,
+        productImage: "/images/mockup3dimages/whiteshirtfront.png",
+        customerImage: "/images/customers/school-1.jpg",
+        materialStatus: "Unchecked",
+        productionNotes: "Use 3D mockup shirt artwork. Pack by color first, then by size.",
+        sizes: [
+            { size: "S", quantity: 30, colors: [{ color: "White", quantity: 10 }, { color: "Black", quantity: 10 }, { color: "Red", quantity: 10 }] },
+            { size: "M", quantity: 60, colors: [{ color: "White", quantity: 20 }, { color: "Black", quantity: 20 }, { color: "Red", quantity: 20 }] },
+            { size: "L", quantity: 45, colors: [{ color: "White", quantity: 15 }, { color: "Black", quantity: 15 }, { color: "Red", quantity: 15 }] },
+            { size: "XL", quantity: 15, colors: [{ color: "White", quantity: 5 }, { color: "Black", quantity: 5 }, { color: "Red", quantity: 5 }] }
+        ],
+        measurements: [
+            { size: "S", chest: 36, shoulder: 15, sleeve: 8, length: 26, unit: "inch" },
+            { size: "M", chest: 38, shoulder: 16, sleeve: 8.5, length: 27, unit: "inch" },
+            { size: "L", chest: 40, shoulder: 17, sleeve: 9, length: 28, unit: "inch" },
+            { size: "XL", chest: 42, shoulder: 18, sleeve: 9.5, length: 29, unit: "inch" }
+        ]
+    },
+    {
+        id: 9,
+        orderNo: "ORD-2026-009",
+        customerId: 2,
+        customerCode: "CUS-SCH-002",
+        customerName: "Everest Boarding School",
+        customerType: "School",
+        phone: "01-5534092",
+        address: "Jawalakhel, Lalitpur",
+        paymentTerms: "Advance 40%",
+        deliveryLocation: "Jawalakhel, Lalitpur",
+        orderDate: "2026-06-06",
+        deliveryDate: "2026-07-09",
+        priority: "Normal",
+        productId: "PRD-006",
+        productCode: "PRD-006",
+        productName: "Mountain Sunrise Tee",
+        category: "Mockup Shirt",
+        variant: "White / Black / Red",
+        quantity: 120,
+        productImage: "/images/mockup3dimages/whiteshirtfront.png",
+        customerImage: "/images/customers/school-2.jpg",
+        materialStatus: "Unchecked",
+        productionNotes: "Use 3D mockup shirt artwork. Pack by color first, then by size.",
+        sizes: [
+            { size: "S", quantity: 24, colors: [{ color: "White", quantity: 8 }, { color: "Black", quantity: 8 }, { color: "Red", quantity: 8 }] },
+            { size: "M", quantity: 45, colors: [{ color: "White", quantity: 15 }, { color: "Black", quantity: 15 }, { color: "Red", quantity: 15 }] },
+            { size: "L", quantity: 36, colors: [{ color: "White", quantity: 12 }, { color: "Black", quantity: 12 }, { color: "Red", quantity: 12 }] },
+            { size: "XL", quantity: 15, colors: [{ color: "White", quantity: 5 }, { color: "Black", quantity: 5 }, { color: "Red", quantity: 5 }] }
+        ],
+        measurements: [
+            { size: "S", chest: 36, shoulder: 15, sleeve: 8, length: 26, unit: "inch" },
+            { size: "M", chest: 38, shoulder: 16, sleeve: 8.5, length: 27, unit: "inch" },
+            { size: "L", chest: 40, shoulder: 17, sleeve: 9, length: 28, unit: "inch" },
+            { size: "XL", chest: 42, shoulder: 18, sleeve: 9.5, length: 29, unit: "inch" }
+        ]
+    },
+    {
+        id: 10,
+        orderNo: "ORD-2026-010",
+        customerId: 3,
+        customerCode: "CUS-RET-001",
+        customerName: "Fashion Hub Retailers",
+        customerType: "Retailer",
+        phone: "9801123456",
+        address: "New Road, Kathmandu",
+        paymentTerms: "Cash on Delivery",
+        deliveryLocation: "New Road Outlet",
+        orderDate: "2026-06-06",
+        deliveryDate: "2026-07-10",
+        priority: "Urgent",
+        productId: "PRD-006",
+        productCode: "PRD-006",
+        productName: "Mountain Sunrise Tee",
+        category: "Mockup Shirt",
+        variant: "White / Black / Red",
+        quantity: 180,
+        productImage: "/images/mockup3dimages/whiteshirtfront.png",
+        customerImage: "/images/customers/retailer-1.jpg",
+        materialStatus: "Unchecked",
+        productionNotes: "Use 3D mockup shirt artwork. Retail packaging required.",
+        sizes: [
+            { size: "S", quantity: 36, colors: [{ color: "White", quantity: 12 }, { color: "Black", quantity: 12 }, { color: "Red", quantity: 12 }] },
+            { size: "M", quantity: 72, colors: [{ color: "White", quantity: 24 }, { color: "Black", quantity: 24 }, { color: "Red", quantity: 24 }] },
+            { size: "L", quantity: 48, colors: [{ color: "White", quantity: 16 }, { color: "Black", quantity: 16 }, { color: "Red", quantity: 16 }] },
+            { size: "XL", quantity: 24, colors: [{ color: "White", quantity: 8 }, { color: "Black", quantity: 8 }, { color: "Red", quantity: 8 }] }
+        ],
+        measurements: [
+            { size: "S", chest: 36, shoulder: 15, sleeve: 8, length: 26, unit: "inch" },
+            { size: "M", chest: 38, shoulder: 16, sleeve: 8.5, length: 27, unit: "inch" },
+            { size: "L", chest: 40, shoulder: 17, sleeve: 9, length: 28, unit: "inch" },
+            { size: "XL", chest: 42, shoulder: 18, sleeve: 9.5, length: 29, unit: "inch" }
+        ]
+    },
+    {
+        id: 11,
+        orderNo: "ORD-2026-011",
+        customerId: 4,
+        customerCode: "CUS-BIZ-001",
+        customerName: "Namaste Corporate Supplies",
+        customerType: "Business Customer",
+        phone: "9841556677",
+        address: "Thapathali, Kathmandu",
+        paymentTerms: "15 Days Credit",
+        deliveryLocation: "Thapathali Office",
+        orderDate: "2026-06-06",
+        deliveryDate: "2026-07-11",
+        priority: "Normal",
+        productId: "PRD-006",
+        productCode: "PRD-006",
+        productName: "Mountain Sunrise Tee",
+        category: "Mockup Shirt",
+        variant: "White / Black / Red",
+        quantity: 210,
+        productImage: "/images/mockup3dimages/whiteshirtfront.png",
+        customerImage: "/images/customers/business-1.jpg",
+        materialStatus: "Unchecked",
+        productionNotes: "Use 3D mockup shirt artwork. Add company branding if required.",
+        sizes: [
+            { size: "S", quantity: 45, colors: [{ color: "White", quantity: 15 }, { color: "Black", quantity: 15 }, { color: "Red", quantity: 15 }] },
+            { size: "M", quantity: 75, colors: [{ color: "White", quantity: 25 }, { color: "Black", quantity: 25 }, { color: "Red", quantity: 25 }] },
+            { size: "L", quantity: 60, colors: [{ color: "White", quantity: 20 }, { color: "Black", quantity: 20 }, { color: "Red", quantity: 20 }] },
+            { size: "XL", quantity: 30, colors: [{ color: "White", quantity: 10 }, { color: "Black", quantity: 10 }, { color: "Red", quantity: 10 }] }
+        ],
+        measurements: [
+            { size: "S", chest: 36, shoulder: 15, sleeve: 8, length: 26, unit: "inch" },
+            { size: "M", chest: 38, shoulder: 16, sleeve: 8.5, length: 27, unit: "inch" },
+            { size: "L", chest: 40, shoulder: 17, sleeve: 9, length: 28, unit: "inch" },
+            { size: "XL", chest: 42, shoulder: 18, sleeve: 9.5, length: 29, unit: "inch" }
+        ]
+    },
+    {
+        id: 12,
+        orderNo: "ORD-2026-012",
+        customerId: 5,
+        customerCode: "CUS-BIZ-002",
+        customerName: "Green Valley Resort",
+        customerType: "Business Customer",
+        phone: "9818765432",
+        address: "Lakeside, Pokhara",
+        paymentTerms: "50% Advance",
+        deliveryLocation: "Lakeside, Pokhara",
+        orderDate: "2026-06-06",
+        deliveryDate: "2026-07-12",
+        priority: "Seasonal",
+        productId: "PRD-006",
+        productCode: "PRD-006",
+        productName: "Mountain Sunrise Tee",
+        category: "Mockup Shirt",
+        variant: "White / Black / Red",
+        quantity: 90,
+        productImage: "/images/mockup3dimages/whiteshirtfront.png",
+        customerImage: "/images/customers/resort-1.jpg",
+        materialStatus: "Unchecked",
+        productionNotes: "Use 3D mockup shirt artwork. Keep resort retail stock color-wise.",
+        sizes: [
+            { size: "S", quantity: 18, colors: [{ color: "White", quantity: 6 }, { color: "Black", quantity: 6 }, { color: "Red", quantity: 6 }] },
+            { size: "M", quantity: 36, colors: [{ color: "White", quantity: 12 }, { color: "Black", quantity: 12 }, { color: "Red", quantity: 12 }] },
+            { size: "L", quantity: 24, colors: [{ color: "White", quantity: 8 }, { color: "Black", quantity: 8 }, { color: "Red", quantity: 8 }] },
+            { size: "XL", quantity: 12, colors: [{ color: "White", quantity: 4 }, { color: "Black", quantity: 4 }, { color: "Red", quantity: 4 }] }
+        ],
+        measurements: [
+            { size: "S", chest: 36, shoulder: 15, sleeve: 8, length: 26, unit: "inch" },
+            { size: "M", chest: 38, shoulder: 16, sleeve: 8.5, length: 27, unit: "inch" },
+            { size: "L", chest: 40, shoulder: 17, sleeve: 9, length: 28, unit: "inch" },
+            { size: "XL", chest: 42, shoulder: 18, sleeve: 9.5, length: 29, unit: "inch" }
+        ]
+    }
+);
+
 window.customerMasterData = window.customerOrderCatalogData;
 window.customers = window.customerOrderCatalogData;
