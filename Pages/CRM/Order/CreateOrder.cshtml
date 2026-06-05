@@ -5,13 +5,51 @@
 }
 
 <style>
+  /* Product Carousel Styles */
+  .carousel-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .carousel-container {
+    display: flex;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    gap: 20px;
+    width: 100%;
+    padding-bottom: 5px; 
+  }
+
   .product-block {
+    flex: 0 0 calc(50% - 10px); /* 2 items visible, accounting for gap */
     border: 1px solid #ddd;
     padding: 15px;
-    margin-bottom: 20px;
     border-radius: 8px;
     background: #fff;
+    box-sizing: border-box;
   }
+
+  .carousel-nav-btn {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: absolute;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: background 0.2s;
+  }
+  .carousel-nav-btn:hover { background: #f0f0f0; }
+  
+  #prevProductBtn { left: -20px; }
+  #nextProductBtn { right: -20px; }
 
   .color-block {
     border: 1px dashed #ccc;
@@ -23,7 +61,7 @@
 
   .size-row {
     display: flex;
-    gap: 10px;
+    gap: 5px; /* Minimized gap */
     margin-top: 10px;
     align-items: flex-end;
   }
@@ -141,7 +179,11 @@
 
           <div id="prebuiltSection">
             <button type="button" id="addProductBtn" class="btn btn-outline-primary" style="margin-bottom: 15px;">+ Add Product</button>
-            <div id="dynamicProductsSection"></div>
+            <div class="carousel-wrapper">
+              <button type="button" id="prevProductBtn" class="carousel-nav-btn">&larr;</button>
+              <div id="dynamicProductsSection" class="carousel-container"></div>
+              <button type="button" id="nextProductBtn" class="carousel-nav-btn">&rarr;</button>
+            </div>
           </div>
 
             <div class="form-group" id="newDesignSection"
@@ -234,7 +276,7 @@
             <h5 class="modal-title" id="colorPaletteModalLabel">Select Fabric Color</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body" style="max-height: 520px; overflow-y: auto; overflow-x: hidden;">
             <div class="row" id="fabricColorGrid">
               <!-- Populated by JS -->
             </div>
@@ -243,10 +285,24 @@
       </div>
     </div>
 
+    <!-- Product Image Modal -->
+    <div class="modal fade" id="productImageModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background: transparent; border: none; box-shadow: none;">
+          <div class="modal-body text-center p-0" onclick="bootstrap.Modal.getInstance(document.getElementById('productImageModal')).hide()">
+            <div style="position: relative; display: inline-block;" onclick="event.stopPropagation()">
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 15px; right: 15px; z-index: 10; background-color: rgba(255,255,255,0.9); border-radius: 50%; padding: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer;"></button>
+              <img id="enlargedProductImage" src="" alt="Product Preview" style="width: 500px; height: 500px; max-width: 90vw; max-height: 80vh; object-fit: contain; background: #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: opacity 0.2s ease;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     @section Scripts {
-      <script src="~/data/shared/products.js"></script>
-      <script src="~/data/shared/materials.js"></script>
-      <script src="~/data/shared/bom.js"></script>
+      <script src="~/data/shared/products.js" asp-append-version="true"></script>
+      <script src="~/data/shared/materials.js" asp-append-version="true"></script>
+      <script src="~/data/shared/bom.js" asp-append-version="true"></script>
 
       <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -270,7 +326,7 @@
             fabricColorGrid.innerHTML = '';
             fabricColors.forEach(palette => {
                 const col = document.createElement('div');
-                col.className = 'col-md-6 col-sm-12 mb-4';
+                col.className = 'col-md-4 col-sm-6 mb-4';
 
                 let colorDivs = '';
                 palette.colors.forEach(hex => {
@@ -348,6 +404,35 @@
         });
         });
 
+        // Carousel Navigation Logic
+        const carousel = document.getElementById('dynamicProductsSection');
+        const prevBtn = document.getElementById('prevProductBtn');
+        const nextBtn = document.getElementById('nextProductBtn');
+
+        function updateCarouselButtons() {
+            if (!carousel) return;
+            // Use small thresholds for rounding errors on high-DPI displays
+            const isAtStart = carousel.scrollLeft <= 2;
+            const isAtEnd = Math.ceil(carousel.scrollLeft + carousel.clientWidth) >= carousel.scrollWidth - 2;
+
+            prevBtn.style.display = isAtStart ? 'none' : 'flex';
+            nextBtn.style.display = isAtEnd ? 'none' : 'flex';
+        }
+
+        prevBtn.addEventListener('click', () => {
+            const cardWidth = carousel.clientWidth; // Scroll by the visible area
+            carousel.scrollBy({ left: -cardWidth, behavior: 'smooth' });
+        });
+        nextBtn.addEventListener('click', () => {
+            const cardWidth = carousel.clientWidth;
+            carousel.scrollBy({ left: cardWidth, behavior: 'smooth' });
+        });
+
+        // Listen for user scrolling
+        carousel.addEventListener('scroll', updateCarouselButtons);
+        // Recalculate on window resize
+        window.addEventListener('resize', updateCarouselButtons);
+
         // 4. Dynamic Product Builder Logic
         let productIndex = 0;
         const sizeMultipliers = { "XS": 0.8, "S": 0.9, "M": 1.0, "L": 1.1, "XL": 1.2, "XXL": 1.3 };
@@ -358,54 +443,141 @@
         block.className = 'product-block';
         block.dataset.index = pIdx;
 
-        let productOptions = '<option value="">-- Select Product --</option>';
+        let dropdownItems = `
+            <li class="px-2 py-2 bg-white border-bottom">
+                <input type="text" class="form-control form-control-sm product-search-input" placeholder="Search products..." onclick="event.stopPropagation()">
+            </li>
+        `;
         if (window.products && Array.isArray(window.products)) {
         window.products.forEach(p => {
-        productOptions += `<option value="${p.productId}">${p.name}</option>`;
+        const imgSrc = p.imagePath || '/images/products/place-holder.png';
+        dropdownItems += `
+            <li>
+                <a class="dropdown-item d-flex align-items-center product-dropdown-item" href="#" data-id="${p.productId}">
+                    <img src="${imgSrc}" style="width: 40px; height: 40px; object-fit: contain; margin-right: 15px; border-radius: 4px; border: 1px solid #eee;">
+                    <span class="product-dropdown-name" style="font-weight: 500; white-space: normal;">${p.name}</span>
+                </a>
+            </li>
+        `;
         });
         }
 
         block.innerHTML = `
         <div style="display:flex; justify-content: space-between; align-items:center;">
-        <h5 style="margin:0;">Product ${pIdx + 1}</h5>
-        <button type="button" class="btn btn-sm btn-outline-danger remove-product-btn">Remove Product</button>
+        <h5 style="margin:0; font-size:1.1rem;">Product ${pIdx + 1}</h5>
+        <button type="button" class="btn btn-sm btn-outline-danger remove-product-btn" title="Remove Product">X</button>
         </div>
-        <div class="form-group" style="margin-top:15px; margin-bottom:10px;">
-        <label>Select Product <span class="text-danger">*</span></label>
-        <select class="form-control product-select" name="Products[${pIdx}].ProductId" required>
-        ${productOptions}
-        </select>
+        <div class="form-group" style="margin-top:15px; margin-bottom:15px;">
+            <div class="d-flex align-items-center gap-3">
+                <div class="selected-product-image-container" style="display:none; position: relative;">
+                    <img class="selected-product-image" src="" alt="Selected Product" style="width: 60px; height: 60px; object-fit: contain; border: 1px solid #ddd; border-radius: 6px; cursor: zoom-in; background: #fff; transition: transform 0.2s ease;">
+                </div>
+                <div class="dropdown flex-grow-1">
+                    <button class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between custom-product-toggle" type="button" data-bs-toggle="dropdown" data-bs-boundary="window" aria-expanded="false" style="background: #fff; text-align: left; min-height: 44px;">
+                        <span class="selected-product-text text-muted">-- Select Product --</span>
+                    </button>
+                    <ul class="dropdown-menu shadow-sm" style="max-height: 300px; overflow-y: auto; width: 100%; max-width: 320px;">
+                        ${dropdownItems}
+                    </ul>
+                    <input type="hidden" class="product-select" name="Products[${pIdx}].ProductId" required>
+                </div>
+            </div>
         </div>
         <button type="button" class="btn btn-sm btn-outline-secondary add-color-btn" style="display:none; margin-bottom:10px;">+ Add Color</button>
         <div class="colors-container"></div>
-        <div style="margin-top:15px; font-size:1.1em;">Total Quantity for Product: <strong class="product-total-qty">0</strong></div>
+        <div style="margin-top:15px; font-size:1.1em; padding-top: 10px; border-top: 1px solid #eee;">Total Qty: <strong class="product-total-qty">0</strong></div>
         `;
 
         document.getElementById('dynamicProductsSection').prepend(block);
+        carousel.scrollTo({ left: 0, behavior: 'smooth' });
+        setTimeout(updateCarouselButtons, 50); // Give layout a brief moment to update before calculating
 
-        const prodSelect = block.querySelector('.product-select');
+        // Manually initialize dropdown to break out of overflow:hidden parent
+        const dropdownToggle = block.querySelector('.custom-product-toggle');
+        new bootstrap.Dropdown(dropdownToggle, {
+            popperConfig(defaultBsPopperConfig) {
+                return { ...defaultBsPopperConfig, strategy: 'fixed' };
+            }
+        });
+
+        const prodInput = block.querySelector('.product-select');
+        const toggleText = block.querySelector('.selected-product-text');
+        const imageContainer = block.querySelector('.selected-product-image-container');
+        const imageEl = block.querySelector('.selected-product-image');
         const addColorBtn = block.querySelector('.add-color-btn');
         const colorsContainer = block.querySelector('.colors-container');
 
-        prodSelect.addEventListener('change', function () {
-        colorsContainer.innerHTML = '';
-        block.querySelector('.product-total-qty').textContent = '0';
-        if (this.value) {
-        addColorBtn.style.display = 'inline-block';
-        addColorBlock(block, this.value);
-        } else {
-        addColorBtn.style.display = 'none';
-        }
-        recalculateGlobalTotals();
+        const searchInput = block.querySelector('.product-search-input');
+        const dropdownItemsNodes = block.querySelectorAll('.product-dropdown-item');
+        
+        searchInput.addEventListener('input', function() {
+            const term = this.value.toLowerCase();
+            dropdownItemsNodes.forEach(item => {
+                const name = item.querySelector('.product-dropdown-name').innerText.toLowerCase();
+                if (name.includes(term)) {
+                    item.parentElement.style.display = 'block';
+                } else {
+                    item.parentElement.style.display = 'none';
+                }
+            });
+        });
+
+        dropdownItemsNodes.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const prodId = this.getAttribute('data-id');
+                const prodName = this.querySelector('span').innerText;
+                
+                toggleText.innerText = prodName;
+                toggleText.classList.remove('text-muted');
+                prodInput.value = prodId;
+
+                colorsContainer.innerHTML = '';
+                block.querySelector('.product-total-qty').textContent = '0';
+                
+                if (prodId) {
+                    addColorBtn.style.display = 'inline-block';
+                    addColorBlock(block, prodId);
+                    
+                    const selectedProd = window.products.find(p => p.productId === prodId);
+                    if (selectedProd && selectedProd.imagePath) {
+                        const frontImg = selectedProd.imagePath;
+                        let backImg = frontImg;
+                        if (frontImg.includes('front')) {
+                            backImg = frontImg.replace('front', 'back');
+                        }
+                        
+                        imageEl.src = frontImg;
+                        imageContainer.style.display = 'block';
+                        
+                        imageEl.onmouseover = () => imageEl.src = backImg;
+                        imageEl.onmouseout = () => imageEl.src = frontImg;
+                        imageEl.onclick = () => {
+                            const enlargedImg = document.getElementById('enlargedProductImage');
+                            enlargedImg.src = frontImg;
+                            enlargedImg.onmouseover = () => enlargedImg.src = backImg;
+                            enlargedImg.onmouseout = () => enlargedImg.src = frontImg;
+                            bootstrap.Modal.getOrCreateInstance(document.getElementById('productImageModal')).show();
+                        };
+                    } else {
+                        imageContainer.style.display = 'none';
+                    }
+                } else {
+                    addColorBtn.style.display = 'none';
+                    imageContainer.style.display = 'none';
+                }
+                recalculateGlobalTotals();
+            });
         });
 
         addColorBtn.addEventListener('click', () => {
-        if (prodSelect.value) addColorBlock(block, prodSelect.value);
+        if (prodInput.value) addColorBlock(block, prodInput.value);
         });
 
         block.querySelector('.remove-product-btn').addEventListener('click', () => {
         block.remove();
         recalculateGlobalTotals();
+        setTimeout(updateCarouselButtons, 50);
         });
         }
 
@@ -427,16 +599,13 @@
 
         cBlock.innerHTML = `
         <div style="display:flex; justify-content: space-between; align-items:center;">
-        <div class="form-group" style="flex:1; margin-right:15px; margin-bottom:0;">
-        <div class="input-group">
-        <input type="text" class="form-control color-select-display" placeholder="Select Fabric Color Palette..." readonly required>
+        <div class="form-group" style="flex:1; margin-right:10px; margin-bottom:0;">
+        <input type="text" class="form-control color-select-display" placeholder="Click to select palette..." readonly required style="cursor: pointer; background-color: #fff; text-align: center; font-weight: bold;">
         <input type="hidden" class="color-select-value color-select" name="Products[${pIdx}].Colors[${cIdx}].ColorName" required>
-        <button class="btn btn-outline-primary btn-select-color" type="button">Choose Palette</button>
-        </div>
         </div>
         <button type="button" class="btn btn-sm btn-outline-danger remove-color-btn" title="Remove Color">X</button>
         </div>
-        <button type="button" class="btn btn-sm btn-outline-info add-size-btn" style="display:none; margin-top:10px; margin-bottom:10px;">+ Add Size</button>
+        <button type="button" class="btn btn-sm btn-outline-info add-size-btn" style="display:none; margin-top:10px; margin-bottom:10px; width: 100%;">+ Add Size</button>
         <div class="sizes-container"></div>
         `;
 
@@ -444,7 +613,6 @@
 
         const colorSelectDisplay = cBlock.querySelector('.color-select-display');
         const colorSelectValue = cBlock.querySelector('.color-select-value');
-        const btnSelectColor = cBlock.querySelector('.btn-select-color');
         const addSizeBtn = cBlock.querySelector('.add-size-btn');
         const sizesContainer = cBlock.querySelector('.sizes-container');
 
@@ -454,9 +622,7 @@
         openColorModal();
         };
 
-        btnSelectColor.addEventListener('click', handleOpenModal);
         colorSelectDisplay.addEventListener('click', handleOpenModal);
-        colorSelectDisplay.style.cursor = 'pointer';
 
         colorSelectValue.addEventListener('change', function () {
         sizesContainer.innerHTML = '';
@@ -494,11 +660,11 @@
         });
 
         sRow.innerHTML = `
-        <select class="form-control size-select" style="width:120px;" name="Products[${pIdx}].Colors[${cIdx}].Sizes[${sIdx}].Size" required>
+        <select class="form-control size-select" style="flex:1; padding: 0.25rem 0.5rem;" name="Products[${pIdx}].Colors[${cIdx}].Sizes[${sIdx}].Size" required>
         ${sizeOptions}
         </select>
-        <input type="number" class="form-control qty-input" style="width:120px;" name="Products[${pIdx}].Colors[${cIdx}].Sizes[${sIdx}].Quantity" placeholder="Qty" min="1" required />
-        <button type="button" class="btn btn-sm btn-outline-danger remove-size-btn">Delete</button>
+        <input type="number" class="form-control qty-input" style="flex:1; padding: 0.25rem 0.5rem;" name="Products[${pIdx}].Colors[${cIdx}].Sizes[${sIdx}].Quantity" placeholder="Qty" min="1" required />
+        <button type="button" class="btn btn-sm btn-outline-danger remove-size-btn" title="Remove Size">X</button>
         `;
 
         sizesContainer.prepend(sRow);
@@ -532,7 +698,7 @@
         }
 
         function recalculateGlobalTotals() {
-        let aggregatedMaterials = {}; // Key: "MaterialId|ColorName" or just modified MaterialName
+        let aggregatedMaterials = {}; 
 
         const productBlocks = document.querySelectorAll('.product-block');
         productBlocks.forEach(pBlock => {

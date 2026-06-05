@@ -4,104 +4,94 @@
   ViewData["Title"] = "Customer Filter";
 }
 
-<div class="pp-page">
+<div class="container-fluid px-0 py-3">
   <!-- Page Header -->
-  <div class="pp-page-header">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom">
     <div>
-      <h1>Customer Filter</h1>
-      <p>Search by customer details, region, status, or registration date.</p>
+      <h1 class="h3 mb-1">Customer Filter</h1>
+      <p class="text-muted mb-0">Search by customer details, region, or status.</p>
     </div>
   </div>
 
   <!-- Filter Card -->
-  <div class="pp-card">
-    <div class="pp-card-header">
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
       <div>
-        <h2>Filter Customers</h2>
-        <p>Search by customer details, region, status, or registration date.</p>
+        <h5 class="mb-1">Filter Customers</h5>
+        <p class="text-muted small mb-0">Search by customer details, region, or status.</p>
       </div>
-
-      <button type="button" class="btn btn-light" id="resetFiltersBtn">
+      <button type="button" class="btn btn-outline-secondary btn-sm" id="resetFiltersBtn">
         Reset Filters
       </button>
     </div>
 
-    <div class="pp-filter-grid">
-      <div class="form-group">
-        <label for="customerTypeFilter">Customer Type</label>
-        <select id="customerTypeFilter" class="form-control">
-          <option value="">All Types</option>
-          <option value="Retail">Retail</option>
-          <option value="Wholesale">Wholesale</option>
-          <option value="Distributor">Distributor</option>
-        </select>
-      </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-12 col-sm-6 col-lg-3">
+          <label for="customerTypeFilter" class="form-label fw-bold">Customer Type</label>
+          <select id="customerTypeFilter" class="form-select">
+            <option value="">All Types</option>
+            <option value="Retail">Retail</option>
+            <option value="Wholesale">Wholesale</option>
+            <option value="Distributor">Distributor</option>
+          </select>
+        </div>
 
-      <div class="form-group">
-        <label for="statusFilter">Status</label>
-        <select id="statusFilter" class="form-control">
-          <option value="">All Statuses</option>
-          <option value="Active">Active</option>
-          <option value="Inactive">Inactive</option>
-          <option value="Blacklisted">Blacklisted</option>
-        </select>
-      </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <label for="statusFilter" class="form-label fw-bold">Status</label>
+          <select id="statusFilter" class="form-select">
+            <option value="">All Statuses</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Blacklisted">Blacklisted</option>
+          </select>
+        </div>
 
-      <div class="form-group">
-        <label for="fromDateFilter">Registered From (BS)</label>
-        <input type="text" id="fromDateFilter" class="form-control nepali-date" placeholder="DD-MM-YYYY" readonly />
-      </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <label for="customerSearch" class="form-label fw-bold">Customer Search</label>
+          <input type="text" id="customerSearch" class="form-control" placeholder="Search name, email, or phone..." />
+        </div>
 
-      <div class="form-group">
-        <label for="toDateFilter">Registered To (BS)</label>
-        <input type="text" id="toDateFilter" class="form-control nepali-date" placeholder="DD-MM-YYYY" readonly />
-      </div>
-
-      <div class="form-group">
-        <label for="customerSearch">Customer Search</label>
-        <input type="text" id="customerSearch" class="form-control" placeholder="Search name, email, or phone..." />
-      </div>
-
-      <div class="form-group">
-        <label for="locationSearch">Location Search</label>
-        <input type="text" id="locationSearch" class="form-control" placeholder="Search city or address..." />
+        <div class="col-12 col-sm-6 col-lg-3">
+          <label for="locationSearch" class="form-label fw-bold">Location Search</label>
+          <input type="text" id="locationSearch" class="form-control" placeholder="Search city or address..." />
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Table Card -->
-  <div class="pp-card">
-    <div class="pp-card-header">
-      <div>
-        <h2>Customer Directory</h2>
-        <p id="tableInfoText">Showing customer records.</p>
-      </div>
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-white py-3">
+      <h5 class="mb-1">Customer Directory</h5>
+      <p id="tableInfoText" class="text-muted small mb-0">Showing customer records.</p>
     </div>
 
-    <div class="pp-table-wrapper">
-      <table class="pp-table compact-table">
-        <thead>
-          <tr>
-            <th>Customer ID</th>
-            <th>Name</th>
-            <th>Contact Info</th>
-            <th>Location</th>
-            <th>Type</th>
-            <th>Total Orders</th>
-            <th>Status</th>
-            <th class="text-right">Actions</th>
-          </tr>
-        </thead>
-
-        <tbody id="customersTableBody">
-          <!-- Empty State (Hidden by default, used by JS) -->
-          <tr id="loadingRow" style="display: none;">
-            <td colspan="8" class="empty-cell">
-              Loading customers...
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Customer ID</th>
+              <th>Name</th>
+              <th>Contact Info</th>
+              <th>Location</th>
+              <th>Type</th>
+              <th>Total Orders</th>
+              <th>Status</th>
+              <th class="text-end text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="customersTableBody">
+            <!-- Empty State (Hidden by default, used by JS) -->
+            <tr id="loadingRow" style="display: none;">
+              <td colspan="8" class="text-center text-muted py-4">
+                Loading customers...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
