@@ -15,7 +15,10 @@
     document.addEventListener("DOMContentLoaded", init);
 
     function init() {
-        plans = App.getData("mockProductionPlans", "productionPlans", "plans");
+        const basePlans = App.getData("mockProductionPlans", "productionPlans", "plans");
+        plans = window.ProductionDraftStore && typeof window.ProductionDraftStore.mergeWithPlans === "function"
+            ? window.ProductionDraftStore.mergeWithPlans(basePlans)
+            : basePlans;
 
         render();
     }
@@ -31,16 +34,16 @@
     function renderSummary() {
         App.setText("#totalPlans", plans.length);
 
-        App.setText("#draftPlans", plans.filter(function (x) {
-            return String(x.status).toLowerCase() === "draft";
+        App.setText("#draftPlans", plans.filter(function (plan) {
+            return String(plan.status || "").toLowerCase() === "draft";
         }).length);
 
-        App.setText("#completedPlans", plans.filter(function (x) {
-            return String(x.status).toLowerCase() === "completed";
+        App.setText("#completedPlans", plans.filter(function (plan) {
+            return String(plan.status || "").toLowerCase() === "completed";
         }).length);
 
-        App.setText("#inProgressPlans", plans.filter(function (x) {
-            const status = String(x.status || "").toLowerCase();
+        App.setText("#inProgressPlans", plans.filter(function (plan) {
+            const status = String(plan.status || "").toLowerCase();
             return status !== "draft" && status !== "completed" && status !== "cancelled";
         }).length);
     }
@@ -49,6 +52,7 @@
         const statusEntries = toEntries(countBy(plans, function (plan) {
             return plan.status || "Unknown";
         }));
+
         const total = statusEntries.reduce(function (sum, item) {
             return sum + item.value;
         }, 0);
@@ -115,6 +119,7 @@
 
         chart.innerHTML = items.map(function (item, index) {
             const height = Math.max(8, Math.round((item.value / maxValue) * 100));
+
             return `
                 <div class="column-chart-item" style="--column-height:${height}%; --column-color:${chartColors[index % chartColors.length]}">
                     <div class="column-value">${formatNumber(item.value)} pcs</div>
