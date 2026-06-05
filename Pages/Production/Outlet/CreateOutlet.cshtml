@@ -308,7 +308,7 @@
               <thead>
                 <tr>
                   <th>Size</th>
-                  <th>Color</th>
+                  <th>Palette / Variant</th>
                   <th>Current</th>
                   <th>Reorder</th>
                   <th>Plan Qty</th>
@@ -435,8 +435,19 @@
           </div>
 
           <div class="product-3d-option-block">
-            <div class="product-3d-option-title">Color <span id="product3dColorLabel">White</span></div>
-            <div class="product-3d-variant-grid" id="product3dVariantButtons"></div>
+            <div class="product-3d-option-title">Product's Default Palette</div>
+            <div class="product-3d-selection-summary">
+              <strong id="product3dAvailablePalette">-</strong>
+              <div id="product3dAvailablePalettePreview" class="palette-preview-host mt-5"></div>
+            </div>
+          </div>
+
+          <div class="product-3d-option-block">
+            <div class="product-3d-option-title">Customer's Ordered Palette</div>
+            <div class="product-3d-selection-summary">
+              <strong id="product3dCustomerPalette">-</strong>
+              <div id="product3dCustomerPalettePreview" class="palette-preview-host mt-5"></div>
+            </div>
           </div>
 
           <div class="product-3d-option-block">
@@ -464,6 +475,7 @@
             <div>
               <span>Variant</span>
               <strong id="product3dVariant">-</strong>
+              <div id="product3dVariantPalettePreview" class="palette-preview-host" hidden></div>
             </div>
           </div>
         </aside>
@@ -479,5 +491,6 @@
 <script src="~/data/shared/materials.js" asp-append-version="true"></script>
 <script src="~/data/shared/bom.js" asp-append-version="true"></script>
 
+<script src="~/js/production/production-color-palettes.js" asp-append-version="true"></script>
 <script src="~/js/production/outlet-plan-create.js" asp-append-version="true"></script>
 <script src="~/js/production/production-draft-store.js" asp-append-version="true"></script>

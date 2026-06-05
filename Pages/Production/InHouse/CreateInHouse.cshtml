@@ -95,22 +95,15 @@
 
                 <div class="form-grid two-col">
                     <div class="form-group full">
-                        <label asp-for="ProductId">Product</label>
+                        <label asp-for="ProductId">Product & Color Palette</label>
                         <select asp-for="ProductId" id="productDropdown" class="form-control">
-                            <option value="">Select Product</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="variantDropdown">Color / Variant</label>
-                        <select id="variantDropdown" class="form-control">
-                            <option value="">Select Color / Variant</option>
+                            <option value="">Select Product & Palette</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label asp-for="TotalQuantity">Total Quantity</label>
-                        <input asp-for="TotalQuantity" type="number" min="1" id="totalQuantity" class="form-control" placeholder="Example: 220" readonly />
+                        <input asp-for="TotalQuantity" type="number" min="1" id="totalQuantity" class="form-control" placeholder="Example: 220" />
                     </div>
 
                     <div class="form-group">
@@ -133,28 +126,15 @@
 
         </div>
 
-        <section class="pp-card variant-quantity-card">
+        <section class="pp-card variant-quantity-card hidden" id="variantQuantitySection">
             <div class="pp-card-header">
                 <div>
-                    <h2>Color Variant Quantities</h2>
-                    <p>Plan quantity by color variant for the selected in-house product.</p>
+                    <h2>Selected Palette Preview</h2>
+                    <p>Colors included in the selected fabric palette.</p>
                 </div>
             </div>
 
-            <div class="variant-entry-grid">
-                <div class="form-group">
-                    <label for="inhouseVariantQty">Variant Quantity</label>
-                    <input type="number" min="1" id="inhouseVariantQty" class="form-control" placeholder="Example: 120" />
-                </div>
-
-                <button type="button" class="btn btn-primary" id="addInhouseVariantBtn">
-                    Add Variant Quantity
-                </button>
-            </div>
-
-            <div id="inhouseVariantRows" class="variant-breakdown-list">
-                <div class="basket-empty-state">No color variant quantity added.</div>
-            </div>
+            <div class="palette-preview-container" id="inhousePalettePreview"></div>
         </section>
 
         <section class="pp-card measurement-chart-card">
@@ -201,5 +181,6 @@
 
 <script src="https://nepalidatepicker.sajanmaharjan.com.np/v5/nepali.datepicker/js/nepali.datepicker.v5.0.6.min.js"
         type="text/javascript"></script>
+<script src="~/js/production/production-color-palettes.js" asp-append-version="true"></script>
 <script src="~/js/production/inhouse-plan-create.js" asp-append-version="true"></script>
 <script src="~/js/production/production-draft-store.js" asp-append-version="true"></script>

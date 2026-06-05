@@ -10,8 +10,8 @@ window.mockProductionPlans = [
         sourceName: "Himalayan Public School",
         productId: "PRD-001",
         productName: "School Uniform Set",
-        variant: "Navy Blue / White",
-        color: "Navy Blue / White",
+        variant: "Elegant and Versatile Fabric Brand Palette",
+        color: "Elegant and Versatile Fabric Brand Palette",
         quantity: 920,
         totalQuantity: 920,
         priority: "Urgent",
@@ -21,11 +21,11 @@ window.mockProductionPlans = [
         requiredDate: "2026-07-03",
         status: "Draft",
         sizes: [
-            { size: "XS", quantity: 40, colors: [{ color: "Navy Blue", quantity: 24 }, { color: "White", quantity: 16 }] },
-            { size: "S", quantity: 180, colors: [{ color: "Navy Blue", quantity: 100 }, { color: "White", quantity: 80 }] },
-            { size: "M", quantity: 310, colors: [{ color: "Navy Blue", quantity: 170 }, { color: "White", quantity: 140 }] },
-            { size: "L", quantity: 260, colors: [{ color: "Navy Blue", quantity: 145 }, { color: "White", quantity: 115 }] },
-            { size: "XL", quantity: 130, colors: [{ color: "Navy Blue", quantity: 73 }, { color: "White", quantity: 57 }] }
+            { size: "XS", quantity: 40 },
+            { size: "S", quantity: 180 },
+            { size: "M", quantity: 310 },
+            { size: "L", quantity: 260 },
+            { size: "XL", quantity: 130 }
         ],
         products: [
             {
@@ -35,7 +35,7 @@ window.mockProductionPlans = [
                 productCode: "PRD-001",
                 productName: "School Uniform Set",
                 category: "Uniform",
-                variant: "Navy Blue / White",
+                variant: "Elegant and Versatile Fabric Brand Palette",
                 quantity: 500,
                 sourceName: "Himalayan Public School",
                 requiredDate: "2026-06-20",
@@ -47,11 +47,11 @@ window.mockProductionPlans = [
                 productImage: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=640&q=80",
                 productionNotes: "School logo embroidery on chest. Pack size-wise in separate bundles.",
                 sizes: [
-                    { size: "XS", quantity: 40, colors: [{ color: "Navy Blue", quantity: 24 }, { color: "White", quantity: 16 }] },
-                    { size: "S", quantity: 90, colors: [{ color: "Navy Blue", quantity: 55 }, { color: "White", quantity: 35 }] },
-                    { size: "M", quantity: 160, colors: [{ color: "Navy Blue", quantity: 100 }, { color: "White", quantity: 60 }] },
-                    { size: "L", quantity: 140, colors: [{ color: "Navy Blue", quantity: 90 }, { color: "White", quantity: 50 }] },
-                    { size: "XL", quantity: 70, colors: [{ color: "Navy Blue", quantity: 45 }, { color: "White", quantity: 25 }] }
+                    { size: "XS", quantity: 40 },
+                    { size: "S", quantity: 90 },
+                    { size: "M", quantity: 160 },
+                    { size: "L", quantity: 140 },
+                    { size: "XL", quantity: 70 }
                 ]
             },
             {
@@ -61,7 +61,7 @@ window.mockProductionPlans = [
                 productCode: "PRD-002",
                 productName: "School Tracksuit Set",
                 category: "Sports Uniform",
-                variant: "Grey / Royal Blue",
+                variant: "Vibrant Summer Collection",
                 quantity: 240,
                 sourceName: "Himalayan Public School",
                 requiredDate: "2026-06-28",
@@ -73,10 +73,10 @@ window.mockProductionPlans = [
                 productImage: "https://images.unsplash.com/photo-1578587018452-892bacefd3f2?auto=format&fit=crop&w=640&q=80",
                 productionNotes: "Keep house labels separate from regular uniform order.",
                 sizes: [
-                    { size: "S", quantity: 50, colors: [{ color: "Grey", quantity: 30 }, { color: "Royal Blue", quantity: 20 }] },
-                    { size: "M", quantity: 80, colors: [{ color: "Grey", quantity: 45 }, { color: "Royal Blue", quantity: 35 }] },
-                    { size: "L", quantity: 70, colors: [{ color: "Grey", quantity: 40 }, { color: "Royal Blue", quantity: 30 }] },
-                    { size: "XL", quantity: 40, colors: [{ color: "Grey", quantity: 20 }, { color: "Royal Blue", quantity: 20 }] }
+                    { size: "S", quantity: 50 },
+                    { size: "M", quantity: 80 },
+                    { size: "L", quantity: 70 },
+                    { size: "XL", quantity: 40 }
                 ]
             },
             {
@@ -86,7 +86,7 @@ window.mockProductionPlans = [
                 productCode: "PRD-004",
                 productName: "House Polo T-Shirt",
                 category: "School House Wear",
-                variant: "Red / Blue / Green",
+                variant: "Monochrome Essentials",
                 quantity: 180,
                 sourceName: "Himalayan Public School",
                 requiredDate: "2026-07-03",
@@ -98,10 +98,10 @@ window.mockProductionPlans = [
                 productImage: "https://images.unsplash.com/photo-1523381294911-8d3cead13475?auto=format&fit=crop&w=640&q=80",
                 productionNotes: "Pack by house color first, then by size.",
                 sizes: [
-                    { size: "S", quantity: 40, colors: [{ color: "Red", quantity: 15 }, { color: "Blue", quantity: 15 }, { color: "Green", quantity: 10 }] },
-                    { size: "M", quantity: 70, colors: [{ color: "Red", quantity: 25 }, { color: "Blue", quantity: 25 }, { color: "Green", quantity: 20 }] },
-                    { size: "L", quantity: 50, colors: [{ color: "Red", quantity: 20 }, { color: "Blue", quantity: 15 }, { color: "Green", quantity: 15 }] },
-                    { size: "XL", quantity: 20, colors: [{ color: "Red", quantity: 8 }, { color: "Blue", quantity: 7 }, { color: "Green", quantity: 5 }] }
+                    { size: "S", quantity: 40 },
+                    { size: "M", quantity: 70 },
+                    { size: "L", quantity: 50 },
+                    { size: "XL", quantity: 20 }
                 ]
             }
         ],
@@ -186,11 +186,11 @@ window.mockProductionPlans = [
         requiredDate: "2026-06-25",
         status: "Cutting",
         sizes: [
-            { size: "S", quantity: 25, colors: [{ color: "Black", quantity: 15 }, { color: "Charcoal", quantity: 10 }] },
-            { size: "M", quantity: 85, colors: [{ color: "White", quantity: 16 }, { color: "Sky Blue", quantity: 14 }, { color: "Black", quantity: 38 }, { color: "Charcoal", quantity: 17 }] },
-            { size: "L", quantity: 90, colors: [{ color: "White", quantity: 20 }, { color: "Sky Blue", quantity: 18 }, { color: "Black", quantity: 36 }, { color: "Charcoal", quantity: 16 }] },
-            { size: "XL", quantity: 50, colors: [{ color: "White", quantity: 12 }, { color: "Sky Blue", quantity: 10 }, { color: "Black", quantity: 20 }, { color: "Charcoal", quantity: 8 }] },
-            { size: "XXL", quantity: 80, colors: [{ color: "Cream", quantity: 42 }, { color: "Brown", quantity: 38 }] }
+            { size: "S", quantity: 25 },
+            { size: "M", quantity: 85 },
+            { size: "L", quantity: 90 },
+            { size: "XL", quantity: 50 },
+            { size: "XXL", quantity: 80 }
         ],
         products: [
             {
@@ -212,9 +212,9 @@ window.mockProductionPlans = [
                 productImage: "https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=640&q=80",
                 productionNotes: "Fast moving item. Replenish before weekend demand.",
                 sizes: [
-                    { size: "M", quantity: 40, colors: [{ color: "White", quantity: 16 }, { color: "Sky Blue", quantity: 14 }, { color: "Black", quantity: 10 }] },
-                    { size: "L", quantity: 50, colors: [{ color: "White", quantity: 20 }, { color: "Sky Blue", quantity: 18 }, { color: "Black", quantity: 12 }] },
-                    { size: "XL", quantity: 30, colors: [{ color: "White", quantity: 12 }, { color: "Sky Blue", quantity: 10 }, { color: "Black", quantity: 8 }] }
+                    { size: "M", quantity: 40 },
+                    { size: "L", quantity: 50 },
+                    { size: "XL", quantity: 30 }
                 ]
             },
             {
@@ -236,10 +236,10 @@ window.mockProductionPlans = [
                 productImage: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=640&q=80",
                 productionNotes: "Common corporate stock item. Keep enough sizes M and L.",
                 sizes: [
-                    { size: "S", quantity: 25, colors: [{ color: "Black", quantity: 15 }, { color: "Charcoal", quantity: 10 }] },
-                    { size: "M", quantity: 45, colors: [{ color: "Black", quantity: 28 }, { color: "Charcoal", quantity: 17 }] },
-                    { size: "L", quantity: 40, colors: [{ color: "Black", quantity: 24 }, { color: "Charcoal", quantity: 16 }] },
-                    { size: "XL", quantity: 20, colors: [{ color: "Black", quantity: 12 }, { color: "Charcoal", quantity: 8 }] }
+                    { size: "S", quantity: 25 },
+                    { size: "M", quantity: 45 },
+                    { size: "L", quantity: 40 },
+                    { size: "XL", quantity: 20 }
                 ]
             },
             {
@@ -261,10 +261,10 @@ window.mockProductionPlans = [
                 productImage: "https://images.unsplash.com/photo-1585846416120-3a7354ed7d39?auto=format&fit=crop&w=640&q=80",
                 productionNotes: "Tourism season demand. Prioritize hospitality uniform stock.",
                 sizes: [
-                    { size: "S", quantity: 20, colors: [{ color: "Cream", quantity: 12 }, { color: "Brown", quantity: 8 }] },
-                    { size: "M", quantity: 25, colors: [{ color: "Cream", quantity: 15 }, { color: "Brown", quantity: 10 }] },
-                    { size: "L", quantity: 25, colors: [{ color: "Cream", quantity: 15 }, { color: "Brown", quantity: 10 }] },
-                    { size: "XL", quantity: 10, colors: [{ color: "Cream", quantity: 6 }, { color: "Brown", quantity: 4 }] }
+                    { size: "S", quantity: 20 },
+                    { size: "M", quantity: 25 },
+                    { size: "L", quantity: 25 },
+                    { size: "XL", quantity: 10 }
                 ]
             }
         ],

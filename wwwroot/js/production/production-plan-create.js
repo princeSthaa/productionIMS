@@ -64,19 +64,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const threeJsCdnUrl = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
     const mockup3dAssets = {
         white: {
-            label: "White",
+            label: "Production Sample",
             front: "/images/mockup3dimages/whiteshirtfront.png",
             back: "/images/mockup3dimages/whiteshirtback.png"
-        },
-        black: {
-            label: "Black",
-            front: "/images/mockup3dimages/blackshirtfront.png",
-            back: "/images/mockup3dimages/blackshirtback.png"
-        },
-        red: {
-            label: "Red",
-            front: "/images/mockup3dimages/redshirtfront.png",
-            back: "/images/mockup3dimages/redshirtback.png"
         }
     };
     let threeJsLoadPromise = null;
@@ -283,13 +273,31 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderCatalog() {
         if (!catalogGrid) return;
 
-        let filtered = catalogItems.map(normalizeCatalogItem);
+        let items = catalogItems.map(normalizeCatalogItem);
+        let flattenedItems = [];
 
-        filtered.sort(function (a, b) {
+        items.forEach(function (item) {
+            const palettes = getUniquePalettes(item);
+
+            if (palettes.length > 1) {
+                palettes.forEach(function (paletteName) {
+                    const cloned = { ...item };
+                    cloned.id = `${item.id}|${paletteName}`;
+                    cloned.displayPalette = paletteName;
+                    cloned.quantity = calculateQuantityForPalette(item, paletteName);
+                    flattenedItems.push(cloned);
+                });
+            } else {
+                item.displayPalette = palettes[0] || item.variant || "-";
+                flattenedItems.push(item);
+            }
+        });
+
+        flattenedItems.sort(function (a, b) {
             return new Date(a.deliveryDate) - new Date(b.deliveryDate);
         });
 
-        if (!filtered.length) {
+        if (!flattenedItems.length) {
             const emptyText = selectedCustomerId
                 ? "No order items found for the selected customer."
                 : "No customer order items found.";
@@ -302,7 +310,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        catalogGrid.innerHTML = filtered.map(function (item) {
+        catalogGrid.innerHTML = flattenedItems.map(function (item) {
             const isSelected = isItemSelected(item.id);
 
             const materialPreview = getItemMaterialPreview(item);
@@ -347,8 +355,8 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <strong>${formatDate(item.deliveryDate)}</strong>
                             </div>
                             <div>
-                                <span>Color Sets</span>
-                                <strong>${escapeHtml(getColorSummary(item))}</strong>
+                                <span>Color Palette</span>
+                                ${renderPaletteChip(item.displayPalette)}
                             </div>
                         </div>
 
@@ -394,6 +402,26 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    function getUniquePalettes(item) {
+        const palettes = [];
+        getSizeColorRows(item).forEach(function (row) {
+            const p = getEffectiveRowPalette(item, row);
+            if (p && p !== "-" && !palettes.includes(p)) {
+                palettes.push(p);
+            }
+        });
+        return palettes;
+    }
+
+    function calculateQuantityForPalette(item, paletteName) {
+        return getSizeColorRows(item).reduce(function (sum, row) {
+            if (getEffectiveRowPalette(item, row) === paletteName) {
+                return sum + Number(row.quantity || 0);
+            }
+            return sum;
+        }, 0);
+    }
+
     function openDetailModal(id) {
         const item = catalogItems.map(normalizeCatalogItem).find(function (catalogItem) {
             return isSameItemId(catalogItem.id, id);
@@ -414,6 +442,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("detailQuantity", `${formatNumber(item.quantity)} pcs`);
         setText("detailDeliveryDate", formatDate(item.deliveryDate));
         setText("detailVariant", getColorSummary(item));
+        renderPalettePreviewById("detailVariantPalettePreview", getColorSummary(item));
         setText("detailDeliveryLocation", item.deliveryLocation);
         setText("detailProductionNotes", item.productionNotes);
 
@@ -457,7 +486,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         product3dSelection = {
             item: item,
-            color: getInitialMockupColor(item),
+            color: "white",
             view: "front",
             size: getInitialMockupSize(item)
         };
@@ -474,25 +503,35 @@ document.addEventListener("DOMContentLoaded", function () {
         const isBackView = product3dSelection.view === "back";
         const availableSizes = getAvailableMockupSizes(item);
 
-        setText("product3dPreviewTitle", item.productName || "3D Product Preview");
+        const catalogProduct = getCatalogProduct({ productId: item.productId }) || {};
+        const availablePalette = catalogProduct.availableColors ? catalogProduct.availableColors.join(" / ") : (catalogProduct.variant || "-");
+        const customerPalette = item.displayPalette || getColorSummary(item);
+
+        setText("product3dPreviewTitle", item.productName || "Product Sample Preview");
         setText("product3dPreviewSubtitle", `${item.orderNo} | ${item.customerName}`);
         setText("product3dProductName", item.productName || "Product Preview");
-        setText("product3dDescription", `Mockup preview for ${item.orderNo}. Use Front / Back and color options to inspect the product.`);
+        setText("product3dDescription", `Production sample template for ${item.orderNo}. Inspect the front and back layout.`);
         setText("product3dOrderNo", item.orderNo);
         setText("product3dCustomerName", item.customerName);
         setText("product3dQuantity", `${formatNumber(item.quantity)} pcs`);
-        setText("product3dVariant", getColorSummary(item));
-        setText("product3dColorLabel", selectedAsset.label);
+        
+        setText("product3dAvailablePalette", availablePalette);
+        renderPalettePreviewById("product3dAvailablePalettePreview", availablePalette, { compact: true });
+        
+        setText("product3dCustomerPalette", customerPalette);
+        renderPalettePreviewById("product3dCustomerPalettePreview", customerPalette, { compact: true });
+
+        setText("product3dColorLabel", "Standard Template");
         setText("product3dSizeLabel", product3dSelection.size);
 
         if (product3dFrontImage) {
             product3dFrontImage.src = selectedAsset.front;
-            product3dFrontImage.alt = `${selectedAsset.label} shirt front`;
+            product3dFrontImage.alt = "Standard front sample";
         }
 
         if (product3dBackImage) {
             product3dBackImage.src = selectedAsset.back;
-            product3dBackImage.alt = `${selectedAsset.label} shirt back`;
+            product3dBackImage.alt = "Standard back sample";
         }
 
         if (product3dFlipCard) {
@@ -512,36 +551,18 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (product3dVariantButtons) {
-            product3dVariantButtons.innerHTML = Object.entries(mockup3dAssets).map(function ([colorKey, asset]) {
-                const active = colorKey === product3dSelection.color;
-                return `
-                    <button type="button"
-                            class="product-3d-variant ${active ? "active" : ""}"
-                            data-product-3d-color="${escapeHtml(colorKey)}">
-                        <img src="${escapeHtml(asset.front)}" alt="${escapeHtml(asset.label)} shirt variant" />
-                        <span>${escapeHtml(asset.label)}</span>
-                    </button>
-                `;
-            }).join("");
+            product3dVariantButtons.innerHTML = `<div class="info-tag">Fixed Production Sample</div>`;
         }
 
         if (product3dThumbs) {
-            product3dThumbs.innerHTML = Object.entries(mockup3dAssets).flatMap(function ([colorKey, asset]) {
-                return [
-                    { view: "front", image: asset.front, label: `${asset.label} front` },
-                    { view: "back", image: asset.back, label: `${asset.label} back` }
-                ].map(function (thumb) {
-                    const active = colorKey === product3dSelection.color && thumb.view === product3dSelection.view;
-                    return `
-                        <button type="button"
-                                class="product-3d-thumb ${active ? "active" : ""}"
-                                data-product-3d-color="${escapeHtml(colorKey)}"
-                                data-product-3d-view="${escapeHtml(thumb.view)}">
-                            <img src="${escapeHtml(thumb.image)}" alt="${escapeHtml(thumb.label)}" />
-                        </button>
-                    `;
-                });
-            }).flat().join("");
+            product3dThumbs.innerHTML = `
+                <button type="button" class="product-3d-thumb ${!isBackView ? "active" : ""}" data-product-3d-color="white" data-product-3d-view="front">
+                    <img src="${mockup3dAssets.white.front}" alt="Front" />
+                </button>
+                <button type="button" class="product-3d-thumb ${isBackView ? "active" : ""}" data-product-3d-color="white" data-product-3d-view="back">
+                    <img src="${mockup3dAssets.white.back}" alt="Back" />
+                </button>
+            `;
         }
 
         if (product3dSizeButtons) {
@@ -559,7 +580,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         setText(
             "product3dSummary",
-            `Selected: ${selectedAsset.label} / ${product3dSelection.size} / ${isBackView ? "Back" : "Front"} view`
+            `View: ${isBackView ? "Back" : "Front"} | Template: White Shirt`
         );
     }
 
@@ -935,7 +956,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return `
                 <tr>
                     <td>${escapeHtml(row.size)}</td>
-                    <td><span class="color-variant-chip">${escapeHtml(row.color)}</span></td>
+                    <td>${renderProductColorChip(item, row)}</td>
                     <td>${formatNumber(row.quantity)}</td>
                 </tr>
             `;
@@ -1177,6 +1198,23 @@ document.addEventListener("DOMContentLoaded", function () {
         setBasketMaterialStatus(hasShortage ? "Shortage" : "Available", hasShortage ? "shortage" : "ok");
     }
 
+    function getCatalogProduct(product) {
+        const productList = window.products || window.mockProducts || [];
+        const candidates = [
+            product.productId,
+            product.productCode,
+            product.id,
+            product.code
+        ].filter(Boolean).map(String);
+
+        return productList.find(function (item) {
+            return candidates.includes(String(item.id))
+                || candidates.includes(String(item.productId))
+                || candidates.includes(String(item.productCode))
+                || candidates.includes(String(item.code));
+        });
+    }
+
     function calculateMaterialRequirementForItems(items) {
         const grouped = {};
 
@@ -1316,39 +1354,46 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function getSizeColorRows(item) {
-        const rows = [];
+        const aggregated = {};
+
+        function add(size, palette, qty) {
+            const key = `${size}|${palette}`;
+            if (!aggregated[key]) {
+                aggregated[key] = {
+                    size: size,
+                    palette: palette,
+                    quantity: 0
+                };
+            }
+            aggregated[key].quantity += Number(qty || 0);
+        }
 
         (item.sizes || []).forEach(function (sizeRow) {
+            const size = sizeRow.size || "-";
             const colorRows = sizeRow.colors || sizeRow.colorVariants || sizeRow.variants || [];
+            const itemPalette = item.variant || "-";
 
             if (colorRows.length) {
                 colorRows.forEach(function (colorRow) {
-                    rows.push({
-                        size: sizeRow.size || "-",
-                        color: colorRow.color || colorRow.variant || colorRow.name || "-",
-                        quantity: Number(colorRow.quantity || colorRow.qty || 0)
-                    });
+                    const palette = colorRow.palette || colorRow.paletteName || sizeRow.palette || itemPalette;
+                    add(size, palette, colorRow.quantity || colorRow.qty || 0);
                 });
-
-                return;
+            } else {
+                const palette = sizeRow.palette || sizeRow.paletteName || itemPalette;
+                add(size, palette, sizeRow.quantity || sizeRow.qty || 0);
             }
-
-            rows.push({
-                size: sizeRow.size || "-",
-                color: sizeRow.color || item.variant || "-",
-                quantity: Number(sizeRow.quantity || sizeRow.qty || 0)
-            });
         });
 
-        return rows;
+        return Object.values(aggregated);
     }
 
     function getColorSummary(item) {
         const colors = [];
 
         getSizeColorRows(item).forEach(function (row) {
-            if (row.color && !colors.includes(row.color)) {
-                colors.push(row.color);
+            const palette = getEffectiveRowPalette(item, row);
+            if (palette && palette !== "-" && !colors.includes(palette)) {
+                colors.push(palette);
             }
         });
 
@@ -1518,6 +1563,43 @@ document.addEventListener("DOMContentLoaded", function () {
         if (modal) {
             modal.classList.add("hidden");
         }
+    }
+
+    function renderPalettePreviewById(id, value, options) {
+        const host = document.getElementById(id);
+        const picker = window.ProductionPalettePicker;
+        if (!host) return;
+
+        if (!picker) {
+            host.innerHTML = "";
+            host.hidden = true;
+            return;
+        }
+
+        picker.applyPreview(host, value, options);
+    }
+
+    function renderPalettePreviewHtml(value, options) {
+        const picker = window.ProductionPalettePicker;
+        return picker ? picker.renderPreview(value, options) : "";
+    }
+
+    function renderPaletteChip(value) {
+        const picker = window.ProductionPalettePicker;
+        return picker
+            ? picker.renderChip(value)
+            : `<span class="color-variant-chip">${escapeHtml(value || "-")}</span>`;
+    }
+
+    function renderProductColorChip(item, row) {
+        const picker = window.ProductionPalettePicker;
+        return picker
+            ? picker.renderProductColorChip(getEffectiveRowPalette(item, row), "")
+            : `<span class="color-variant-chip">${escapeHtml(getEffectiveRowPalette(item, row) || "-")}</span>`;
+    }
+
+    function getEffectiveRowPalette(item, row) {
+        return row?.palette || item?.variant || item?.color || "";
     }
 
     function escapeHtml(value) {

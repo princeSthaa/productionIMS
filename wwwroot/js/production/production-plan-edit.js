@@ -13,7 +13,9 @@
         bom: [],
         stages: [],
         plan: null,
-        planProducts: []
+        planProducts: [],
+        selectedProductIndex: 0,
+        productSearch: ""
     };
 
     document.addEventListener("DOMContentLoaded", init);
@@ -44,6 +46,8 @@
         const id = App.value("#selectedPlanId");
         state.plan = App.findById(state.plans, id) || state.plans[0] || null;
         state.planProducts = state.plan ? normalizePlanProducts(state.plan) : [];
+        state.selectedProductIndex = 0;
+        state.productSearch = "";
     }
 
     function populateDropdowns() {
@@ -111,7 +115,6 @@
         App.setValue("#inHouseReason", plan.inHouseReason || plan.reason || "");
         App.setValue("#warehouseDropdown", plan.warehouseId || plan.sourceId || "");
         App.setValue("#productDropdown", firstProduct.productId || firstProduct.productCode || "");
-        App.setValue("#variantDropdown", firstProduct.variant || "");
         App.setValue("#totalQuantity", getPlanQuantity());
         App.setValue("#priority", plan.priority || "Normal");
         App.setValue("#outputDestination", plan.outputDestination || "");
@@ -129,6 +132,12 @@
     function populateVariantDropdown(product) {
         const dropdown = document.getElementById("variantDropdown");
         if (!dropdown) return;
+
+        if (dropdown.tagName !== "SELECT") {
+            dropdown.value = product?.variant || "";
+            renderPalettePreview("#mainVariantPalettePreview", dropdown.value);
+            return;
+        }
 
         const variants = new Set();
 
@@ -151,6 +160,8 @@
         if (product?.variant) {
             dropdown.value = product.variant;
         }
+
+        renderPalettePreview("#mainVariantPalettePreview", dropdown.value);
     }
 
     function bindEvents() {
@@ -162,12 +173,39 @@
         const productDropdown = document.getElementById("productDropdown");
         if (productDropdown) {
             productDropdown.addEventListener("change", function () {
-                const product = state.planProducts.find(function (item) {
+                const selectedIndex = state.planProducts.findIndex(function (item) {
                     return String(item.productId) === String(productDropdown.value)
                         || String(item.productCode) === String(productDropdown.value);
-                }) || state.planProducts[0] || {};
+                });
+
+                const product = selectedIndex >= 0
+                    ? state.planProducts[selectedIndex]
+                    : state.planProducts[0] || {};
 
                 populateVariantDropdown(product);
+
+                if (selectedIndex >= 0) {
+                    state.selectedProductIndex = selectedIndex;
+                    renderProductLines();
+                }
+            });
+        }
+
+        const variantInput = document.getElementById("variantDropdown");
+        if (variantInput) {
+            variantInput.addEventListener("input", function () {
+                const product = state.planProducts[state.selectedProductIndex] || state.planProducts[0];
+                if (product) product.variant = variantInput.value;
+                renderPalettePreview("#mainVariantPalettePreview", variantInput.value);
+                refreshProductListVariant(state.selectedProductIndex, variantInput.value);
+                refreshProductColorCells(state.selectedProductIndex);
+            });
+        }
+
+        const mainVariantPaletteBtn = document.getElementById("mainVariantPaletteBtn");
+        if (mainVariantPaletteBtn && variantInput) {
+            mainVariantPaletteBtn.addEventListener("click", function () {
+                openPalettePickerForField(variantInput, "#mainVariantPalettePreview");
             });
         }
 
@@ -247,110 +285,279 @@
     }
 
     function renderProductLines() {
-        const list = document.getElementById("editProductList");
-        if (!list) return;
+        const host = document.getElementById("editProductList");
+        if (!host) return;
 
         if (!state.planProducts.length) {
-            list.innerHTML = `<div class="empty-cell">No products found for this plan.</div>`;
+            host.innerHTML = `<div class="empty-cell">No products found for this plan.</div>`;
             return;
         }
 
-        list.innerHTML = state.planProducts.map(function (product, productIndex) {
-            const image = product.productImage || fallbackProductImage;
-            const sizeRows = getSizeColorRows(product);
+        const filteredEntries = getFilteredProductEntries();
+        ensureSelectedProductForEntries(filteredEntries);
 
-            return `
-                <article class="edit-product-card">
-                    <div class="edit-product-head">
-                        <img src="${App.escapeHtml(image)}"
-                             alt="${App.escapeHtml(product.productName)}"
-                             onerror="this.src='${fallbackProductImage}'" />
+        const selectedProduct = state.planProducts[state.selectedProductIndex] || null;
+        const selectedEntryIndex = filteredEntries.findIndex(function (entry) {
+            return entry.index === state.selectedProductIndex;
+        });
+        const selectedRows = selectedProduct ? getSizeColorRows(selectedProduct) : [];
+        const selectedSizeTotal = selectedRows.reduce(function (sum, row) {
+            return sum + Number(row.quantity || 0);
+        }, 0);
+        const selectedImage = selectedProduct?.productImage || fallbackProductImage;
+        const variantPreview = renderPalettePreviewHtml(selectedProduct?.variant);
 
-                        <div>
-                            <span>${App.escapeHtml(product.productCode || product.productId || "-")}</span>
-                            <h4>${App.escapeHtml(product.productName)}</h4>
-                            <p>${App.escapeHtml(product.sourceName || getSourceName())}</p>
-                        </div>
-
-                        ${App.badge(product.status || state.plan.status)}
+        host.innerHTML = `
+            <div class="product-editor-workspace">
+                <div class="product-editor-summary-strip">
+                    <div>
+                        <span>Products</span>
+                        <strong id="productWorkspaceCount">${formatNumber(state.planProducts.length)}</strong>
                     </div>
+                    <div>
+                        <span>Total Quantity</span>
+                        <strong id="productWorkspaceQty">${formatNumber(getPlanQuantity())} pcs</strong>
+                    </div>
+                    <div>
+                        <span>Size Quantity</span>
+                        <strong id="productWorkspaceSizeQty">${formatNumber(getProductWorkspaceSizeTotal())} pcs</strong>
+                    </div>
+                </div>
 
-                    <div class="form-grid four-col edit-product-field-grid">
-                        <div class="form-group">
-                            <label>Variant</label>
+                <div class="product-editor-layout">
+                    <aside class="product-editor-sidebar">
+                        <div class="product-editor-search">
+                            <span class="material-symbols-outlined">search</span>
                             <input type="text"
-                                   class="form-control editable-field edit-product-variant"
-                                   data-product-index="${productIndex}"
-                                   value="${App.escapeHtml(product.variant || "")}" />
+                                   id="editProductSearch"
+                                   value="${App.escapeHtml(state.productSearch)}"
+                                   placeholder="Search products, code, source, variant" />
+                            <button type="button"
+                                    id="clearProductSearchBtn"
+                                    class="${state.productSearch ? "" : "hidden"}"
+                                    aria-label="Clear product search">
+                                &times;
+                            </button>
                         </div>
 
-                        <div class="form-group">
-                            <label>Quantity</label>
-                            <input type="number"
-                                   min="0"
-                                   class="form-control editable-field edit-product-quantity"
-                                   data-product-index="${productIndex}"
-                                   value="${Number(product.quantity || 0)}" />
+                        <div class="product-editor-list-meta">
+                            <span>${formatNumber(filteredEntries.length)} of ${formatNumber(state.planProducts.length)} shown</span>
                         </div>
 
-                        <div class="form-group">
-                            <label>Required Date</label>
-                            <input type="date"
-                                   class="form-control editable-field edit-product-required"
-                                   data-product-index="${productIndex}"
-                                   value="${App.toInputDate(product.requiredDate)}" />
+                        <div class="product-editor-list" role="listbox" aria-label="Products in this plan">
+                            ${filteredEntries.length ? filteredEntries.map(function (entry, visibleIndex) {
+                                return renderProductListRow(entry.product, entry.index, visibleIndex);
+                            }).join("") : `<div class="product-editor-empty">No matching products.</div>`}
                         </div>
+                    </aside>
 
-                        <div class="form-group">
-                            <label>Planned Finish</label>
-                            <input type="date"
-                                   class="form-control editable-field edit-product-finish"
-                                   data-product-index="${productIndex}"
-                                   value="${App.toInputDate(product.plannedCompletionDate)}" />
-                        </div>
-                    </div>
+                    <section class="product-editor-detail">
+                        ${selectedProduct && filteredEntries.length ? `
+                            <div class="product-editor-detail-head">
+                                <img src="${App.escapeHtml(selectedImage)}"
+                                     alt="${App.escapeHtml(selectedProduct.productName)}"
+                                     onerror="this.src='${fallbackProductImage}'" />
 
-                    <div class="edit-product-size-table-wrap">
-                        <table class="variant-breakdown-table editable-variant-table">
-                            <thead>
-                                <tr>
-                                    <th>Size</th>
-                                    <th>Color</th>
-                                    <th>Quantity</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${sizeRows.map(function (row, rowIndex) {
-                                    return `
-                                        <tr>
-                                            <td>${App.escapeHtml(row.size)}</td>
-                                            <td><span class="variant-chip">${App.escapeHtml(row.color)}</span></td>
-                                            <td>
-                                                <input type="number"
-                                                       min="0"
-                                                       class="form-control editable-field edit-product-size-qty"
-                                                       data-product-index="${productIndex}"
-                                                       data-size-row-index="${rowIndex}"
-                                                       value="${Number(row.quantity || 0)}" />
-                                            </td>
-                                        </tr>
-                                    `;
-                                }).join("") || `<tr><td colspan="3" class="empty-cell">No size/color variants.</td></tr>`}
-                            </tbody>
-                        </table>
-                    </div>
-                </article>
-            `;
-        }).join("");
+                                <div>
+                                    <span>Product ${formatNumber(selectedEntryIndex + 1)} of ${formatNumber(filteredEntries.length)}</span>
+                                    <h4>${App.escapeHtml(selectedProduct.productName)}</h4>
+                                    <p>${App.escapeHtml(selectedProduct.productCode || selectedProduct.productId || "-")} | ${App.escapeHtml(selectedProduct.sourceName || getSourceName())}</p>
+                                </div>
+
+                                <div class="product-editor-nav">
+                                    <button type="button"
+                                            class="icon-only-btn"
+                                            data-product-step="-1"
+                                            ${selectedEntryIndex <= 0 ? "disabled" : ""}
+                                            aria-label="Previous product">
+                                        <span class="material-symbols-outlined">chevron_left</span>
+                                    </button>
+                                    <button type="button"
+                                            class="icon-only-btn"
+                                            data-product-step="1"
+                                            ${selectedEntryIndex >= filteredEntries.length - 1 ? "disabled" : ""}
+                                            aria-label="Next product">
+                                        <span class="material-symbols-outlined">chevron_right</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="product-editor-metrics">
+                                <div>
+                                    <span>Product Qty</span>
+                                    <strong id="activeProductQuantityMetric">${formatNumber(selectedProduct.quantity)} pcs</strong>
+                                </div>
+                                <div>
+                                    <span>Size Qty</span>
+                                    <strong id="activeProductSizeMetric">${formatNumber(selectedSizeTotal)} pcs</strong>
+                                </div>
+                                <div>
+                                    <span>Status</span>
+                                    ${App.badge(selectedProduct.status || state.plan.status)}
+                                </div>
+                            </div>
+
+                            <div class="form-grid four-col edit-product-field-grid focused-product-fields">
+                                <div class="form-group">
+                                    <label>Variant</label>
+                                    <div class="production-palette-picker-field">
+                                        <input type="text"
+                                               class="form-control editable-field edit-product-variant"
+                                               data-product-index="${state.selectedProductIndex}"
+                                               value="${App.escapeHtml(selectedProduct.variant || "")}" />
+                                        <button type="button"
+                                                class="btn btn-light editable-action edit-product-palette-btn"
+                                                data-product-index="${state.selectedProductIndex}">
+                                            <span class="material-symbols-outlined">palette</span>
+                                            Palette
+                                        </button>
+                                    </div>
+                                    <div class="palette-preview-host edit-product-palette-preview"
+                                         data-product-index="${state.selectedProductIndex}"
+                                         ${variantPreview ? "" : "hidden"}>
+                                        ${variantPreview}
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Quantity</label>
+                                    <input type="number"
+                                           min="0"
+                                           class="form-control editable-field edit-product-quantity"
+                                           data-product-index="${state.selectedProductIndex}"
+                                           value="${Number(selectedProduct.quantity || 0)}" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Required Date</label>
+                                    <input type="date"
+                                           class="form-control editable-field edit-product-required"
+                                           data-product-index="${state.selectedProductIndex}"
+                                           value="${App.toInputDate(selectedProduct.requiredDate)}" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Planned Finish</label>
+                                    <input type="date"
+                                           class="form-control editable-field edit-product-finish"
+                                           data-product-index="${state.selectedProductIndex}"
+                                           value="${App.toInputDate(selectedProduct.plannedCompletionDate)}" />
+                                </div>
+                            </div>
+
+                            <div class="product-size-editor-panel">
+                                <div class="product-size-editor-head">
+                                    <div>
+                                        <h5>Size / Color Quantities</h5>
+                                        <p>Edit this product only. Totals update the plan automatically.</p>
+                                    </div>
+                                    <strong>${formatNumber(selectedRows.length)} rows</strong>
+                                </div>
+
+                                <div class="product-size-table-scroll">
+                                    <table class="variant-breakdown-table editable-variant-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Size</th>
+                                                <th>Palette / Variant</th>
+                                                <th>Quantity</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${selectedRows.map(function (row, rowIndex) {
+                                                return `
+                                                    <tr>
+                                                        <td>${App.escapeHtml(row.size)}</td>
+                                                        <td data-product-color-cell="${state.selectedProductIndex}"
+                                                            data-size-row-index="${rowIndex}">
+                                                            ${renderRowPaletteEditor(selectedProduct, row, rowIndex)}
+                                                        </td>
+                                                        <td>
+                                                            <input type="number"
+                                                                   min="0"
+                                                                   class="form-control editable-field edit-product-size-qty"
+                                                                   data-product-index="${state.selectedProductIndex}"
+                                                                   data-size-row-index="${rowIndex}"
+                                                                   value="${Number(row.quantity || 0)}" />
+                                                        </td>
+                                                    </tr>
+                                                `;
+                                            }).join("") || `<tr><td colspan="3" class="empty-cell">No size/color variants.</td></tr>`}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="product-editor-empty detail">
+                                Select a product from the list.
+                            </div>
+                        `}
+                    </section>
+                </div>
+            </div>
+        `;
 
         bindProductLineEvents();
+
+        if (!isEditable()) {
+            applyEditability();
+        }
     }
 
     function bindProductLineEvents() {
+        const searchInput = document.getElementById("editProductSearch");
+        if (searchInput) {
+            searchInput.addEventListener("input", function () {
+                const cursor = searchInput.selectionStart || searchInput.value.length;
+                state.productSearch = searchInput.value;
+                renderProductLines();
+                focusProductSearch(cursor);
+            });
+        }
+
+        const clearSearchBtn = document.getElementById("clearProductSearchBtn");
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener("click", function () {
+                state.productSearch = "";
+                renderProductLines();
+                focusProductSearch(0);
+            });
+        }
+
+        App.qsa("[data-product-select-index]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                selectProductForEditing(Number(button.dataset.productSelectIndex));
+            });
+        });
+
+        App.qsa("[data-product-step]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                moveSelectedProduct(Number(button.dataset.productStep || 0));
+            });
+        });
+
+        bindRowPaletteEvents();
+
         App.qsa(".edit-product-variant").forEach(function (input) {
             input.addEventListener("input", function () {
                 const product = state.planProducts[Number(input.dataset.productIndex)];
                 if (product) product.variant = input.value;
+                renderProductPalettePreview(input.dataset.productIndex, input.value);
+                refreshProductListVariant(Number(input.dataset.productIndex), input.value);
+                refreshProductColorCells(Number(input.dataset.productIndex));
+            });
+        });
+
+        App.qsa(".edit-product-palette-btn").forEach(function (button) {
+            button.addEventListener("click", function () {
+                const productIndex = button.dataset.productIndex;
+                const input = document.querySelector(`.edit-product-variant[data-product-index="${productIndex}"]`);
+                const preview = document.querySelector(`.edit-product-palette-preview[data-product-index="${productIndex}"]`);
+
+                openPalettePickerForField(input, preview, function (palette) {
+                    const product = state.planProducts[Number(productIndex)];
+                    if (product) product.variant = palette.name;
+                });
             });
         });
 
@@ -361,6 +568,7 @@
                     product.quantity = Number(input.value || 0);
                     refreshTotals();
                     renderMaterialRequirements();
+                    refreshProductWorkspaceMetrics(Number(input.dataset.productIndex));
                 }
             });
         });
@@ -371,6 +579,7 @@
                 if (product) product.requiredDate = input.value;
                 syncPlanDateInputs();
                 validateDates();
+                refreshProductListDates(Number(input.dataset.productIndex));
             });
         });
 
@@ -380,6 +589,7 @@
                 if (product) product.plannedCompletionDate = input.value;
                 syncPlanDateInputs();
                 validateDates();
+                refreshProductListDates(Number(input.dataset.productIndex));
             });
         });
 
@@ -398,8 +608,283 @@
 
                 refreshTotals();
                 renderMaterialRequirements();
+                refreshProductWorkspaceMetrics(Number(input.dataset.productIndex));
             });
         });
+    }
+
+    function renderProductListRow(product, productIndex, visibleIndex) {
+        const activeClass = productIndex === state.selectedProductIndex ? " active" : "";
+        const variant = getProductPaletteSummary(product);
+        const variantPreview = renderPalettePreviewHtml(variant, { compact: true, inline: true });
+        const hasPalettePreview = Boolean(variantPreview);
+
+        return `
+            <button type="button"
+                    class="product-editor-list-row${activeClass}"
+                    data-product-select-index="${productIndex}"
+                    role="option"
+                    aria-selected="${productIndex === state.selectedProductIndex}">
+                <span class="product-editor-list-index">${visibleIndex + 1}</span>
+                <span class="product-editor-list-main">
+                    <strong>${App.escapeHtml(product.productName)}</strong>
+                    <span>${App.escapeHtml(product.productCode || product.productId || "-")}</span>
+                    <span class="product-editor-list-variant"
+                          data-product-list-variant="${productIndex}"
+                          ${hasPalettePreview ? "hidden" : ""}>
+                        ${App.escapeHtml(variant)}
+                    </span>
+                    <span class="palette-preview-host product-editor-list-preview"
+                          data-product-list-preview="${productIndex}"
+                          ${variantPreview ? "" : "hidden"}>
+                        ${variantPreview}
+                    </span>
+                </span>
+                <span class="product-editor-list-side">
+                    <strong data-product-list-qty="${productIndex}">${formatNumber(product.quantity)} pcs</strong>
+                    <em data-product-list-date="${productIndex}">Req ${App.formatDate(product.requiredDate)}</em>
+                </span>
+            </button>
+        `;
+    }
+
+    function getFilteredProductEntries() {
+        const search = String(state.productSearch || "").trim().toLowerCase();
+
+        return state.planProducts.map(function (product, index) {
+            return {
+                product: product,
+                index: index
+            };
+        }).filter(function (entry) {
+            if (!search) return true;
+
+            const colorText = getSizeColorRows(entry.product).map(function (row) {
+                return [row.color, row.palette].filter(Boolean).join(" ");
+            }).join(" ");
+
+            const haystack = [
+                entry.product.productName,
+                entry.product.productCode,
+                entry.product.productId,
+                entry.product.variant,
+                entry.product.sourceName,
+                colorText
+            ].join(" ").toLowerCase();
+
+            return haystack.includes(search);
+        });
+    }
+
+    function ensureSelectedProductForEntries(entries) {
+        if (!entries.length) return;
+
+        const hasSelectedProduct = entries.some(function (entry) {
+            return entry.index === state.selectedProductIndex;
+        });
+
+        if (!hasSelectedProduct) {
+            state.selectedProductIndex = entries[0].index;
+            syncMainProductFields(entries[0].product);
+        }
+    }
+
+    function selectProductForEditing(productIndex) {
+        const product = state.planProducts[productIndex];
+        if (!product) return;
+
+        state.selectedProductIndex = productIndex;
+        syncMainProductFields(product);
+        renderProductLines();
+    }
+
+    function moveSelectedProduct(step) {
+        const entries = getFilteredProductEntries();
+        if (!entries.length || !step) return;
+
+        const currentIndex = entries.findIndex(function (entry) {
+            return entry.index === state.selectedProductIndex;
+        });
+
+        const nextIndex = Math.min(Math.max(currentIndex + step, 0), entries.length - 1);
+        selectProductForEditing(entries[nextIndex].index);
+    }
+
+    function syncMainProductFields(product) {
+        if (!product) return;
+
+        App.setValue("#productDropdown", product.productId || product.productCode || "");
+        populateVariantDropdown(product);
+    }
+
+    function focusProductSearch(cursorPosition) {
+        const input = document.getElementById("editProductSearch");
+        if (!input) return;
+
+        input.focus();
+
+        const position = Math.min(Number(cursorPosition || 0), input.value.length);
+        if (typeof input.setSelectionRange === "function") {
+            input.setSelectionRange(position, position);
+        }
+    }
+
+    function refreshProductWorkspaceMetrics(productIndex) {
+        const product = state.planProducts[productIndex];
+        if (!product) return;
+
+        App.setText("#productWorkspaceQty", `${formatNumber(getPlanQuantity())} pcs`);
+        App.setText("#productWorkspaceSizeQty", `${formatNumber(getProductWorkspaceSizeTotal())} pcs`);
+
+        if (productIndex === state.selectedProductIndex) {
+            App.setText("#activeProductQuantityMetric", `${formatNumber(product.quantity)} pcs`);
+            App.setText("#activeProductSizeMetric", `${formatNumber(getProductSizeTotal(product))} pcs`);
+        }
+
+        const listQty = document.querySelector(`[data-product-list-qty="${productIndex}"]`);
+        if (listQty) {
+            listQty.textContent = `${formatNumber(product.quantity)} pcs`;
+        }
+    }
+
+    function refreshProductListVariant(productIndex, value) {
+        const product = state.planProducts[productIndex];
+        const summary = product ? getProductPaletteSummary(product) : value;
+        const variant = document.querySelector(`[data-product-list-variant="${productIndex}"]`);
+        const preview = document.querySelector(`[data-product-list-preview="${productIndex}"]`);
+        const previewHtml = renderPalettePreviewHtml(summary, { compact: true, inline: true });
+
+        if (variant) {
+            variant.textContent = summary || "-";
+            variant.hidden = Boolean(previewHtml);
+        }
+
+        if (preview) {
+            preview.innerHTML = previewHtml;
+            preview.hidden = !previewHtml;
+            preview.classList.toggle("hidden", !previewHtml);
+        }
+    }
+
+    function refreshProductListDates(productIndex) {
+        const product = state.planProducts[productIndex];
+        const date = document.querySelector(`[data-product-list-date="${productIndex}"]`);
+
+        if (product && date) {
+            date.textContent = `Req ${App.formatDate(product.requiredDate)}`;
+        }
+    }
+
+    function refreshProductColorCells(productIndex) {
+        const product = state.planProducts[productIndex];
+        if (!product) return;
+
+        document.querySelectorAll(`[data-product-color-cell="${productIndex}"]`).forEach(function (cell) {
+            const row = getSizeColorRows(product)[Number(cell.dataset.sizeRowIndex)];
+            if (row) {
+                cell.innerHTML = renderRowPaletteEditor(product, row, Number(cell.dataset.sizeRowIndex));
+            }
+        });
+
+        bindRowPaletteEvents();
+    }
+
+    function bindRowPaletteEvents() {
+        App.qsa(".edit-size-palette-btn").forEach(function (button) {
+            if (button.dataset.paletteBound === "true") return;
+
+            button.dataset.paletteBound = "true";
+            button.addEventListener("click", function () {
+                openPalettePickerForSizeRow(
+                    Number(button.dataset.productIndex),
+                    Number(button.dataset.sizeRowIndex)
+                );
+            });
+        });
+
+        App.qsa(".edit-size-palette-clear").forEach(function (button) {
+            if (button.dataset.paletteBound === "true") return;
+
+            button.dataset.paletteBound = "true";
+            button.addEventListener("click", function () {
+                const productIndex = Number(button.dataset.productIndex);
+                const rowIndex = Number(button.dataset.sizeRowIndex);
+                const product = state.planProducts[productIndex];
+                if (!product) return;
+
+                updateProductSizePalette(product, rowIndex, "");
+                refreshProductColorCells(productIndex);
+                refreshProductListVariant(productIndex);
+            });
+        });
+    }
+
+    function renderRowPaletteEditor(product, row, rowIndex) {
+        const paletteValue = getEffectiveRowPalette(product, row);
+        const isOverride = Boolean(row?.palette);
+
+        return `
+            <div class="product-row-palette-cell">
+                <div class="product-row-palette-chip">
+                    ${renderPaletteValueChip(paletteValue)}
+                </div>
+
+                <div class="product-row-palette-actions">
+                    <button type="button"
+                            class="btn btn-light btn-sm editable-action edit-size-palette-btn"
+                            data-product-index="${state.selectedProductIndex}"
+                            data-size-row-index="${rowIndex}">
+                        <span class="material-symbols-outlined">palette</span>
+                        Palette
+                    </button>
+                    <button type="button"
+                            class="btn btn-light btn-sm editable-action edit-size-palette-clear ${isOverride ? "" : "hidden"}"
+                            data-product-index="${state.selectedProductIndex}"
+                            data-size-row-index="${rowIndex}">
+                        Default
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    function openPalettePickerForSizeRow(productIndex, rowIndex) {
+        const picker = window.ProductionPalettePicker;
+        const product = state.planProducts[productIndex];
+        const row = product ? getSizeColorRows(product)[rowIndex] : null;
+        if (!picker || !product || !row) return;
+
+        picker.open({
+            value: getEffectiveRowPalette(product, row),
+            onSelect: function (palette) {
+                updateProductSizePalette(product, rowIndex, palette.name);
+                refreshProductColorCells(productIndex);
+                refreshProductListVariant(productIndex);
+            }
+        });
+    }
+
+    function getEffectiveRowPalette(product, row) {
+        return row?.palette || product?.variant || "";
+    }
+
+    function getProductPaletteSummary(product) {
+        const rowPalettes = getSizeColorRows(product).map(function (row) {
+            return getEffectiveRowPalette(product, row);
+        }).filter(Boolean);
+
+        const uniquePalettes = Array.from(new Set(rowPalettes));
+
+        if (uniquePalettes.length > 1) return "Mixed palettes";
+        if (uniquePalettes.length === 1) return uniquePalettes[0];
+
+        return product.variant || "-";
+    }
+
+    function getProductWorkspaceSizeTotal() {
+        return state.planProducts.reduce(function (sum, product) {
+            return sum + getProductSizeTotal(product);
+        }, 0);
     }
 
     function renderStages() {
@@ -722,46 +1207,45 @@
 
     function getSizeColorRows(product) {
         const sizes = product.sizes || [];
+        const aggregated = {};
+
+        function add(size, palette, qty, sizeIndex, colorIndex) {
+            const key = `${size}|${palette}`;
+            if (!aggregated[key]) {
+                aggregated[key] = {
+                    size: size,
+                    palette: palette,
+                    quantity: 0,
+                    sizeIndex: sizeIndex,
+                    colorIndex: colorIndex
+                };
+            }
+            aggregated[key].quantity += Number(qty || 0);
+        }
 
         if (!Array.isArray(sizes)) {
-            return Object.entries(sizes).map(function ([size, qty]) {
-                return {
-                    size: size,
-                    color: product.variant || "-",
-                    quantity: Number(qty || 0)
-                };
+            Object.entries(sizes).forEach(function ([size, qty], index) {
+                add(size, product.variant || "-", qty, index, null);
+            });
+        } else {
+            sizes.forEach(function (sizeRow, sizeIndex) {
+                const size = sizeRow.size || "-";
+                const colorRows = sizeRow.colors || sizeRow.colorVariants || sizeRow.variants || [];
+                const productPalette = product.variant || "-";
+
+                if (colorRows.length) {
+                    colorRows.forEach(function (colorRow, colorIndex) {
+                        const palette = colorRow.palette || colorRow.paletteName || sizeRow.palette || productPalette;
+                        add(size, palette, colorRow.quantity || colorRow.qty || 0, sizeIndex, colorIndex);
+                    });
+                } else {
+                    const palette = sizeRow.palette || sizeRow.paletteName || productPalette;
+                    add(size, palette, sizeRow.quantity || sizeRow.qty || 0, sizeIndex, null);
+                }
             });
         }
 
-        const rows = [];
-
-        sizes.forEach(function (sizeRow, sizeIndex) {
-            const colorRows = sizeRow.colors || sizeRow.colorVariants || sizeRow.variants || [];
-
-            if (colorRows.length) {
-                colorRows.forEach(function (colorRow, colorIndex) {
-                    rows.push({
-                        size: sizeRow.size || "-",
-                        color: colorRow.color || colorRow.variant || colorRow.name || product.variant || "-",
-                        quantity: Number(colorRow.quantity || colorRow.qty || 0),
-                        sizeIndex: sizeIndex,
-                        colorIndex: colorIndex
-                    });
-                });
-
-                return;
-            }
-
-            rows.push({
-                size: sizeRow.size || "-",
-                color: sizeRow.color || product.variant || "-",
-                quantity: Number(sizeRow.quantity || sizeRow.qty || 0),
-                sizeIndex: sizeIndex,
-                colorIndex: null
-            });
-        });
-
-        return rows;
+        return Object.values(aggregated);
     }
 
     function updateProductSizeRow(product, rowIndex, value) {
@@ -782,10 +1266,98 @@
         sizeRow.quantity = value;
     }
 
+    function updateProductSizePalette(product, rowIndex, palette) {
+        const row = getSizeColorRows(product)[rowIndex];
+        if (!row || !Array.isArray(product.sizes)) return;
+
+        const sizeRow = product.sizes[row.sizeIndex];
+        if (!sizeRow) return;
+
+        const colorRows = sizeRow.colors || sizeRow.colorVariants || sizeRow.variants || [];
+        if (row.colorIndex !== null && colorRows[row.colorIndex]) {
+            setPaletteValue(colorRows[row.colorIndex], palette);
+            return;
+        }
+
+        setPaletteValue(sizeRow, palette);
+    }
+
+    function setPaletteValue(target, palette) {
+        const value = String(palette || "").trim();
+
+        if (value) {
+            target.palette = value;
+            return;
+        }
+
+        delete target.palette;
+        delete target.paletteName;
+        delete target.colorPalette;
+    }
+
     function getProductSizeTotal(product) {
         return getSizeColorRows(product).reduce(function (sum, row) {
             return sum + Number(row.quantity || 0);
         }, 0);
+    }
+
+    function openPalettePickerForField(field, previewTarget, onSelect) {
+        const picker = window.ProductionPalettePicker;
+        if (!picker || !field) return;
+
+        picker.open({
+            value: field.value,
+            onSelect: function (palette) {
+                picker.setFieldValue(field, palette.name);
+                renderPalettePreview(previewTarget, palette.name);
+
+                if (typeof onSelect === "function") {
+                    onSelect(palette);
+                }
+            }
+        });
+    }
+
+    function renderProductPalettePreview(productIndex, value) {
+        const preview = document.querySelector(`.edit-product-palette-preview[data-product-index="${productIndex}"]`);
+        renderPalettePreview(preview, value);
+    }
+
+    function renderPalettePreview(target, value, options) {
+        const host = typeof target === "string" ? document.querySelector(target) : target;
+        const picker = window.ProductionPalettePicker;
+        if (!host) return;
+
+        if (!picker) {
+            host.innerHTML = "";
+            host.hidden = true;
+            return;
+        }
+
+        picker.applyPreview(host, value, options);
+    }
+
+    function renderPalettePreviewHtml(value, options) {
+        const picker = window.ProductionPalettePicker;
+        return picker ? picker.renderPreview(value, options) : "";
+    }
+
+    function renderPaletteChip(value) {
+        const picker = window.ProductionPalettePicker;
+        return picker
+            ? picker.renderChip(value)
+            : `<span class="variant-chip">${App.escapeHtml(value || "-")}</span>`;
+    }
+
+    function renderPaletteValueChip(value) {
+        const picker = window.ProductionPalettePicker;
+        return picker
+            ? picker.renderProductColorChip(value, "")
+            : `<span class="variant-chip">${App.escapeHtml(value || "-")}</span>`;
+    }
+
+    function renderProductColorChip(product, row) {
+        return renderPaletteValueChip(getEffectiveRowPalette(product, row));
     }
 
     function getPlanQuantity() {

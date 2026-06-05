@@ -9,6 +9,7 @@
         getDrafts: getDrafts,
         saveDraft: saveDraft,
         deleteDraft: deleteDraft,
+        deleteDrafts: deleteDrafts,
         clearDrafts: clearDrafts,
         mergeWithPlans: mergeWithPlans
     };
@@ -107,6 +108,17 @@
     function deleteDraft(planNo) {
         const filtered = readStoredDrafts().filter(function (draft) {
             return String(draft.planNo || draft.planId || draft.id) !== String(planNo);
+        });
+
+        writeStoredDrafts(filtered);
+        return filtered.map(normalizePlan);
+    }
+
+    function deleteDrafts(planNos) {
+        const ids = Array.isArray(planNos) ? planNos.map(String) : [];
+        const filtered = readStoredDrafts().filter(function (draft) {
+            const key = String(draft.planNo || draft.planId || draft.id);
+            return !ids.includes(key);
         });
 
         writeStoredDrafts(filtered);

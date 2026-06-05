@@ -8,9 +8,12 @@
     const searchInput = document.getElementById("folderSearchInput");
     const planList = document.getElementById("folderPlanList");
     const clearDraftsBtn = document.getElementById("clearDraftsBtn");
+    const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
+    const selectAllCheckbox = document.getElementById("selectAllDrafts");
 
     let plans = [];
     let localDrafts = [];
+    let selectedPlanIds = new Set();
 
     document.addEventListener("DOMContentLoaded", init);
 
@@ -22,7 +25,11 @@
 
     function attachEvents() {
         if (searchInput) {
-            searchInput.addEventListener("input", render);
+            searchInput.addEventListener("input", function () {
+                selectedPlanIds.clear();
+                updateSelectAllState();
+                render();
+            });
         }
 
         if (clearDraftsBtn) {
@@ -31,10 +38,58 @@
                 if (!confirm("Clear local production drafts?")) return;
 
                 window.ProductionDraftStore.clearDrafts();
+                selectedPlanIds.clear();
+                updateSelectAllState();
                 refreshPlans();
                 render();
             });
         }
+
+        if (deleteSelectedBtn) {
+            deleteSelectedBtn.addEventListener("click", function () {
+                if (!selectedPlanIds.size) return;
+                if (!confirm(`Delete ${selectedPlanIds.size} selected draft(s)?`)) return;
+
+                const ids = Array.from(selectedPlanIds);
+                window.ProductionDraftStore.deleteDrafts(ids);
+                selectedPlanIds.clear();
+                updateSelectAllState();
+                refreshPlans();
+                render();
+            });
+        }
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener("change", function () {
+                const filtered = getFilteredPlans();
+                if (selectAllCheckbox.checked) {
+                    filtered.forEach(function (plan) {
+                        const id = plan.planNo || plan.planId || plan.id;
+                        selectedPlanIds.add(String(id));
+                    });
+                } else {
+                    selectedPlanIds.clear();
+                }
+                render();
+            });
+        }
+    }
+
+    function updateSelectAllState() {
+        if (!selectAllCheckbox) return;
+
+        const filtered = getFilteredPlans();
+        if (!filtered.length) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.disabled = true;
+            return;
+        }
+
+        selectAllCheckbox.disabled = false;
+        selectAllCheckbox.checked = filtered.every(function (plan) {
+            const id = plan.planNo || plan.planId || plan.id;
+            return selectedPlanIds.has(String(id));
+        });
     }
 
     function refreshPlans() {
@@ -50,9 +105,20 @@
         const filteredPlans = getFilteredPlans();
         renderSummary(filteredPlans);
         renderPlanList(filteredPlans);
+        updateSelectAllState();
 
         if (clearDraftsBtn) {
             clearDraftsBtn.disabled = !localDrafts.length;
+        }
+
+        if (deleteSelectedBtn) {
+            if (selectedPlanIds.size > 0) {
+                deleteSelectedBtn.classList.remove("hidden");
+                deleteSelectedBtn.disabled = false;
+            } else {
+                deleteSelectedBtn.classList.add("hidden");
+                deleteSelectedBtn.disabled = true;
+            }
         }
     }
 
@@ -77,6 +143,7 @@
                 return [
                     plan.planNo,
                     plan.planId,
+                    plan.id,
                     plan.demandType,
                     plan.sourceName,
                     plan.status,
@@ -127,9 +194,19 @@
                 ? plan.draftSourceUrl
                 : `/Production/Plan/Details/${encodeURIComponent(planNo)}`;
             const primaryText = isLocal ? "Resume" : "Details";
+            const isSelected = selectedPlanIds.has(String(planNo));
 
             return `
-                <article class="folder-plan-row ${isLocal ? "local-draft" : ""}">
+                <article class="folder-plan-row ${isLocal ? "local-draft" : ""} ${isSelected ? "selected" : ""} ${!selectAllCheckbox ? "no-selection" : ""}">
+                    ${selectAllCheckbox ? `
+                    <div class="folder-plan-checkbox">
+                        <input type="checkbox"
+                               class="plan-row-checkbox"
+                               data-plan-id="${App.escapeHtml(planNo)}"
+                               ${isSelected ? "checked" : ""} />
+                    </div>
+                    ` : ""}
+
                     <span class="material-symbols-outlined folder-plan-icon">${getPlanIcon(plan)}</span>
 
                     <div class="folder-plan-main">
@@ -165,12 +242,27 @@
             `;
         }).join("");
 
+        planList.querySelectorAll(".plan-row-checkbox").forEach(function (checkbox) {
+            checkbox.addEventListener("change", function () {
+                const id = checkbox.getAttribute("data-plan-id");
+                if (checkbox.checked) {
+                    selectedPlanIds.add(String(id));
+                } else {
+                    selectedPlanIds.delete(String(id));
+                }
+                render();
+            });
+        });
+
         planList.querySelectorAll("[data-delete-draft]").forEach(function (button) {
             button.addEventListener("click", function () {
                 const planNo = button.getAttribute("data-delete-draft");
                 if (!planNo) return;
 
+                if (!confirm(`Delete draft ${planNo}?`)) return;
+
                 window.ProductionDraftStore.deleteDraft(planNo);
+                selectedPlanIds.delete(String(planNo));
                 refreshPlans();
                 render();
             });
@@ -240,7 +332,7 @@
         const status = String(plan.status || "").toLowerCase();
         const demandType = String(plan.demandType || "").toLowerCase();
 
-        if (status === "draft") return "drafts";
+        if (status === "draft") return "edit_note";
         if (status === "completed") return "task_alt";
         if (demandType.includes("customer")) return "person";
         if (demandType.includes("outlet")) return "storefront";
@@ -252,7 +344,7 @@
     function getEmptyIcon() {
         if (folderType === "completed") return "task_alt";
         if (folderType === "in-progress") return "precision_manufacturing";
-        return "drafts";
+        return "edit_note";
     }
 
     function getEmptyTitle() {

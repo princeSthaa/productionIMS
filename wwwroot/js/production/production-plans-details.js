@@ -410,6 +410,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div class="quick-product-main">
                         <strong>${escapeHtml(product.productName)}</strong>
                         <span>${escapeHtml(product.variant || "-")} | ${escapeHtml(product.sourceName)}</span>
+                        ${renderPalettePreviewHtml(product.variant, { compact: true })}
                     </div>
 
                     <div class="quick-product-meta">
@@ -554,41 +555,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function getSizeColorRows(product) {
         const sizes = product.sizes || [];
+        const aggregated = {};
+
+        function add(size, palette, qty) {
+            const key = `${size}|${palette}`;
+            if (!aggregated[key]) {
+                aggregated[key] = {
+                    size: size,
+                    palette: palette,
+                    quantity: 0
+                };
+            }
+            aggregated[key].quantity += Number(qty || 0);
+        }
 
         if (!Array.isArray(sizes)) {
-            return Object.entries(sizes).map(function ([size, qty]) {
-                return {
-                    size: size,
-                    color: product.variant || "-",
-                    quantity: Number(qty || 0)
-                };
+            Object.entries(sizes).forEach(function ([size, qty]) {
+                add(size, product.variant || "-", qty);
+            });
+        } else {
+            sizes.forEach(function (sizeRow) {
+                const size = sizeRow.size || "-";
+                const colorRows = sizeRow.colors || sizeRow.colorVariants || sizeRow.variants || [];
+                const productPalette = product.variant || "-";
+
+                if (colorRows.length) {
+                    colorRows.forEach(function (colorRow) {
+                        const palette = colorRow.palette || colorRow.paletteName || sizeRow.palette || productPalette;
+                        add(size, palette, colorRow.quantity || colorRow.qty || 0);
+                    });
+                } else {
+                    const palette = sizeRow.palette || sizeRow.paletteName || productPalette;
+                    add(size, palette, sizeRow.quantity || sizeRow.qty || 0);
+                }
             });
         }
 
-        const rows = [];
-
-        sizes.forEach(function (sizeRow) {
-            const colorRows = sizeRow.colors || sizeRow.colorVariants || sizeRow.variants || [];
-
-            if (colorRows.length) {
-                colorRows.forEach(function (colorRow) {
-                    rows.push({
-                        size: sizeRow.size || "-",
-                        color: colorRow.color || colorRow.variant || colorRow.name || product.variant || "-",
-                        quantity: Number(colorRow.quantity || colorRow.qty || 0)
-                    });
-                });
-                return;
-            }
-
-            rows.push({
-                size: sizeRow.size || "-",
-                color: sizeRow.color || product.variant || "-",
-                quantity: Number(sizeRow.quantity || sizeRow.qty || 0)
-            });
-        });
-
-        return rows;
+        return Object.values(aggregated);
     }
 
     function daysBetween(start, end) {
@@ -680,5 +683,10 @@ document.addEventListener("DOMContentLoaded", function () {
             .replaceAll(">", "&gt;")
             .replaceAll('"', "&quot;")
             .replaceAll("'", "&#039;");
+    }
+
+    function renderPalettePreviewHtml(value, options) {
+        const picker = window.ProductionPalettePicker;
+        return picker ? picker.renderPreview(value, options) : "";
     }
 });

@@ -247,13 +247,32 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderCatalog() {
         if (!catalogGrid) return;
 
-        let filtered = catalogItems.map(normalizeOutletDemandItem);
+        let items = catalogItems.map(normalizeOutletDemandItem);
+        let flattenedItems = [];
 
-        filtered.sort(function (a, b) {
+        items.forEach(function (item) {
+            const palettes = getUniquePalettes(item);
+
+            if (palettes.length > 1) {
+                palettes.forEach(function (paletteName) {
+                    const cloned = { ...item };
+                    cloned.id = `${item.id}|${paletteName}`;
+                    cloned.displayPalette = paletteName;
+                    cloned.suggestedQty = calculateSuggestedQtyForPalette(item, paletteName);
+                    cloned.currentStock = calculateStockForPalette(item, paletteName);
+                    flattenedItems.push(cloned);
+                });
+            } else {
+                item.displayPalette = palettes[0] || item.variant || "-";
+                flattenedItems.push(item);
+            }
+        });
+
+        flattenedItems.sort(function (a, b) {
             return new Date(a.requiredDate) - new Date(b.requiredDate);
         });
 
-        if (!filtered.length) {
+        if (!flattenedItems.length) {
             const emptyText = selectedOutletId
                 ? "No demand items found for the selected outlet."
                 : "No outlet demand items found.";
@@ -266,9 +285,9 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        catalogGrid.innerHTML = filtered.map(function (item) {
+        catalogGrid.innerHTML = flattenedItems.map(function (item) {
             const isSelected = selectedPlanItems.some(function (selected) {
-                return Number(selected.id) === Number(item.id);
+                return String(selected.id) === String(item.id);
             });
 
             const materialPreview = getItemMaterialPreview(item);
@@ -314,8 +333,8 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <strong>${formatDate(item.requiredDate)}</strong>
                             </div>
                             <div>
-                                <span>Color Sets</span>
-                                <strong>${escapeHtml(getColorSummary(item))}</strong>
+                                <span>Color Palette</span>
+                                ${renderPaletteChip(item.displayPalette)}
                             </div>
                         </div>
 
@@ -336,13 +355,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         <div class="catalog-card-actions">
                             <button type="button"
                                     class="btn btn-light outlet-view-detail-btn"
-                                    data-id="${item.id}">
+                                    data-id="${escapeHtml(item.id)}">
                                 View Details
                             </button>
 
                             <button type="button"
                                     class="btn btn-primary outlet-add-plan-btn"
-                                    data-id="${item.id}"
+                                    data-id="${escapeHtml(item.id)}"
                                     ${isSelected ? "disabled" : ""}>
                                 ${isSelected ? "Added" : "Add to Plan"}
                             </button>
@@ -354,15 +373,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.querySelectorAll(".outlet-view-detail-btn").forEach(function (button) {
             button.addEventListener("click", function () {
-                openDetailModal(Number(this.getAttribute("data-id")));
+                openDetailModal(this.getAttribute("data-id"));
             });
         });
 
         document.querySelectorAll(".outlet-add-plan-btn").forEach(function (button) {
             button.addEventListener("click", function () {
-                addToPlan(Number(this.getAttribute("data-id")));
+                addToPlan(this.getAttribute("data-id"));
             });
         });
+    }
+
+    function getUniquePalettes(item) {
+        const palettes = [];
+        getSizeColorGapRows(item).forEach(function (row) {
+            const p = getEffectiveRowPalette(item, row);
+            if (p && p !== "-" && !palettes.includes(p)) {
+                palettes.push(p);
+            }
+        });
+        return palettes;
+    }
+
+    function calculateSuggestedQtyForPalette(item, paletteName) {
+        return getSizeColorGapRows(item).reduce(function (sum, row) {
+            if (getEffectiveRowPalette(item, row) === paletteName) {
+                return sum + Number(row.suggestedQty || 0);
+            }
+            return sum;
+        }, 0);
+    }
+
+    function calculateStockForPalette(item, paletteName) {
+        return getSizeColorGapRows(item).reduce(function (sum, row) {
+            if (getEffectiveRowPalette(item, row) === paletteName) {
+                return sum + Number(row.currentStock || 0);
+            }
+            return sum;
+        }, 0);
     }
 
     function openDetailModal(id) {
@@ -447,25 +495,35 @@ document.addEventListener("DOMContentLoaded", function () {
         const isBackView = product3dSelection.view === "back";
         const availableSizes = getAvailableMockupSizes(item);
 
-        setText("product3dPreviewTitle", item.productName || "3D Product Preview");
+        const catalogProduct = getProductForItem(item) || {};
+        const availablePalette = catalogProduct.availableColors ? catalogProduct.availableColors.join(" / ") : (catalogProduct.variant || "-");
+        const demandPalette = item.displayPalette || getColorSummary(item);
+
+        setText("product3dPreviewTitle", item.productName || "Product Sample Preview");
         setText("product3dPreviewSubtitle", `${item.demandNo} | ${item.outletName}`);
         setText("product3dProductName", item.productName || "Product Preview");
-        setText("product3dDescription", `Mockup preview for ${item.demandNo}. Use Front / Back and color options to inspect the product.`);
+        setText("product3dDescription", `Production sample template for ${item.demandNo}. Inspect the front and back layout.`);
         setText("product3dOrderNo", item.demandNo);
         setText("product3dCustomerName", item.outletName);
         setText("product3dQuantity", `${formatNumber(item.suggestedQty)} pcs`);
-        setText("product3dVariant", getColorSummary(item));
-        setText("product3dColorLabel", selectedAsset.label);
+        
+        setText("product3dAvailablePalette", availablePalette);
+        renderPalettePreviewById("product3dAvailablePalettePreview", availablePalette, { compact: true });
+        
+        setText("product3dCustomerPalette", demandPalette);
+        renderPalettePreviewById("product3dCustomerPalettePreview", demandPalette, { compact: true });
+
+        setText("product3dColorLabel", "Standard Template");
         setText("product3dSizeLabel", product3dSelection.size);
 
         if (product3dFrontImage) {
             product3dFrontImage.src = selectedAsset.front;
-            product3dFrontImage.alt = `${selectedAsset.label} shirt front`;
+            product3dFrontImage.alt = "Standard front sample";
         }
 
         if (product3dBackImage) {
             product3dBackImage.src = selectedAsset.back;
-            product3dBackImage.alt = `${selectedAsset.label} shirt back`;
+            product3dBackImage.alt = "Standard back sample";
         }
 
         if (product3dFlipCard) {
@@ -485,36 +543,18 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (product3dVariantButtons) {
-            product3dVariantButtons.innerHTML = Object.entries(mockup3dAssets).map(function ([colorKey, asset]) {
-                const active = colorKey === product3dSelection.color;
-                return `
-                    <button type="button"
-                            class="product-3d-variant ${active ? "active" : ""}"
-                            data-product-3d-color="${escapeHtml(colorKey)}">
-                        <img src="${escapeHtml(asset.front)}" alt="${escapeHtml(asset.label)} shirt variant" />
-                        <span>${escapeHtml(asset.label)}</span>
-                    </button>
-                `;
-            }).join("");
+            product3dVariantButtons.innerHTML = `<div class="info-tag">Fixed Production Sample</div>`;
         }
 
         if (product3dThumbs) {
-            product3dThumbs.innerHTML = Object.entries(mockup3dAssets).flatMap(function ([colorKey, asset]) {
-                return [
-                    { view: "front", image: asset.front, label: `${asset.label} front` },
-                    { view: "back", image: asset.back, label: `${asset.label} back` }
-                ].map(function (thumb) {
-                    const active = colorKey === product3dSelection.color && thumb.view === product3dSelection.view;
-                    return `
-                        <button type="button"
-                                class="product-3d-thumb ${active ? "active" : ""}"
-                                data-product-3d-color="${escapeHtml(colorKey)}"
-                                data-product-3d-view="${escapeHtml(thumb.view)}">
-                            <img src="${escapeHtml(thumb.image)}" alt="${escapeHtml(thumb.label)}" />
-                        </button>
-                    `;
-                });
-            }).flat().join("");
+            product3dThumbs.innerHTML = `
+                <button type="button" class="product-3d-thumb ${!isBackView ? "active" : ""}" data-product-3d-color="white" data-product-3d-view="front">
+                    <img src="${mockup3dAssets.white.front}" alt="Front" />
+                </button>
+                <button type="button" class="product-3d-thumb ${isBackView ? "active" : ""}" data-product-3d-color="white" data-product-3d-view="back">
+                    <img src="${mockup3dAssets.white.back}" alt="Back" />
+                </button>
+            `;
         }
 
         if (product3dSizeButtons) {
@@ -532,7 +572,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         setText(
             "product3dSummary",
-            `Selected: ${selectedAsset.label} / ${product3dSelection.size} / ${isBackView ? "Back" : "Front"} view`
+            `View: ${isBackView ? "Back" : "Front"} | Template: White Shirt`
         );
     }
 
@@ -605,7 +645,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return `
                 <tr>
                     <td>${escapeHtml(row.size)}</td>
-                    <td><span class="color-variant-chip">${escapeHtml(row.color)}</span></td>
+                    <td>${renderProductColorChip(item, row)}</td>
                     <td>${formatNumber(row.currentStock)}</td>
                     <td>${formatNumber(row.reorderLevel)}</td>
                     <td>
@@ -824,12 +864,10 @@ function getDefaultMeasurementByType(size, productName) {
         }).join("");
     }
 
-    function addToPlan(itemOrId) {
-        const item = typeof itemOrId === "object" && itemOrId !== null
-            ? cloneOutletDemandItem(itemOrId)
-            : catalogItems.map(normalizeOutletDemandItem).find(function (catalogItem) {
-                return Number(catalogItem.id) === Number(itemOrId);
-            });
+    function addToPlan(id) {
+        const item = catalogItems.map(normalizeOutletDemandItem).find(function (catalogItem) {
+            return String(catalogItem.id) === String(id);
+        });
 
         if (!item) return;
 
@@ -839,7 +877,7 @@ function getDefaultMeasurementByType(size, productName) {
         }
 
         const alreadyAdded = selectedPlanItems.some(function (selected) {
-            return Number(selected.id) === Number(item.id);
+            return String(selected.id) === String(item.id);
         });
 
         if (alreadyAdded) {
@@ -855,7 +893,7 @@ function getDefaultMeasurementByType(size, productName) {
 
     function removeFromPlan(id) {
         selectedPlanItems = selectedPlanItems.filter(function (item) {
-            return Number(item.id) !== Number(id);
+            return String(item.id) !== String(id);
         });
 
         renderBasket();
@@ -890,7 +928,7 @@ function getDefaultMeasurementByType(size, productName) {
 
                         <button type="button"
                                 class="basket-remove-btn"
-                                data-id="${item.id}">
+                                data-id="${escapeHtml(item.id)}">
                             ×
                         </button>
                     </div>
@@ -900,7 +938,7 @@ function getDefaultMeasurementByType(size, productName) {
 
         document.querySelectorAll(".basket-remove-btn").forEach(function (button) {
             button.addEventListener("click", function () {
-                removeFromPlan(Number(this.getAttribute("data-id")));
+                removeFromPlan(this.getAttribute("data-id"));
             });
         });
 
@@ -1178,6 +1216,7 @@ function getDefaultMeasurementByType(size, productName) {
                     rows.push({
                         size: sizeRow.size || "-",
                         color: colorRow.color || colorRow.variant || colorRow.name || "-",
+                        palette: colorRow.palette || colorRow.paletteName || colorRow.colorPalette || sizeRow.palette || sizeRow.paletteName || "",
                         currentStock: Number(colorRow.currentStock || colorRow.current || 0),
                         reorderLevel: Number(colorRow.reorderLevel || colorRow.reorder || 0),
                         suggestedQty: Number(colorRow.suggestedQty || colorRow.quantity || colorRow.qty || 0)
@@ -1190,6 +1229,7 @@ function getDefaultMeasurementByType(size, productName) {
             rows.push({
                 size: sizeRow.size || "-",
                 color: sizeRow.color || item.variant || "-",
+                palette: sizeRow.palette || sizeRow.paletteName || sizeRow.colorPalette || "",
                 currentStock: Number(sizeRow.currentStock || 0),
                 reorderLevel: Number(sizeRow.reorderLevel || 0),
                 suggestedQty: Number(sizeRow.suggestedQty || 0)
@@ -1203,8 +1243,9 @@ function getDefaultMeasurementByType(size, productName) {
         const colors = [];
 
         getSizeColorGapRows(item).forEach(function (row) {
-            if (row.color && !colors.includes(row.color)) {
-                colors.push(row.color);
+            const palette = getEffectiveRowPalette(item, row);
+            if (palette && palette !== "-" && !colors.includes(palette)) {
+                colors.push(palette);
             }
         });
 
@@ -1339,6 +1380,43 @@ function getDefaultMeasurementByType(size, productName) {
         if (modal) {
             modal.classList.add("hidden");
         }
+    }
+
+    function renderPalettePreviewById(id, value, options) {
+        const host = document.getElementById(id);
+        const picker = window.ProductionPalettePicker;
+        if (!host) return;
+
+        if (!picker) {
+            host.innerHTML = "";
+            host.hidden = true;
+            return;
+        }
+
+        picker.applyPreview(host, value, options);
+    }
+
+    function renderPalettePreviewHtml(value, options) {
+        const picker = window.ProductionPalettePicker;
+        return picker ? picker.renderPreview(value, options) : "";
+    }
+
+    function renderPaletteChip(value) {
+        const picker = window.ProductionPalettePicker;
+        return picker
+            ? picker.renderChip(value)
+            : `<span class="color-variant-chip">${escapeHtml(value || "-")}</span>`;
+    }
+
+    function renderProductColorChip(item, row) {
+        const picker = window.ProductionPalettePicker;
+        return picker
+            ? picker.renderProductColorChip(getEffectiveRowPalette(item, row), "")
+            : `<span class="color-variant-chip">${escapeHtml(getEffectiveRowPalette(item, row) || "-")}</span>`;
+    }
+
+    function getEffectiveRowPalette(item, row) {
+        return row?.palette || item?.variant || item?.color || "";
     }
 
     function escapeHtml(value) {

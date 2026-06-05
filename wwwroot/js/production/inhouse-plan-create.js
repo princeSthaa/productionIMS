@@ -9,10 +9,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const productDropdown = document.getElementById("productDropdown");
     const warehouseDropdown = document.getElementById("warehouseDropdown");
-    const variantDropdown = document.getElementById("variantDropdown");
-    const variantQtyInput = document.getElementById("inhouseVariantQty");
-    const addVariantBtn = document.getElementById("addInhouseVariantBtn");
-    const variantRowsHost = document.getElementById("inhouseVariantRows");
+    const variantQuantitySection = document.getElementById("variantQuantitySection");
+    const inhousePalettePreview = document.getElementById("inhousePalettePreview");
     const variantSummaryInput = document.getElementById("variantSummaryInput");
     const variantBreakdownJson = document.getElementById("variantBreakdownJson");
     const totalQuantityInput = document.getElementById("totalQuantity");
@@ -28,7 +26,6 @@ document.addEventListener("DOMContentLoaded", function () {
         populateProductDropdown();
         populateWarehouseDropdown();
         renderMeasurementChart(null);
-        renderVariantRows();
         resetMaterialTable();
         bindEvents();
         setupNepaliDateFields();
@@ -39,10 +36,25 @@ document.addEventListener("DOMContentLoaded", function () {
     function populateProductDropdown() {
         if (!productDropdown) return;
 
-        productDropdown.innerHTML = `<option value="">Select Product</option>` + products.map(function (product) {
+        const palettePicker = window.ProductionPalettePicker;
+        const palettes = palettePicker ? palettePicker.getPalettes() : [];
+
+        let options = `<option value="">Select Product & Palette</option>`;
+
+        products.forEach(function (product) {
             const row = normalizeProduct(product);
-            return `<option value="${escapeHtml(row.id)}">${escapeHtml(row.name)}</option>`;
-        }).join("");
+
+            palettes.forEach(function (palette) {
+                const combinedId = `${row.id}|${palette.id}`;
+                options += `<option value="${escapeHtml(combinedId)}">${escapeHtml(row.name)} [${escapeHtml(palette.name)}]</option>`;
+            });
+
+            if (!palettes.length) {
+                options += `<option value="${escapeHtml(row.id)}">${escapeHtml(row.name)}</option>`;
+            }
+        });
+
+        productDropdown.innerHTML = options;
     }
 
     function populateWarehouseDropdown() {
@@ -58,31 +70,43 @@ document.addEventListener("DOMContentLoaded", function () {
     function bindEvents() {
         if (productDropdown) {
             productDropdown.addEventListener("change", function () {
-                selectedVariantRows = [];
-                populateVariantDropdown(getSelectedProduct());
-                renderMeasurementChart(getSelectedProduct());
-                renderVariantRows();
+                const selectedValue = String(productDropdown.value || "");
+                const parts = selectedValue.split("|");
+                const productId = parts[0];
+                const paletteId = parts[1];
+
+                const product = products.map(normalizeProduct).find(p => p.id === productId);
+
+                if (product && paletteId) {
+                    const palettePicker = window.ProductionPalettePicker;
+                    const palette = palettePicker ? palettePicker.findPalette(paletteId) : null;
+
+                    if (palette) {
+                        selectedVariantRows = [{ variant: palette.name, quantity: Number(totalQuantityInput.value || 0) }];
+                        if (variantQuantitySection) variantQuantitySection.classList.remove("hidden");
+                        renderPalettePreview(inhousePalettePreview, palette.name);
+                    } else {
+                        selectedVariantRows = [];
+                        if (variantQuantitySection) variantQuantitySection.classList.add("hidden");
+                    }
+                } else {
+                    selectedVariantRows = [];
+                    if (variantQuantitySection) variantQuantitySection.classList.add("hidden");
+                }
+
+                renderMeasurementChart(product);
+                syncVariantState();
                 resetMaterialTable();
                 validateSizes();
             });
         }
 
-        if (addVariantBtn) {
-            addVariantBtn.addEventListener("click", addOrUpdateVariantQuantity);
-        }
-
-        if (variantRowsHost) {
-            variantRowsHost.addEventListener("click", function (event) {
-                const button = event.target.closest("[data-remove-inhouse-variant]");
-                if (!button) return;
-
-                const variant = button.getAttribute("data-remove-inhouse-variant");
-                selectedVariantRows = selectedVariantRows.filter(function (row) {
-                    return row.variant !== variant;
-                });
-
-                renderVariantRows();
-                resetMaterialTable();
+        if (totalQuantityInput) {
+            totalQuantityInput.addEventListener("input", function () {
+                if (selectedVariantRows.length === 1) {
+                    selectedVariantRows[0].quantity = Number(totalQuantityInput.value || 0);
+                    syncVariantState();
+                }
                 validateSizes();
             });
         }
@@ -170,6 +194,8 @@ document.addEventListener("DOMContentLoaded", function () {
         variantDropdown.innerHTML = `<option value="">Select Color / Variant</option>` + variants.map(function (variant) {
             return `<option value="${escapeHtml(variant)}">${escapeHtml(variant)}</option>`;
         }).join("");
+
+        renderPalettePreview(inhousePalettePreview, variantDropdown.value);
     }
 
     function renderVariantRows() {
@@ -181,7 +207,7 @@ document.addEventListener("DOMContentLoaded", function () {
             variantRowsHost.innerHTML = selectedVariantRows.map(function (row) {
                 return `
                     <div class="variant-breakdown-row">
-                        <span class="color-variant-chip">${escapeHtml(row.variant)}</span>
+                        ${renderPaletteChip(row.variant)}
                         <strong>${formatNumber(row.quantity)} pcs</strong>
                         <button type="button"
                                 class="basket-remove-btn"
@@ -607,6 +633,26 @@ document.addEventListener("DOMContentLoaded", function () {
         if (element) {
             element.textContent = value;
         }
+    }
+
+    function renderPalettePreview(host, value, options) {
+        const picker = window.ProductionPalettePicker;
+        if (!host) return;
+
+        if (!picker) {
+            host.innerHTML = "";
+            host.hidden = true;
+            return;
+        }
+
+        picker.applyPreview(host, value, options);
+    }
+
+    function renderPaletteChip(value) {
+        const picker = window.ProductionPalettePicker;
+        return picker
+            ? picker.renderChip(value)
+            : `<span class="color-variant-chip">${escapeHtml(value || "-")}</span>`;
     }
 
     function formatNumber(value) {

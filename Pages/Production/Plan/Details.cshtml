@@ -115,56 +115,67 @@
         <!-- Overview Tab -->
         <div id="overviewTab" class="pp-tab-panel active">
 
-            <div class="pp-section-grid two-col">
+            <!-- Demand Information -->
+            <div class="detail-panel">
+                <h3>Demand Information</h3>
 
-                <!-- Demand Information -->
-                <div class="detail-panel">
-                    <h3>Demand Information</h3>
+                <div class="selected-info-card">
+                    <div>
+                        <span>Plan No</span>
+                        <strong id="overviewPlanNo">-</strong>
+                    </div>
 
-                    <div class="detail-list">
-                        <div>
-                            <span>Plan No</span>
-                            <strong id="overviewPlanNo">-</strong>
-                        </div>
+                    <div>
+                        <span>Plan Date</span>
+                        <strong id="overviewPlanDate">-</strong>
+                    </div>
 
-                        <div>
-                            <span>Plan Date</span>
-                            <strong id="overviewPlanDate">-</strong>
-                        </div>
+                    <div>
+                        <span>Demand Type</span>
+                        <strong id="overviewDemandType">-</strong>
+                    </div>
 
-                        <div>
-                            <span>Demand Type</span>
-                            <strong id="overviewDemandType">-</strong>
-                        </div>
+                    <div>
+                        <span>Source Name</span>
+                        <strong id="overviewSourceName">-</strong>
+                    </div>
 
-                        <div>
-                            <span>Source Name</span>
-                            <strong id="overviewSourceName">-</strong>
-                        </div>
+                    <div>
+                        <span>Output Destination</span>
+                        <strong id="overviewOutputDestination">-</strong>
+                    </div>
 
-                        <div>
-                            <span>Output Destination</span>
-                            <strong id="overviewOutputDestination">-</strong>
-                        </div>
-
-                        <div>
-                            <span>Status</span>
-                            <strong id="overviewStatus">-</strong>
-                        </div>
+                    <div>
+                        <span>Status</span>
+                        <strong id="overviewStatus">-</strong>
                     </div>
                 </div>
+            </div>
 
-                <!-- Product Information -->
-                <div class="detail-panel">
-                    <h3>Products In This Plan</h3>
+            <!-- Product Information -->
+            <div class="detail-panel mt-20">
+                <h3>Products In This Plan</h3>
 
-                    <div id="detailsProductList" class="plan-product-list">
-                        <div class="empty-cell">
-                            Loading plan products...
-                        </div>
+                <div class="product-editor-workspace mt-10">
+                    <div class="product-editor-layout">
+                        <aside class="product-editor-sidebar">
+                            <div class="product-editor-list-meta">
+                                <span>Products In Plan</span>
+                                <strong id="detailsProductCount">0</strong>
+                            </div>
+
+                            <div id="detailsProductList" class="product-editor-list" role="listbox">
+                                <div class="empty-cell">Loading plan products...</div>
+                            </div>
+                        </aside>
+
+                        <section id="activeProductDetail" class="product-editor-detail">
+                            <div class="product-editor-empty detail">
+                                Select a product from the list to view details.
+                            </div>
+                        </section>
                     </div>
                 </div>
-
             </div>
 
             <!-- Source Details -->
@@ -368,9 +379,24 @@
             <div class="detail-panel mt-20">
                 <h3>Product Wise Size And Color Variants</h3>
 
-                <div id="detailsProductSizeList" class="product-size-breakdown-list">
-                    <div class="empty-cell">
-                        Loading product size breakdown...
+                <div class="product-editor-workspace mt-10">
+                    <div class="product-editor-layout">
+                        <aside class="product-editor-sidebar">
+                            <div class="product-editor-list-meta">
+                                <span>Products In Plan</span>
+                                <strong id="detailsSizeProductCount">0</strong>
+                            </div>
+
+                            <div id="detailsSizeProductList" class="product-editor-list" role="listbox">
+                                <div class="empty-cell">Loading plan products...</div>
+                            </div>
+                        </aside>
+
+                        <section id="activeSizeProductDetail" class="product-editor-detail">
+                            <div class="product-editor-empty detail">
+                                Select a product from the list to view its size breakdown.
+                            </div>
+                        </section>
                     </div>
                 </div>
             </div>
@@ -412,4 +438,5 @@
 <script src="~/data/production/mock-production-plans.js" asp-append-version="true"></script>
 <script src="~/data/production/production-stages.js" asp-append-version="true"></script>
 
+<script src="~/js/production/production-color-palettes.js" asp-append-version="true"></script>
 <script src="~/js/production/production-plan-details.js" asp-append-version="true"></script>

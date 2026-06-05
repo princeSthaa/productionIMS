@@ -176,7 +176,7 @@ window.outletDemandCatalogData = [
         productCode: "PRD-001",
         productName: "School Uniform Set",
         category: "Uniform",
-        variant: "Navy Blue / White",
+        variant: "Elegant and Versatile Fabric Brand Palette",
         productImage: "/images/products/school-uniform.jpg",
 
         currentStock: 42,
@@ -197,11 +197,11 @@ window.outletDemandCatalogData = [
         planningNotes: "Prepare before school season order increase.",
 
         sizeGaps: [
-            { size: "XS", currentStock: 8, reorderLevel: 20, suggestedQty: 20, colors: [{ color: "Navy Blue", currentStock: 5, reorderLevel: 12, suggestedQty: 12 }, { color: "White", currentStock: 3, reorderLevel: 8, suggestedQty: 8 }] },
-            { size: "S", currentStock: 10, reorderLevel: 30, suggestedQty: 35, colors: [{ color: "Navy Blue", currentStock: 6, reorderLevel: 18, suggestedQty: 22 }, { color: "White", currentStock: 4, reorderLevel: 12, suggestedQty: 13 }] },
-            { size: "M", currentStock: 12, reorderLevel: 35, suggestedQty: 45, colors: [{ color: "Navy Blue", currentStock: 8, reorderLevel: 22, suggestedQty: 28 }, { color: "White", currentStock: 4, reorderLevel: 13, suggestedQty: 17 }] },
-            { size: "L", currentStock: 8, reorderLevel: 25, suggestedQty: 30, colors: [{ color: "Navy Blue", currentStock: 5, reorderLevel: 15, suggestedQty: 18 }, { color: "White", currentStock: 3, reorderLevel: 10, suggestedQty: 12 }] },
-            { size: "XL", currentStock: 4, reorderLevel: 10, suggestedQty: 10, colors: [{ color: "Navy Blue", currentStock: 3, reorderLevel: 6, suggestedQty: 6 }, { color: "White", currentStock: 1, reorderLevel: 4, suggestedQty: 4 }] }
+            { size: "XS", currentStock: 8, reorderLevel: 20, suggestedQty: 20 },
+            { size: "S", currentStock: 10, reorderLevel: 30, suggestedQty: 35 },
+            { size: "M", currentStock: 12, reorderLevel: 35, suggestedQty: 45 },
+            { size: "L", currentStock: 8, reorderLevel: 25, suggestedQty: 30 },
+            { size: "XL", currentStock: 4, reorderLevel: 10, suggestedQty: 10 }
         ]
     }
 ];

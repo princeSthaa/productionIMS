@@ -26,10 +26,17 @@
         <input type="search" id="folderSearchInput" placeholder="Search drafts" aria-label="Search drafts" />
       </div>
 
-      <button type="button" class="icon-text-btn" id="clearDraftsBtn">
-        <span class="material-symbols-outlined">delete_sweep</span>
-        Clear Local Drafts
-      </button>
+      <div class="folder-actions">
+        <button type="button" class="btn btn-danger-light hidden" id="deleteSelectedBtn">
+          <span class="material-symbols-outlined">delete</span>
+          Delete Selected
+        </button>
+
+        <button type="button" class="icon-text-btn" id="clearDraftsBtn">
+          <span class="material-symbols-outlined">delete_sweep</span>
+          Clear Local Drafts
+        </button>
+      </div>
     </div>
 
     <div class="folder-summary-strip">
@@ -45,6 +52,16 @@
         <span>Demand Sources</span>
         <strong id="folderDemandCount">0</strong>
       </div>
+    </div>
+
+    <div class="folder-list-header">
+      <div class="header-checkbox">
+        <input type="checkbox" id="selectAllDrafts" aria-label="Select all drafts" />
+      </div>
+      <div class="header-icon"></div>
+      <div class="header-info">Plan Details</div>
+      <div class="header-date">Last Edited</div>
+      <div class="header-actions">Actions</div>
     </div>
 
     <div id="folderPlanList" class="folder-plan-list">

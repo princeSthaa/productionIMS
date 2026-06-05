@@ -96,9 +96,9 @@
                             <p>Select customer from customer master data.</p>
                         </div>
 
-                        <button type="button" class="btn btn-primary editable-action" id="openCustomerModalBtn">
+                        <a asp-page="/Production/Customer/Customers" class="btn btn-primary editable-action" id="openCustomerModalBtn">
                             Change Customer
-                        </button>
+                        </a>
                     </div>
 
                     <div id="selectedCustomerCard" class="selected-info-card hidden">
@@ -137,9 +137,9 @@
                             <p>Select outlet from outlet master data.</p>
                         </div>
 
-                        <button type="button" class="btn btn-primary editable-action" id="openOutletModalBtn">
+                        <a asp-page="/Production/Outlet/Outlets" class="btn btn-primary editable-action" id="openOutletModalBtn">
                             Change Outlet
-                        </button>
+                        </a>
                     </div>
 
                     <div id="selectedOutletCard" class="selected-info-card hidden">
@@ -217,9 +217,17 @@
 
                     <div class="form-group">
                         <label asp-for="Variant">Color / Variant</label>
-                        <select asp-for="Variant" id="variantDropdown" class="form-control editable-field">
-                            <option value="">Select Color / Variant</option>
-                        </select>
+                        <div class="production-palette-picker-field">
+                            <input asp-for="Variant"
+                                   id="variantDropdown"
+                                   class="form-control editable-field"
+                                   placeholder="Select color palette or variant" />
+                            <button type="button" class="btn btn-light editable-action" id="mainVariantPaletteBtn">
+                                <span class="material-symbols-outlined">palette</span>
+                                Palette
+                            </button>
+                        </div>
+                        <div id="mainVariantPalettePreview" class="palette-preview-host" hidden></div>
                     </div>
 
                     <div class="form-group">
@@ -253,22 +261,23 @@
                     </div>
                 </div>
 
-                <div class="multi-product-edit-section">
-                    <div class="section-action-row">
-                        <div>
-                            <h3>Products In This Plan</h3>
-                            <p>Edit product-wise quantities, dates, and size/color variants.</p>
-                        </div>
-                    </div>
-
-                    <div id="editProductList" class="edit-product-list">
-                        <div class="empty-cell">
-                            Loading plan products...
-                        </div>
-                    </div>
-                </div>
             </section>
         </div>
+
+        <section class="pp-card product-editor-card">
+            <div class="pp-card-header">
+                <div>
+                    <h2>Products In This Plan</h2>
+                    <p>Select one product from the list, edit its production details, then move to the next product.</p>
+                </div>
+            </div>
+
+            <div id="editProductList" class="edit-product-list">
+                <div class="empty-cell">
+                    Loading plan products...
+                </div>
+            </div>
+        </section>
 
         <!-- Size Breakdown -->
         <section class="pp-card">
@@ -562,4 +571,5 @@
 <script src="~/data/production/production-stages.js" asp-append-version="true"></script>
 <script src="~/data/production/mock-production-plans.js" asp-append-version="true"></script>
 
+<script src="~/js/production/production-color-palettes.js" asp-append-version="true"></script>
 <script src="~/js/production/production-plan-edit.js" asp-append-version="true"></script>

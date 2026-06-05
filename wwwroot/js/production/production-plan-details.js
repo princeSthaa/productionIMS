@@ -13,7 +13,8 @@
         bom: [],
         stages: [],
         plan: null,
-        planProducts: []
+        planProducts: [],
+        selectedProductIndex: 0
     };
 
     document.addEventListener("DOMContentLoaded", init);
@@ -106,7 +107,13 @@
         App.setText("#overviewOutputDestination", plan.outputDestination || "-");
         App.setText("#overviewStatus", plan.status);
 
-        renderProductList();
+        App.setText("#detailsProductCount", state.planProducts.length);
+        App.setText("#detailsSizeProductCount", state.planProducts.length);
+
+        renderProductSidebarList("detailsProductList");
+        renderProductSidebarList("detailsSizeProductList");
+        renderActiveProductDetail();
+        renderProductSizeBreakdown();
 
         App.setText("#datePlanDate", App.formatDate(plan.planDate));
         App.setText("#dateStartDate", App.formatDate(plan.plannedStartDate || getMinProductDate("plannedStartDate")));
@@ -115,8 +122,8 @@
         App.setText("#dateBufferDays", `${Math.max(App.dateDiffDays(plan.plannedCompletionDate, plan.requiredDate), 0)} days`);
     }
 
-    function renderProductList() {
-        const list = document.getElementById("detailsProductList");
+    function renderProductSidebarList(elementId) {
+        const list = document.getElementById(elementId);
         if (!list) return;
 
         if (!state.planProducts.length) {
@@ -124,60 +131,235 @@
             return;
         }
 
-        list.innerHTML = state.planProducts.map(function (product) {
-            const image = product.productImage || getCatalogProduct(product)?.productImage || getCatalogProduct(product)?.imagePath || fallbackProductImage;
-            const variantQuantitySummary = getVariantQuantitySummary(product);
+        list.innerHTML = state.planProducts.map(function (product, index) {
+            const isActive = index === state.selectedProductIndex;
+            const activeClass = isActive ? "active" : "";
+            const paletteSummary = getProductPaletteSummary(product);
+            const variantPreview = renderPalettePreviewHtml(paletteSummary, { compact: true, inline: true });
 
             return `
-                <article class="plan-product-card">
-                    <img src="${App.escapeHtml(image)}"
-                         alt="${App.escapeHtml(product.productName)}"
-                         onerror="this.src='${fallbackProductImage}'" />
-
-                    <div class="plan-product-card-body">
-                        <div class="plan-product-card-head">
-                            <div>
-                                <span>${App.escapeHtml(product.productCode || product.productId || "-")}</span>
-                                <h4>${App.escapeHtml(product.productName)}</h4>
-                            </div>
-
-                            ${App.badge(product.status || state.plan.status)}
-                        </div>
-
-                        <div class="plan-product-meta-grid">
-                            <div>
-                                <span>Category</span>
-                                <strong>${App.escapeHtml(product.category || "-")}</strong>
-                            </div>
-                            <div>
-                                <span>Variant</span>
-                                <strong>${App.escapeHtml(product.variant || "-")}</strong>
-                            </div>
-                            <div>
-                                <span>Quantity</span>
-                                <strong>${formatNumber(product.quantity)} pcs</strong>
-                            </div>
-                            <div class="full-meta">
-                                <span>Variant Quantities</span>
-                                <strong>${App.escapeHtml(variantQuantitySummary)}</strong>
-                            </div>
-                            <div>
-                                <span>Source</span>
-                                <strong>${App.escapeHtml(product.sourceName || getSourceName())}</strong>
-                            </div>
-                            <div>
-                                <span>Required</span>
-                                <strong>${App.formatDate(product.requiredDate)}</strong>
-                            </div>
-                            <div>
-                                <span>Planned</span>
-                                <strong>${App.formatDate(product.plannedStartDate)} - ${App.formatDate(product.plannedCompletionDate)}</strong>
-                            </div>
-                        </div>
-                    </div>
-                </article>
+                <button type="button" 
+                        class="product-editor-list-row ${activeClass}" 
+                        data-product-index="${index}"
+                        role="option" 
+                        aria-selected="${isActive}">
+                    <span class="product-editor-list-index">${index + 1}</span>
+                    <span class="product-editor-list-main">
+                        <strong>${App.escapeHtml(product.productName)}</strong>
+                        <span>${App.escapeHtml(product.productCode || product.productId || "-")}</span>
+                        <span class="product-editor-list-variant" ${variantPreview ? "hidden" : ""}>
+                            ${App.escapeHtml(paletteSummary)}
+                        </span>
+                        <span class="palette-preview-host product-editor-list-preview" ${variantPreview ? "" : "hidden"}>
+                            ${variantPreview}
+                        </span>
+                    </span>
+                    <span class="product-editor-list-side">
+                        <strong>${formatNumber(product.quantity)} pcs</strong>
+                        <em>Req ${App.formatDate(product.requiredDate)}</em>
+                    </span>
+                </button>
             `;
         }).join("");
+
+        list.querySelectorAll("[data-product-index]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                const index = parseInt(this.getAttribute("data-product-index"), 10);
+                selectProduct(index);
+            });
+        });
+    }
+
+    function selectProduct(index) {
+        state.selectedProductIndex = index;
+        renderProductSidebarList("detailsProductList");
+        renderProductSidebarList("detailsSizeProductList");
+        renderActiveProductDetail();
+        renderProductSizeBreakdown();
+    }
+
+    function renderActiveProductDetail() {
+        const detailHost = document.getElementById("activeProductDetail");
+        if (!detailHost) return;
+
+        const product = state.planProducts[state.selectedProductIndex];
+        if (!product) {
+            detailHost.innerHTML = `
+                <div class="product-editor-empty detail">
+                    Select a product from the list to view details.
+                </div>
+            `;
+            return;
+        }
+
+        const image = product.productImage || getCatalogProduct(product)?.productImage || getCatalogProduct(product)?.imagePath || fallbackProductImage;
+        const variantQuantitySummaryHtml = getVariantQuantitySummaryHtml(product);
+        const paletteSummary = getProductPaletteSummary(product);
+        const sizeRows = getSizeColorRows(product);
+        const sizeTotal = sizeRows.reduce((sum, row) => sum + Number(row.quantity || 0), 0);
+
+        detailHost.innerHTML = `
+            <div class="product-editor-detail-head">
+                <img src="${App.escapeHtml(image)}"
+                     alt="${App.escapeHtml(product.productName)}"
+                     onerror="this.src='${fallbackProductImage}'" />
+
+                <div>
+                    <span>Product ${state.selectedProductIndex + 1} of ${state.planProducts.length}</span>
+                    <h4>${App.escapeHtml(product.productName)}</h4>
+                    <p>${App.escapeHtml(product.productCode || product.productId || "-")} | ${App.escapeHtml(product.sourceName || getSourceName())}</p>
+                </div>
+
+                <div class="product-editor-nav">
+                    <button type="button" class="icon-only-btn prev-product-btn" ${state.selectedProductIndex === 0 ? "disabled" : ""}>
+                        <span class="material-symbols-outlined">chevron_left</span>
+                    </button>
+                    <button type="button" class="icon-only-btn next-product-btn" ${state.selectedProductIndex === state.planProducts.length - 1 ? "disabled" : ""}>
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-editor-metrics">
+                <div>
+                    <span>Category</span>
+                    <strong>${App.escapeHtml(product.category || "-")}</strong>
+                </div>
+                <div>
+                    <span>Planned Quantity</span>
+                    <strong>${formatNumber(product.quantity)} pcs</strong>
+                </div>
+                <div>
+                    <span>Breakdown Total</span>
+                    <strong>${formatNumber(sizeTotal)} pcs</strong>
+                </div>
+            </div>
+
+            <div class="plan-product-meta-grid">
+                <div>
+                    <span>Variant / Palette</span>
+                    <strong>${App.escapeHtml(paletteSummary)}</strong>
+                    ${renderPalettePreviewHtml(paletteSummary)}
+                </div>
+                <div>
+                    <span>Required Date</span>
+                    <strong>${App.formatDate(product.requiredDate)}</strong>
+                </div>
+                <div>
+                    <span>Planned Start</span>
+                    <strong>${App.formatDate(product.plannedStartDate)}</strong>
+                </div>
+                <div>
+                    <span>Planned Completion</span>
+                    <strong>${App.formatDate(product.plannedCompletionDate)}</strong>
+                </div>
+                <div class="full-meta">
+                    <span>Variant Quantities</span>
+                    <div class="variant-qty-summary-list">
+                        ${variantQuantitySummaryHtml}
+                    </div>
+                </div>
+                <div class="full-meta">
+                    <span>Production Notes</span>
+                    <p class="mt-5">${App.escapeHtml(product.productionNotes || "No specific production notes for this item.")}</p>
+                </div>
+            </div>
+        `;
+
+        detailHost.querySelectorAll(".prev-product-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                if (state.selectedProductIndex > 0) selectProduct(state.selectedProductIndex - 1);
+            });
+        });
+
+        detailHost.querySelectorAll(".next-product-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                if (state.selectedProductIndex < state.planProducts.length - 1) selectProduct(state.selectedProductIndex + 1);
+            });
+        });
+    }
+
+    function renderProductSizeBreakdown() {
+        const detailHost = document.getElementById("activeSizeProductDetail");
+        if (!detailHost) return;
+
+        const product = state.planProducts[state.selectedProductIndex];
+        if (!product) {
+            detailHost.innerHTML = `
+                <div class="product-editor-empty detail">
+                    Select a product from the list to view its size breakdown.
+                </div>
+            `;
+            return;
+        }
+
+        const paletteSummary = getProductPaletteSummary(product);
+        const rows = getSizeColorRows(product);
+        const total = rows.reduce(function (sum, row) {
+            return sum + Number(row.quantity || 0);
+        }, 0);
+
+        detailHost.innerHTML = `
+            <div class="product-editor-detail-head">
+                <div>
+                    <span>Product ${state.selectedProductIndex + 1} of ${state.planProducts.length}</span>
+                    <h4>${App.escapeHtml(product.productName)}</h4>
+                    <p>${App.escapeHtml(paletteSummary)}</p>
+                    ${renderPalettePreviewHtml(paletteSummary, { compact: true })}
+                </div>
+
+                <div class="product-editor-nav">
+                    <button type="button" class="icon-only-btn prev-product-btn" ${state.selectedProductIndex === 0 ? "disabled" : ""}>
+                        <span class="material-symbols-outlined">chevron_left</span>
+                    </button>
+                    <button type="button" class="icon-only-btn next-product-btn" ${state.selectedProductIndex === state.planProducts.length - 1 ? "disabled" : ""}>
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-size-editor-panel">
+                <div class="product-size-editor-head">
+                    <h5>Size Breakdown</h5>
+                    <strong>${formatNumber(total)} pcs</strong>
+                </div>
+
+                <div class="product-size-table-scroll">
+                    <table class="variant-breakdown-table">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Palette / Variant</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows.map(function (row) {
+                                return `
+                                    <tr>
+                                        <td>${App.escapeHtml(row.size)}</td>
+                                        <td>${renderProductColorChip(product, row)}</td>
+                                        <td>${formatNumber(row.quantity)}</td>
+                                    </tr>
+                                `;
+                            }).join("") || `<tr><td colspan="3" class="empty-cell">No size/color variants.</td></tr>`}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+
+        detailHost.querySelectorAll(".prev-product-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                if (state.selectedProductIndex > 0) selectProduct(state.selectedProductIndex - 1);
+            });
+        });
+
+        detailHost.querySelectorAll(".next-product-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                if (state.selectedProductIndex < state.planProducts.length - 1) selectProduct(state.selectedProductIndex + 1);
+            });
+        });
     }
 
     function getSourceName() {
@@ -352,56 +534,6 @@
         renderProductSizeBreakdown();
     }
 
-    function renderProductSizeBreakdown() {
-        const list = document.getElementById("detailsProductSizeList");
-        if (!list) return;
-
-        if (!state.planProducts.length) {
-            list.innerHTML = `<div class="empty-cell">No product size data found.</div>`;
-            return;
-        }
-
-        list.innerHTML = state.planProducts.map(function (product) {
-            const rows = getSizeColorRows(product);
-            const total = rows.reduce(function (sum, row) {
-                return sum + Number(row.quantity || 0);
-            }, 0);
-
-            return `
-                <article class="product-size-card">
-                    <div class="product-size-card-head">
-                        <div>
-                            <h4>${App.escapeHtml(product.productName)}</h4>
-                            <p>${App.escapeHtml(product.variant || "-")}</p>
-                        </div>
-                        <strong>${formatNumber(total)} pcs</strong>
-                    </div>
-
-                    <table class="variant-breakdown-table">
-                        <thead>
-                            <tr>
-                                <th>Size</th>
-                                <th>Color</th>
-                                <th>Quantity</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${rows.map(function (row) {
-                                return `
-                                    <tr>
-                                        <td>${App.escapeHtml(row.size)}</td>
-                                        <td><span class="variant-chip">${App.escapeHtml(row.color)}</span></td>
-                                        <td>${formatNumber(row.quantity)}</td>
-                                    </tr>
-                                `;
-                            }).join("") || `<tr><td colspan="3" class="empty-cell">No size/color variants.</td></tr>`}
-                        </tbody>
-                    </table>
-                </article>
-            `;
-        }).join("");
-    }
-
     function renderActivity() {
         const timeline = document.getElementById("activityTimeline");
         if (!timeline) return;
@@ -552,61 +684,108 @@
 
     function getSizeColorRows(product) {
         const sizes = product.sizes || [];
+        const aggregated = {};
+
+        function add(size, palette, qty) {
+            const key = `${size}|${palette}`;
+            if (!aggregated[key]) {
+                aggregated[key] = {
+                    size: size,
+                    palette: palette,
+                    quantity: 0
+                };
+            }
+            aggregated[key].quantity += Number(qty || 0);
+        }
 
         if (!Array.isArray(sizes)) {
-            return Object.entries(sizes).map(function ([size, qty]) {
-                return {
-                    size: size,
-                    color: product.variant || "-",
-                    quantity: Number(qty || 0)
-                };
+            Object.entries(sizes).forEach(function ([size, qty]) {
+                add(size, product.variant || "-", qty);
+            });
+        } else {
+            sizes.forEach(function (sizeRow) {
+                const size = sizeRow.size || "-";
+                const colorRows = sizeRow.colors || sizeRow.colorVariants || sizeRow.variants || [];
+                const productPalette = product.variant || "-";
+
+                if (colorRows.length) {
+                    colorRows.forEach(function (colorRow) {
+                        const palette = colorRow.palette || colorRow.paletteName || colorRow.colorPalette || sizeRow.palette || sizeRow.paletteName || productPalette;
+                        add(size, palette, colorRow.quantity || colorRow.qty || 0);
+                    });
+                } else {
+                    const palette = sizeRow.palette || sizeRow.paletteName || sizeRow.colorPalette || productPalette;
+                    add(size, palette, sizeRow.quantity || sizeRow.qty || 0);
+                }
             });
         }
 
-        const rows = [];
-
-        sizes.forEach(function (sizeRow) {
-            const colorRows = sizeRow.colors || sizeRow.colorVariants || sizeRow.variants || [];
-
-            if (colorRows.length) {
-                colorRows.forEach(function (colorRow) {
-                    rows.push({
-                        size: sizeRow.size || "-",
-                        color: colorRow.color || colorRow.variant || colorRow.name || product.variant || "-",
-                        quantity: Number(colorRow.quantity || colorRow.qty || 0)
-                    });
-                });
-
-                return;
-            }
-
-            rows.push({
-                size: sizeRow.size || "-",
-                color: sizeRow.color || product.variant || "-",
-                quantity: Number(sizeRow.quantity || sizeRow.qty || 0)
-            });
-        });
-
-        return rows;
+        return Object.values(aggregated);
     }
 
-    function getVariantQuantitySummary(product) {
+    function getVariantQuantitySummaryHtml(product) {
         const totalsByColor = {};
 
         getSizeColorRows(product).forEach(function (row) {
-            const color = row.color || product.variant || "-";
+            const color = getEffectiveRowPalette(product, row) || "-";
             totalsByColor[color] = (totalsByColor[color] || 0) + Number(row.quantity || 0);
         });
 
         const entries = Object.entries(totalsByColor);
 
         if (!entries.length) {
-            return `${product.variant || "-"}: ${formatNumber(product.quantity)} pcs`;
+            return `
+                <div class="variant-qty-item">
+                    ${renderPaletteChip(product.variant)}
+                    <strong>: ${formatNumber(product.quantity)} pcs</strong>
+                </div>
+            `;
         }
 
         return entries.map(function ([color, quantity]) {
-            return `${color}: ${formatNumber(quantity)} pcs`;
-        }).join(", ");
+            return `
+                <div class="variant-qty-item">
+                    ${renderPaletteChip(color)}
+                    <strong>: ${formatNumber(quantity)} pcs</strong>
+                </div>
+            `;
+        }).join("");
+    }
+
+    function getProductPaletteSummary(product) {
+        const palettes = getSizeColorRows(product).map(function (row) {
+            return getEffectiveRowPalette(product, row);
+        }).filter(Boolean);
+
+        const uniquePalettes = Array.from(new Set(palettes));
+
+        if (uniquePalettes.length > 1) return "Mixed palettes";
+        if (uniquePalettes.length === 1) return uniquePalettes[0];
+
+        return product.variant || "-";
+    }
+
+    function renderPalettePreviewHtml(value, options) {
+        const picker = window.ProductionPalettePicker;
+        return picker ? picker.renderPreview(value, options) : "";
+    }
+
+    function renderPaletteChip(value) {
+        const picker = window.ProductionPalettePicker;
+        return picker
+            ? picker.renderChip(value)
+            : `<span class="variant-chip">${App.escapeHtml(value || "-")}</span>`;
+    }
+
+    function renderProductColorChip(product, row) {
+        const picker = window.ProductionPalettePicker;
+        return picker
+            ? picker.renderProductColorChip(getEffectiveRowPalette(product, row), "")
+            : `<span class="variant-chip">${App.escapeHtml(getEffectiveRowPalette(product, row) || "-")}</span>`;
+    }
+
+    function getEffectiveRowPalette(product, row) {
+        return row?.palette || product?.variant || "";
     }
 
     function getPlanQuantity() {

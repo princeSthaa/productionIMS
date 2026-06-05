@@ -17,18 +17,18 @@ window.customerOrderCatalogData = [
         productCode: "PRD-001",
         productName: "School Uniform Set",
         category: "Uniform",
-        variant: "Navy Blue / White",
+        variant: "Elegant and Versatile Fabric Brand Palette",
         quantity: 500,
         productImage: "/images/products/school-uniform.jpg",
         customerImage: "/images/customers/school-1.jpg",
         materialStatus: "Unchecked",
         productionNotes: "School logo embroidery on chest. Pack size-wise in separate bundles.",
         sizes: [
-            { size: "XS", quantity: 40, colors: [{ color: "Navy Blue", quantity: 24 }, { color: "White", quantity: 16 }] },
-            { size: "S", quantity: 90, colors: [{ color: "Navy Blue", quantity: 55 }, { color: "White", quantity: 35 }] },
-            { size: "M", quantity: 160, colors: [{ color: "Navy Blue", quantity: 100 }, { color: "White", quantity: 60 }] },
-            { size: "L", quantity: 140, colors: [{ color: "Navy Blue", quantity: 90 }, { color: "White", quantity: 50 }] },
-            { size: "XL", quantity: 70, colors: [{ color: "Navy Blue", quantity: 45 }, { color: "White", quantity: 25 }] }
+            { size: "XS", quantity: 40 },
+            { size: "S", quantity: 90 },
+            { size: "M", quantity: 160 },
+            { size: "L", quantity: 140 },
+            { size: "XL", quantity: 70 }
         ],
         measurements: [
             { size: "XS", chest: 34, shoulder: 15, sleeve: 22, length: 25, unit: "inch" },
