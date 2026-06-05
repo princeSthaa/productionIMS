@@ -9,8 +9,8 @@ window.products = [
         availableColors: ["White", "Blue", "Green", "Red", "Yellow", "Pink"],
         colors: ["White", "Blue", "Green", "Red", "Yellow", "Pink"],
         sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-        imagePath: "/images/products/white-school-shirt.png",
-        productImage: "/images/products/white-school-shirt.png",
+        imagePath: "/images/products/school-uniform.jpg",
+        productImage: "/images/products/school-uniform.jpg",
 
         measurementChart: [
             { size: "XS", chest: 32, shoulder: 13.5, sleeve: 21, length: 24, unit: "inch" },
@@ -31,8 +31,8 @@ window.products = [
         availableColors: ["Black", "Navy", "Grey", "Red", "Green", "White", "Yellow", "Orange", "Purple"],
         colors: ["Black", "Navy", "Grey", "Red", "Green", "White", "Yellow", "Orange", "Purple"],
         sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-        imagePath: "/images/products/black-polo-tshirt.png",
-        productImage: "/images/products/black-polo-tshirt.png",
+        imagePath: "/images/products/polo-shirt.jpg",
+        productImage: "/images/products/polo-shirt.jpg",
 
         measurementChart: [
             { size: "XS", chest: 34, shoulder: 14, sleeve: 7, length: 24, unit: "inch" },
@@ -53,8 +53,8 @@ window.products = [
         availableColors: ["Black", "Charcoal", "Navy", "Brown", "Beige", "Olive"],
         colors: ["Black", "Charcoal", "Navy", "Brown", "Beige", "Olive"],
         sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-        imagePath: "/images/products/formal-trouser.png",
-        productImage: "/images/products/formal-trouser.png",
+        imagePath: "/images/products/casual-shirt.jpg",
+        productImage: "/images/products/casual-shirt.jpg",
 
         measurementChart: [
             { size: "XS", chest: "-", shoulder: "-", sleeve: "-", length: 37, unit: "inch" },
@@ -75,8 +75,8 @@ window.products = [
         availableColors: ["Black", "Maroon", "Grey", "Navy", "Mustard", "Pink", "Teal"],
         colors: ["Black", "Maroon", "Grey", "Navy", "Mustard", "Pink", "Teal"],
         sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-        imagePath: "/images/products/hoodie.png",
-        productImage: "/images/products/hoodie.png",
+        imagePath: "/images/products/tracksuit.jpg",
+        productImage: "/images/products/tracksuit.jpg",
 
         measurementChart: [
             { size: "XS", chest: 36, shoulder: 15, sleeve: 22, length: 25, unit: "inch" },
@@ -97,8 +97,8 @@ window.products = [
         availableColors: ["Cream", "Red", "Green", "Blue", "Magenta"],
         colors: ["Cream", "Red", "Green", "Blue", "Magenta"],
         sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-        imagePath: "/images/products/kurta-set.png",
-        productImage: "/images/products/kurta-set.png",
+        imagePath: "/images/products/place-holder.png",
+        productImage: "/images/products/place-holder.png",
 
         measurementChart: [
             { size: "XS", chest: 34, shoulder: 14, sleeve: 20, length: 36, unit: "inch" },
@@ -119,8 +119,8 @@ window.products = [
         availableColors: ["Black", "Navy", "White"],
         colors: ["Black", "Navy", "White"],
         sizes: ["S", "M", "L", "XL"],
-        imagePath: "/images/products/hotel-staff-uniform.png",
-        productImage: "/images/products/hotel-staff-uniform.png",
+        imagePath: "/images/products/hotel-uniform.jpg",
+        productImage: "/images/products/hotel-uniform.jpg",
 
         measurementChart: [
             { size: "S", chest: 36, shoulder: 15, sleeve: 22, length: 26, unit: "inch" },

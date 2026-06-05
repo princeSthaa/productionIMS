@@ -14,21 +14,10 @@ document.addEventListener("DOMContentLoaded", function() {
     const statusFilter = document.getElementById("statusFilter");
     const customerSearch = document.getElementById("customerSearch");
     const locationSearch = document.getElementById("locationSearch");
-    const fromDateInput = document.getElementById("fromDateFilter");
-    const toDateInput = document.getElementById("toDateFilter");
     const resetBtn = document.getElementById("resetFiltersBtn");
 
     const summaryTotal = document.getElementById("totalCustomers");
     const summaryActive = document.getElementById("activeCustomers");
-
-    // 3. Helper: Convert DD-MM-YYYY to YYYYMMDD for numerical comparison
-    function parseDateToNumber(dateStr) {
-        if (!dateStr || dateStr === "-") return 0;
-        const parts = dateStr.split("-");
-        if (parts.length !== 3) return 0;
-        // parts[0] = DD, parts[1] = MM, parts[2] = YYYY
-        return parseInt(parts[2] + parts[1] + parts[0], 10);
-    }
 
     // 4. Render Table
     function renderTable(data) {
@@ -97,9 +86,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const searchVal = customerSearch ? customerSearch.value.toLowerCase() : "";
         const locationVal = locationSearch ? locationSearch.value.toLowerCase() : "";
 
-        const fromDateNum = fromDateInput ? parseDateToNumber(fromDateInput.value) : 0;
-        const toDateNum = toDateInput ? parseDateToNumber(toDateInput.value) : 0;
-
         const filteredData = mockCustomers.filter(customer => {
             // Dropdown filters
             if (typeVal && customer.type !== typeVal) return false;
@@ -116,11 +102,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
             // Location search filter
             if (locationVal && !customer.location.toLowerCase().includes(locationVal)) return false;
-
-            // Date Range filter based on Registration Date (regDate)
-            const customerRegDateNum = parseDateToNumber(customer.regDate);
-            if (fromDateNum > 0 && customerRegDateNum < fromDateNum) return false;
-            if (toDateNum > 0 && customerRegDateNum > toDateNum) return false;
 
             return true;
         });
@@ -140,30 +121,10 @@ document.addEventListener("DOMContentLoaded", function() {
             if (statusFilter) statusFilter.value = "";
             if (customerSearch) customerSearch.value = "";
             if (locationSearch) locationSearch.value = "";
-            if (fromDateInput) fromDateInput.value = "";
-            if (toDateInput) toDateInput.value = "";
             applyFilters();
         });
     }
 
     // 7. Initial Render
     renderTable(mockCustomers);
-
-    // 8. Nepali Datepicker Integration
-    // Override your existing datepicker init to trigger filtering when dates change
-    var datePickerOptions = {
-        miniEnglishDates: true,
-        dateFormat: "DD-MM-YYYY",
-        onChange: function() {
-            // The nepali datepicker fires this when a date is selected from the calendar
-            applyFilters();
-        }
-    };
-
-    if (fromDateInput && typeof fromDateInput.nepaliDatePicker === "function") {
-        fromDateInput.nepaliDatePicker(datePickerOptions);
-    }
-    if (toDateInput && typeof toDateInput.nepaliDatePicker === "function") {
-        toDateInput.nepaliDatePicker(datePickerOptions);
-    }
 });
