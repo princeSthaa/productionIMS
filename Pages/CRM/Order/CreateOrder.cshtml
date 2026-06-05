@@ -35,6 +35,69 @@
     margin-bottom: 25px;
     border-left: 4px solid #4CAF50;
   }
+
+  .color-palette-item {
+    cursor: pointer;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .color-palette-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    border-color: #d0d0d0;
+  }
+  .color-palette-item-colors {
+    display: flex;
+    height: 100px;
+    width: 100%;
+  }
+  .color-palette-item-color {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: flex 0.3s ease;
+    position: relative;
+  }
+  .color-palette-item-color:hover {
+    flex: 1.5;
+  }
+  .color-palette-item-color-name {
+    background: rgba(0,0,0,0.5);
+    color: white;
+    font-family: monospace;
+    padding: 4px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    transform: scale(0.9);
+    pointer-events: none;
+  }
+  .color-palette-item-color:hover .color-palette-item-color-name {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .color-palette-item-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #222;
+    padding: 15px 15px 5px 15px;
+    text-align: left;
+  }
+  .color-palette-item-count {
+    color: #888;
+    font-size: 0.8rem;
+    padding: 0 15px 15px 15px;
+    text-align: left;
+  }
 </style>
 
 <div class="pp-page">
@@ -77,10 +140,9 @@
           </div>
 
           <div id="prebuiltSection">
+            <button type="button" id="addProductBtn" class="btn btn-outline-primary" style="margin-bottom: 15px;">+ Add Product</button>
             <div id="dynamicProductsSection"></div>
-            <button type="button" id="addProductBtn" class="btn btn-outline-primary" style="margin-bottom: 30px;">+ Add
-              Product</button>
-            </div>
+          </div>
 
             <div class="form-group" id="newDesignSection"
                  style="display: none; background: #f9f9f9; padding: 15px; border-radius: 6px; margin-bottom: 30px;">
@@ -163,6 +225,24 @@
       </div>
     </div>
 
+    <!-- Color Selection Modal -->
+    <div class="modal fade" id="colorPaletteModal" tabindex="-1" aria-labelledby="colorPaletteModalLabel"
+         aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="colorPaletteModalLabel">Select Fabric Color</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row" id="fabricColorGrid">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     @section Scripts {
       <script src="~/data/shared/products.js"></script>
       <script src="~/data/shared/materials.js"></script>
@@ -170,6 +250,63 @@
 
       <script>
         document.addEventListener("DOMContentLoaded", function () {
+
+        // Fabric Colors loaded from backend Model
+        const fabricColors = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FabricPalettes, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+        let currentActiveColorInput = null;
+        let currentActiveColorDisplay = null;
+
+        // Color Modal Logic
+
+        function openColorModal() {
+            const colorPaletteModalEl = document.getElementById('colorPaletteModal');
+            const fabricColorGrid = document.getElementById('fabricColorGrid');
+            
+            if(!fabricColorGrid) {
+                console.error("fabricColorGrid not found in DOM");
+                return;
+            }
+
+            fabricColorGrid.innerHTML = '';
+            fabricColors.forEach(palette => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-sm-12 mb-4';
+
+                let colorDivs = '';
+                palette.colors.forEach(hex => {
+                    colorDivs += `
+                        <div class="color-palette-item-color" style="background-color: ${hex};" data-color="${hex}">
+                            <div class="color-palette-item-color-name">${hex}</div>
+                        </div>
+                    `;
+                });
+
+                col.innerHTML = `
+                    <div class="color-palette-item" data-id="${palette.id}" data-name="${palette.name}">
+                        <div class="color-palette-item-colors">
+                            ${colorDivs}
+                        </div>
+                        <div class="color-palette-item-name">${palette.name}</div>
+                        <div class="color-palette-item-count">(${palette.colors.length} colors) - ${palette.id}</div>
+                    </div>
+                `;
+                col.querySelector('.color-palette-item').addEventListener('click', function() {
+                    if(currentActiveColorInput && currentActiveColorDisplay) {
+                        currentActiveColorDisplay.value = palette.name;
+                        currentActiveColorInput.value = palette.name;
+                        const event = new Event('change');
+                        currentActiveColorInput.dispatchEvent(event);
+                    }
+                    if(colorPaletteModalEl) {
+                        bootstrap.Modal.getOrCreateInstance(colorPaletteModalEl).hide();
+                    }
+                });
+                fabricColorGrid.appendChild(col);
+            });
+            if(colorPaletteModalEl) {
+                bootstrap.Modal.getOrCreateInstance(colorPaletteModalEl).show();
+            }
+        }
 
         // 2. Handle Product Toggle (Prebuilt vs Custom Design)
         const productRadios = document.querySelectorAll('input[name="ProductMode"]');
@@ -239,12 +376,12 @@
         ${productOptions}
         </select>
         </div>
+        <button type="button" class="btn btn-sm btn-outline-secondary add-color-btn" style="display:none; margin-bottom:10px;">+ Add Color</button>
         <div class="colors-container"></div>
-        <button type="button" class="btn btn-sm btn-outline-secondary add-color-btn" style="display:none; margin-top:10px;">+ Add Color</button>
         <div style="margin-top:15px; font-size:1.1em;">Total Quantity for Product: <strong class="product-total-qty">0</strong></div>
         `;
 
-        document.getElementById('dynamicProductsSection').appendChild(block);
+        document.getElementById('dynamicProductsSection').prepend(block);
 
         const prodSelect = block.querySelector('.product-select');
         const addColorBtn = block.querySelector('.add-color-btn');
@@ -291,23 +428,37 @@
         cBlock.innerHTML = `
         <div style="display:flex; justify-content: space-between; align-items:center;">
         <div class="form-group" style="flex:1; margin-right:15px; margin-bottom:0;">
-        <select class="form-control color-select" name="Products[${pIdx}].Colors[${cIdx}].ColorName" required>
-        ${colorOptions}
-        </select>
+        <div class="input-group">
+        <input type="text" class="form-control color-select-display" placeholder="Select Fabric Color Palette..." readonly required>
+        <input type="hidden" class="color-select-value color-select" name="Products[${pIdx}].Colors[${cIdx}].ColorName" required>
+        <button class="btn btn-outline-primary btn-select-color" type="button">Choose Palette</button>
+        </div>
         </div>
         <button type="button" class="btn btn-sm btn-outline-danger remove-color-btn" title="Remove Color">X</button>
         </div>
-        <div class="sizes-container" style="margin-top:10px;"></div>
-        <button type="button" class="btn btn-sm btn-outline-info add-size-btn" style="display:none; margin-top:10px;">+ Add Size</button>
+        <button type="button" class="btn btn-sm btn-outline-info add-size-btn" style="display:none; margin-top:10px; margin-bottom:10px;">+ Add Size</button>
+        <div class="sizes-container"></div>
         `;
 
-        colorsContainer.appendChild(cBlock);
+        colorsContainer.prepend(cBlock);
 
-        const colorSelect = cBlock.querySelector('.color-select');
+        const colorSelectDisplay = cBlock.querySelector('.color-select-display');
+        const colorSelectValue = cBlock.querySelector('.color-select-value');
+        const btnSelectColor = cBlock.querySelector('.btn-select-color');
         const addSizeBtn = cBlock.querySelector('.add-size-btn');
         const sizesContainer = cBlock.querySelector('.sizes-container');
 
-        colorSelect.addEventListener('change', function () {
+        const handleOpenModal = function () {
+        currentActiveColorInput = colorSelectValue;
+        currentActiveColorDisplay = colorSelectDisplay;
+        openColorModal();
+        };
+
+        btnSelectColor.addEventListener('click', handleOpenModal);
+        colorSelectDisplay.addEventListener('click', handleOpenModal);
+        colorSelectDisplay.style.cursor = 'pointer';
+
+        colorSelectValue.addEventListener('change', function () {
         sizesContainer.innerHTML = '';
         if (this.value) {
         addSizeBtn.style.display = 'inline-block';
@@ -320,7 +471,7 @@
         });
 
         addSizeBtn.addEventListener('click', () => {
-        if (colorSelect.value) addSizeRow(cBlock, product, pIdx, cIdx);
+        if (colorSelectValue.value) addSizeRow(cBlock, product, pIdx, cIdx);
         });
 
         cBlock.querySelector('.remove-color-btn').addEventListener('click', () => {
@@ -350,7 +501,7 @@
         <button type="button" class="btn btn-sm btn-outline-danger remove-size-btn">Delete</button>
         `;
 
-        sizesContainer.appendChild(sRow);
+        sizesContainer.prepend(sRow);
 
         sRow.querySelector('.size-select').addEventListener('change', () => {
         recalculateProductQty(colorBlock.closest('.product-block'));
