@@ -12,6 +12,9 @@ public abstract class ProductionBasePageModel : PageModel
         ViewData["SidebarLinks"] = new List<(string Name, string Url, string Icon)>
         {
             ("Overview", "/Production/Index", "dashboard"),
+            ("Drafts", "/Production/Drafts", "drafts"),
+            ("In Progress", "/Production/InProgress", "precision_manufacturing"),
+            ("Completed", "/Production/Completed", "task_alt"),
             ("Plans", "/Production/Plan/PlansDetails", "assignment"),
             ("Demands", "/Production/Create", "dynamic_feed")
         };

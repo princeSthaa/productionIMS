@@ -1,0 +1,59 @@
+@page
+@model Kaam.Pages.Production.DraftsModel
+@{
+  ViewData["Title"] = "Production Drafts";
+}
+
+<link rel="stylesheet" href="~/css/production/production-plans.css" asp-append-version="true" />
+
+<div class="pp-page production-folder-page" data-production-folder="drafts">
+  <div class="pp-page-header">
+    <div>
+      <h1>Production Drafts</h1>
+      <p>Unconfirmed production plans waiting for review.</p>
+    </div>
+
+    <div class="pp-header-actions">
+      <a asp-page="/Production/Create" class="btn btn-primary">Create Production Plan</a>
+      <a asp-page="/Production/Index" class="btn btn-light">Overview</a>
+    </div>
+  </div>
+
+  <section class="pp-card production-folder-card">
+    <div class="folder-page-toolbar">
+      <div class="folder-search">
+        <span class="material-symbols-outlined">search</span>
+        <input type="search" id="folderSearchInput" placeholder="Search drafts" aria-label="Search drafts" />
+      </div>
+
+      <button type="button" class="icon-text-btn" id="clearDraftsBtn">
+        <span class="material-symbols-outlined">delete_sweep</span>
+        Clear Local Drafts
+      </button>
+    </div>
+
+    <div class="folder-summary-strip">
+      <div>
+        <span>Draft Plans</span>
+        <strong id="folderPlanCount">0</strong>
+      </div>
+      <div>
+        <span>Total Qty</span>
+        <strong id="folderTotalQty">0</strong>
+      </div>
+      <div>
+        <span>Demand Sources</span>
+        <strong id="folderDemandCount">0</strong>
+      </div>
+    </div>
+
+    <div id="folderPlanList" class="folder-plan-list">
+      <div class="empty-cell">Loading drafts...</div>
+    </div>
+  </section>
+</div>
+
+<script src="~/js/app.js" asp-append-version="true"></script>
+<script src="~/data/production/mock-production-plans.js" asp-append-version="true"></script>
+<script src="~/js/production/production-draft-store.js" asp-append-version="true"></script>
+<script src="~/js/production/production-plan-folder.js" asp-append-version="true"></script>

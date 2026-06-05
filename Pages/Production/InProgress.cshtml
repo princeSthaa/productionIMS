@@ -1,0 +1,54 @@
+@page
+@model Kaam.Pages.Production.InProgressModel
+@{
+  ViewData["Title"] = "Production In Progress";
+}
+
+<link rel="stylesheet" href="~/css/production/production-plans.css" asp-append-version="true" />
+
+<div class="pp-page production-folder-page" data-production-folder="in-progress">
+  <div class="pp-page-header">
+    <div>
+      <h1>Production In Progress</h1>
+      <p>Plans currently moving through production stages.</p>
+    </div>
+
+    <div class="pp-header-actions">
+      <a asp-page="/Production/Plan/PlansDetails" class="btn btn-light">View All Plans</a>
+      <a asp-page="/Production/Index" class="btn btn-light">Overview</a>
+    </div>
+  </div>
+
+  <section class="pp-card production-folder-card">
+    <div class="folder-page-toolbar">
+      <div class="folder-search">
+        <span class="material-symbols-outlined">search</span>
+        <input type="search" id="folderSearchInput" placeholder="Search in progress" aria-label="Search in progress" />
+      </div>
+    </div>
+
+    <div class="folder-summary-strip">
+      <div>
+        <span>In Progress</span>
+        <strong id="folderPlanCount">0</strong>
+      </div>
+      <div>
+        <span>Total Qty</span>
+        <strong id="folderTotalQty">0</strong>
+      </div>
+      <div>
+        <span>Demand Sources</span>
+        <strong id="folderDemandCount">0</strong>
+      </div>
+    </div>
+
+    <div id="folderPlanList" class="folder-plan-list">
+      <div class="empty-cell">Loading in-progress plans...</div>
+    </div>
+  </section>
+</div>
+
+<script src="~/js/app.js" asp-append-version="true"></script>
+<script src="~/data/production/mock-production-plans.js" asp-append-version="true"></script>
+<script src="~/js/production/production-draft-store.js" asp-append-version="true"></script>
+<script src="~/js/production/production-plan-folder.js" asp-append-version="true"></script>
