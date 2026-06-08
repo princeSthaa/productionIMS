@@ -99,7 +99,7 @@
 
 <!-- Edit Customer Modal -->
 <div class="modal fade" id="editCustomerModal" tabindex="-1" aria-labelledby="editCustomerModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="editCustomerModalLabel">Edit Customer Status</h5>
@@ -109,15 +109,55 @@
         <form id="editCustomerForm">
           <input type="hidden" id="editCustomerId" />
           
-          <div class="mb-3">
-            <label class="form-label fw-bold">Customer Name</label>
-            <input type="text" class="form-control" id="editCustomerName" readonly />
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Customer ID</label>
+              <input type="text" class="form-control bg-light" id="editCustomerDisplayId" readonly />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Customer Name</label>
+              <input type="text" class="form-control bg-light" id="editCustomerName" readonly />
+            </div>
           </div>
-          
-          <div class="mb-3">
-            <label class="form-label fw-bold">Contact Info</label>
-            <input type="text" class="form-control" id="editCustomerContact" readonly />
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Phone</label>
+              <input type="text" class="form-control bg-light" id="editCustomerPhone" readonly />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Email</label>
+              <input type="text" class="form-control bg-light" id="editCustomerEmail" readonly />
+            </div>
           </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Location</label>
+              <input type="text" class="form-control bg-light" id="editCustomerLocation" readonly />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Customer Type</label>
+              <input type="text" class="form-control bg-light" id="editCustomerType" readonly />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="form-label fw-bold">Total Orders</label>
+              <input type="text" class="form-control bg-light" id="editCustomerOrders" readonly />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label fw-bold">Registration Date</label>
+              <input type="text" class="form-control bg-light" id="editCustomerRegDate" readonly />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label fw-bold">Last Order Date</label>
+              <input type="text" class="form-control bg-light" id="editCustomerLastOrderDate" readonly />
+            </div>
+          </div>
+
+          <hr />
 
           <div class="mb-3">
             <label for="editCustomerStatus" class="form-label fw-bold">Active Status</label>
@@ -126,6 +166,7 @@
               <option value="Inactive">Inactive</option>
               <option value="Blacklisted">Blacklisted</option>
             </select>
+            <small class="text-muted">This is the only field you can modify here.</small>
           </div>
         </form>
       </div>

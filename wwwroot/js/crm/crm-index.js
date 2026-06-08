@@ -94,8 +94,15 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!customer) return;
 
         document.getElementById('editCustomerId').value = customer.id;
+        document.getElementById('editCustomerDisplayId').value = customer.id;
         document.getElementById('editCustomerName').value = customer.name;
-        document.getElementById('editCustomerContact').value = customer.phone + ' / ' + customer.email;
+        document.getElementById('editCustomerPhone').value = customer.phone;
+        document.getElementById('editCustomerEmail').value = customer.email;
+        document.getElementById('editCustomerLocation').value = customer.location;
+        document.getElementById('editCustomerType').value = customer.type;
+        document.getElementById('editCustomerOrders').value = customer.orders;
+        document.getElementById('editCustomerRegDate').value = customer.regDate;
+        document.getElementById('editCustomerLastOrderDate').value = customer.lastOrderDate;
         document.getElementById('editCustomerStatus').value = customer.status;
 
         const editModal = new bootstrap.Modal(document.getElementById('editCustomerModal'));
