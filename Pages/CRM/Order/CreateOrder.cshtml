@@ -1,819 +1,674 @@
 @page
 @model CreateOrder
 @{
-  ViewData["Title"] = "Create Order";
+    ViewData["Title"] = "Create Order";
 }
 
 <style>
-  /* Product Carousel Styles */
-  .carousel-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .carousel-container {
-    display: flex;
-    overflow-x: hidden;
-    scroll-behavior: smooth;
-    gap: 20px;
-    width: 100%;
-    padding-bottom: 5px; 
-  }
+    /* Wizard Styles */
+    .wizard-step { display: none; }
+    .wizard-step.active { display: block; }
+    .step-indicator { display: flex; justify-content: space-between; margin-bottom: 20px; }
+    .step-bullet { flex: 1; text-align: center; padding: 10px; border-bottom: 2px solid #ccc; font-weight: bold; color: #aaa; }
+    .step-bullet.active { border-bottom-color: #4CAF50; color: #4CAF50; }
+    
+    /* Row-wise Product Selection */
+    .product-row { display: flex; align-items: center; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 6px; background: #fff; gap: 15px; }
+    
+    .fabric-row { display: flex; align-items: center; gap: 15px; margin-top: 15px; padding: 10px; background: #fdfdfd; border: 1px dashed #ccc; border-radius: 6px; flex-wrap: wrap; }
+    .fabric-sample { width: 40px; height: 40px; border-radius: 4px; border: 1px solid #ccc; object-fit: cover; background: #fff; }
+    
+    .size-table-container { margin-top: 10px; overflow-x: auto; width: 100%; }
+    .size-table { width: 100%; text-align: center; border-collapse: collapse; }
+    .size-table th, .size-table td { border: 1px solid #eee; padding: 8px; min-width: 60px; }
+    .size-table th { background: #f9f9f9; }
+    .size-input { width: 60px; text-align: center; margin: 0 auto; }
+    .rate-row { color: #555; font-size: 0.9em; background: #fcfcfc;}
 
-  .product-block {
-    flex: 0 0 calc(50% - 10px); /* 2 items visible, accounting for gap */
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 8px;
-    background: #fff;
-    box-sizing: border-box;
-  }
+    .product-config-block { background: #fff; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    .delivery-date-row { display: flex; gap: 10px; margin-top: 5px; align-items: center; }
 
-  .carousel-nav-btn {
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    position: absolute;
-    z-index: 10;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: background 0.2s;
-  }
-  .carousel-nav-btn:hover { background: #f0f0f0; }
-  
-  #prevProductBtn { left: -20px; }
-  #nextProductBtn { right: -20px; }
+    .central-material-calc { padding: 15px; background: #eef7f2; border-radius: 8px; border-left: 4px solid #4CAF50; margin-top: 20px; }
 
-  .color-block {
-    border: 1px dashed #ccc;
-    padding: 10px;
-    margin-top: 15px;
-    border-radius: 6px;
-    background: #fafafa;
-  }
-
-  .size-row {
-    display: flex;
-    gap: 5px; /* Minimized gap */
-    margin-top: 10px;
-    align-items: flex-end;
-  }
-
-  .central-material-calc {
-    padding: 15px;
-    background: #eef7f2;
-    border-radius: 8px;
-    margin-bottom: 25px;
-    border-left: 4px solid #4CAF50;
-  }
-
-  .color-palette-item {
-    cursor: pointer;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    background: #fff;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.04);
-    overflow: hidden;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  .color-palette-item:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-    border-color: #d0d0d0;
-  }
-  .color-palette-item-colors {
-    display: flex;
-    height: 100px;
-    width: 100%;
-  }
-  .color-palette-item-color {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: flex 0.3s ease;
-    position: relative;
-  }
-  .color-palette-item-color:hover {
-    flex: 1.5;
-  }
-  .color-palette-item-color-name {
-    background: rgba(0,0,0,0.5);
-    color: white;
-    font-family: monospace;
-    padding: 4px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    opacity: 0;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    transform: scale(0.9);
-    pointer-events: none;
-  }
-  .color-palette-item-color:hover .color-palette-item-color-name {
-    opacity: 1;
-    transform: scale(1);
-  }
-  .color-palette-item-name {
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: #222;
-    padding: 15px 15px 5px 15px;
-    text-align: left;
-  }
-  .color-palette-item-count {
-    color: #888;
-    font-size: 0.8rem;
-    padding: 0 15px 15px 15px;
-    text-align: left;
-  }
+    /* Modal overrides */
+    .fabric-item { cursor: pointer; border: 1px solid #e0e0e0; border-radius: 12px; padding: 10px; text-align: center; transition: 0.2s; }
+    .fabric-item:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .fabric-item img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+    
+    .dropdown-menu.show { display: block !important; }
 </style>
 
 <div class="pp-page">
-
-  <div class="pp-page-header">
-    <div>
-      <h1>Create New Order</h1>
-      <p>Draft a new customer order and specify product and material requirements.</p>
+    <div class="pp-page-header">
+        <div>
+            <h1>Create New Order</h1>
+            <p>Draft a new customer order via the setup wizard.</p>
+        </div>
+        <div class="pp-header-actions">
+            <a asp-page="/CRM/Index" class="btn btn-light ">&larr; Back to Orders</a>
+        </div>
     </div>
-    <div class="pp-header-actions">
-      <a asp-page="/CRM/Index" class="btn btn-light ">&larr; Back to Orders</a>
+
+    <div class="pp-card">
+        <div class="card-body" style="padding: 20px;">
+            
+            <div class="step-indicator">
+                <div class="step-bullet active" id="indicator-1">1. Customer</div>
+                <div class="step-bullet" id="indicator-2">2. Products</div>
+                <div class="step-bullet" id="indicator-3">3. Materials & Sizes</div>
+                <div class="step-bullet" id="indicator-4">4. Delivery</div>
+            </div>
+
+            <form method="post" id="createOrderForm">
+
+                <!-- Step 1: Customer Details -->
+                <div id="step-1" class="wizard-step active">
+                    <h3 style="margin-bottom: 15px;">Customer Details</h3>
+                    
+                    @if (Model.SelectedCustomer != null)
+                    {
+                        <div class="card mb-3" style="border: 1px solid #4CAF50; background-color: #f1f8f2;">
+                            <div class="card-body">
+                                <h4 class="card-title text-success mb-3">@Model.SelectedCustomer.Name</h4>
+                                <div class="row">
+                                    <div class="col-md-6 mb-2"><strong>ID:</strong> @Model.SelectedCustomer.Id</div>
+                                    <div class="col-md-6 mb-2"><strong>Type:</strong> <span class="badge bg-info text-dark">@Model.SelectedCustomer.Type</span></div>
+                                    <div class="col-md-6 mb-2"><strong>Phone:</strong> @Model.SelectedCustomer.Phone</div>
+                                    <div class="col-md-6 mb-2"><strong>Email:</strong> @Model.SelectedCustomer.Email</div>
+                                    <div class="col-md-6 mb-2"><strong>Location:</strong> @Model.SelectedCustomer.Location</div>
+                                    <div class="col-md-6 mb-2"><strong>Total Past Orders:</strong> @Model.SelectedCustomer.Orders</div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="CustomerId" name="CustomerId" value="@Model.SelectedCustomer.Id" />
+                        <div class="text-muted small">Customer has been pre-selected. Click next to proceed.</div>
+                    }
+                    else
+                    {
+                        <div class="form-group">
+                            <label for="CustomerId">Select Customer <span class="text-danger">*</span></label>
+                            <select id="CustomerId" name="CustomerId" class="form-control" required>
+                                <option value="">-- Choose an existing customer --</option>
+                                <option value="CUS-1001">Ram Bahadur Thapa (Retail)</option>
+                                <option value="CUS-1002">Sita Sharma (Wholesale)</option>
+                                <option value="CUS-1003">Hari Khadka (Distributor)</option>
+                            </select>
+                        </div>
+                    }
+
+                    <div class="form-actions mt-4 text-end">
+                        <button type="button" class="btn btn-primary" onclick="goToStep(2)">Next &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Product Selection -->
+                <div id="step-2" class="wizard-step">
+                    <h3 style="margin-bottom: 15px;">Product Selection</h3>
+                    <div id="selectedProductsRows">
+                        <!-- Populated dynamically -->
+                    </div>
+                    <button type="button" class="btn btn-outline-primary" onclick="addProductRow()">+ Add Product</button>
+                    
+                    <div class="form-actions mt-4 d-flex justify-content-between">
+                        <button type="button" class="btn btn-light" onclick="goToStep(1)">&larr; Back</button>
+                        <button type="button" class="btn btn-primary" onclick="goToStep(3)">Next &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Material & Size Selection -->
+                <div id="step-3" class="wizard-step">
+                    <h3 style="margin-bottom: 15px;">Material & Size Configuration</h3>
+                    <div id="materialsSizesContainer">
+                        <!-- Populated dynamically -->
+                    </div>
+                    
+                    <div id="centralMaterialBOM" class="central-material-calc" style="display:none;">
+                        <!-- Calculated BOM appears here -->
+                    </div>
+
+                    <div class="form-actions mt-4 d-flex justify-content-between">
+                        <button type="button" class="btn btn-light" onclick="goToStep(2)">&larr; Back</button>
+                        <button type="button" class="btn btn-primary" onclick="goToStep(4)">Next &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Delivery Dates -->
+                <div id="step-4" class="wizard-step">
+                    <h3 style="margin-bottom: 15px;">Delivery Details</h3>
+                    
+                    <div class="form-group mb-4" style="background: #fdfdfd; border: 1px solid #eee; padding: 15px; border-radius: 8px;">
+                        <label><strong>Delivery Schedule Type</strong></label>
+                        <div class="d-flex gap-4 mt-2">
+                            <label><input type="radio" name="DeliveryType" value="Single" checked onchange="toggleDeliveryMode()"> Single Delivery (All Products)</label>
+                            <label><input type="radio" name="DeliveryType" value="Multiple" onchange="toggleDeliveryMode()"> Multiple Deliveries (Per Product)</label>
+                        </div>
+                    </div>
+
+                    <div id="singleDeliveryContainer" class="product-config-block">
+                        <h5 style="margin-bottom: 15px;">Global Delivery Date</h5>
+                        <div class="delivery-date-row">
+                            <input type="date" name="GlobalDeliveryDate" class="form-control form-control-sm" style="width: 150px;" required id="globalDateInput">
+                            <input type="text" name="GlobalDeliveryNote" class="form-control form-control-sm" placeholder="Destination / Note" style="flex:1;">
+                        </div>
+                    </div>
+
+                    <div id="multipleDeliveryContainer" style="display:none;">
+                        <!-- Populated dynamically per product -->
+                    </div>
+
+                    <div class="form-group mt-4">
+                        <label for="Remarks">Overall Order Instructions</label>
+                        <textarea id="Remarks" name="Remarks" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-actions mt-4 d-flex justify-content-between">
+                        <button type="button" class="btn btn-light" onclick="goToStep(3)">&larr; Back</button>
+                        <button type="submit" class="btn btn-success">Save Order</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Fabric Modal -->
+<div class="modal fade" id="fabricModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Select Fabric</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
+        <input type="text" id="fabricSearch" class="form-control mb-3" placeholder="Search fabrics...">
+        <div class="row" id="fabricGrid"></div>
+      </div>
     </div>
   </div>
+</div>
 
-  <div class="pp-card">
-    <div class="card-body" style="padding: 20px;">
-      <form method="post" id="createOrderForm">
+@section Scripts {
+    <script src="~/data/shared/products.js" asp-append-version="true"></script>
+    <script src="~/data/shared/materials.js" asp-append-version="true"></script>
+    <script src="~/data/shared/bom.js" asp-append-version="true"></script>
 
-        <h3 style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">1. Customer Details</h3>
-        <div class="pp-filter-grid" style="grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px;">
-          <div class="form-group" style="grid-column: 1 / -1;">
-            <label for="CustomerId">Select Customer <span class="text-danger">*</span></label>
-            <select id="CustomerId" name="CustomerId" class="form-control" required>
-              <option value="">-- Choose an existing customer --</option>
-              <option value="1">Ram Shrestha (Everest Garments)</option>
-              <option value="2">Sita Sharma (Boutique Nepal)</option>
-            </select>
-            <small style="display:block; margin-top:5px;"><a href="/Customers/Create">+ Or add a new
-              customer</a></small>
-            </div>
-          </div>
-
-          <h3 style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">2. Product Details</h3>
-          <div class="form-group" style="margin-bottom: 20px;">
-            <label><strong>Is this a Prebuilt Product or a New Design?</strong></label>
-            <div style="display: flex; gap: 20px; margin-top: 10px;">
-              <label><input type="radio" name="ProductMode" value="Prebuilt" checked /> Prebuilt Catalog Item</label>
-              <label><input type="radio" name="ProductMode" value="NewDesign" /> Custom / New Design</label>
-            </div>
-          </div>
-
-          <div id="prebuiltSection">
-            <button type="button" id="addProductBtn" class="btn btn-outline-primary" style="margin-bottom: 15px;">+ Add Product</button>
-            <div class="carousel-wrapper">
-              <button type="button" id="prevProductBtn" class="carousel-nav-btn">&larr;</button>
-              <div id="dynamicProductsSection" class="carousel-container"></div>
-              <button type="button" id="nextProductBtn" class="carousel-nav-btn">&rarr;</button>
-            </div>
-          </div>
-
-            <div class="form-group" id="newDesignSection"
-                 style="display: none; background: #f9f9f9; padding: 15px; border-radius: 6px; margin-bottom: 30px;">
-              <div class="pp-filter-grid" style="grid-template-columns: repeat(2, 1fr); gap: 20px;">
-                <div class="form-group">
-                  <label for="CustomDesignName">Design Name / Title <span class="text-danger">*</span></label>
-                  <input type="text" id="CustomDesignName" name="CustomDesignName" class="form-control"
-                         placeholder="e.g. Custom School Uniform" />
-                </div>
-                <div class="form-group">
-                  <label for="DesignReference">Reference Link / Notes</label>
-                  <input type="text" id="DesignReference" name="DesignReference" class="form-control"
-                         placeholder="Link to drive/images or short note" />
-                </div>
-                <div class="form-group">
-                  <label for="OrderQuantity">Total Quantity Required <span class="text-danger">*</span></label>
-                  <input type="number" id="OrderQuantity" name="OrderQuantity" class="form-control" min="1" />
-                </div>
-              </div>
-            </div>
-
-            <h3 style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">3. Material Sourcing</h3>
-            <div class="form-group" style="margin-bottom: 20px;">
-              <label><strong>Who is providing the raw material?</strong></label>
-              <div style="display: flex; gap: 20px; margin-top: 10px;">
-                <label><input type="radio" name="MaterialSource" value="InHouse" checked /> Factory / In-house</label>
-                <label><input type="radio" name="MaterialSource" value="CustomerProvided" /> Customer Provided</label>
-              </div>
-            </div>
-
-            <div id="centralMaterialBOM" class="central-material-calc" style="display:none;"></div>
-
-            <div id="customerMaterialSection"
-                 style="display: none; background: #fff4e5; padding: 15px; border-radius: 6px; border-left: 4px solid #ff9800; margin-bottom: 30px;">
-              <div class="pp-filter-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px;">
-                <div class="form-group">
-                  <label for="MaterialReceived">Fabric/Material Received?</label>
-                  <select id="MaterialReceived" name="MaterialReceived" class="form-control">
-                    <option value="No">No, waiting for delivery</option>
-                    <option value="Yes">Yes, already in warehouse</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="MaterialQuantity">Quantity Received (Meters/Kg)</label>
-                  <input type="number" id="MaterialQuantity" name="MaterialQuantity" class="form-control" placeholder="0"
-                         step="0.01" />
-                </div>
-                <div class="form-group">
-                  <label for="IsMaterialEnough">Is the material enough for the order?</label>
-                  <select id="IsMaterialEnough" name="IsMaterialEnough" class="form-control">
-                    <option value="PendingCheck">Pending Measurement Check</option>
-                    <option value="Yes">Yes, Sufficient</option>
-                    <option value="No">No, Shortage</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <h3 style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">4. Delivery Details</h3>
-            <div class="pp-filter-grid" style="grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
-              <div class="form-group">
-                <label for="DeliveryDate">Required Delivery Date (BS) <span class="text-danger">*</span></label>
-                <input type="text" id="DeliveryDate" name="DeliveryDate" class="form-control nepali-date"
-                       placeholder="DD-MM-YYYY" readonly required />
-              </div>
-              <div class="form-group">
-                <label for="Remarks">Additional Instructions</label>
-                <textarea id="Remarks" name="Remarks" class="form-control" rows="1"></textarea>
-              </div>
-            </div>
-
-            <div class="form-actions"
-                 style="margin-top: 30px; display: flex; gap: 15px; justify-content: flex-end; border-top: 1px solid #eee; padding-top: 20px;">
-              <button type="reset" class="btn btn-light">Clear Form</button>
-              <button type="submit" class="btn btn-primary">Save Order & Create Plan</button>
-            </div>
-
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- Color Selection Modal -->
-    <div class="modal fade" id="colorPaletteModal" tabindex="-1" aria-labelledby="colorPaletteModalLabel"
-         aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="colorPaletteModalLabel">Select Fabric Color</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body" style="max-height: 520px; overflow-y: auto; overflow-x: hidden;">
-            <div class="row" id="fabricColorGrid">
-              <!-- Populated by JS -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Product Image Modal -->
-    <div class="modal fade" id="productImageModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" style="background: transparent; border: none; box-shadow: none;">
-          <div class="modal-body text-center p-0" onclick="bootstrap.Modal.getInstance(document.getElementById('productImageModal')).hide()">
-            <div style="position: relative; display: inline-block;" onclick="event.stopPropagation()">
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 15px; right: 15px; z-index: 10; background-color: rgba(255,255,255,0.9); border-radius: 50%; padding: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer;"></button>
-              <img id="enlargedProductImage" src="" alt="Product Preview" style="width: 500px; height: 500px; max-width: 90vw; max-height: 80vh; object-fit: contain; background: #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: opacity 0.2s ease;">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    @section Scripts {
-      <script src="~/data/shared/products.js" asp-append-version="true"></script>
-      <script src="~/data/shared/materials.js" asp-append-version="true"></script>
-      <script src="~/data/shared/bom.js" asp-append-version="true"></script>
-
-      <script>
-        document.addEventListener("DOMContentLoaded", function () {
-
-        // Fabric Colors loaded from backend Model
-        const fabricColors = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FabricPalettes, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
-        let currentActiveColorInput = null;
-        let currentActiveColorDisplay = null;
-
-        // Color Modal Logic
-
-        function openColorModal() {
-            const colorPaletteModalEl = document.getElementById('colorPaletteModal');
-            const fabricColorGrid = document.getElementById('fabricColorGrid');
-            
-            if(!fabricColorGrid) {
-                console.error("fabricColorGrid not found in DOM");
-                return;
-            }
-
-            fabricColorGrid.innerHTML = '';
-            fabricColors.forEach(palette => {
-                const col = document.createElement('div');
-                col.className = 'col-md-4 col-sm-6 mb-4';
-
-                let colorDivs = '';
-                palette.colors.forEach(hex => {
-                    colorDivs += `
-                        <div class="color-palette-item-color" style="background-color: ${hex};" data-color="${hex}">
-                            <div class="color-palette-item-color-name">${hex}</div>
-                        </div>
-                    `;
-                });
-
-                col.innerHTML = `
-                    <div class="color-palette-item" data-id="${palette.id}" data-name="${palette.name}">
-                        <div class="color-palette-item-colors">
-                            ${colorDivs}
-                        </div>
-                        <div class="color-palette-item-name">${palette.name}</div>
-                        <div class="color-palette-item-count">(${palette.colors.length} colors) - ${palette.id}</div>
-                    </div>
-                `;
-                col.querySelector('.color-palette-item').addEventListener('click', function() {
-                    if(currentActiveColorInput && currentActiveColorDisplay) {
-                        currentActiveColorDisplay.value = palette.name;
-                        currentActiveColorInput.value = palette.name;
-                        const event = new Event('change');
-                        currentActiveColorInput.dispatchEvent(event);
-                    }
-                    if(colorPaletteModalEl) {
-                        bootstrap.Modal.getOrCreateInstance(colorPaletteModalEl).hide();
-                    }
-                });
-                fabricColorGrid.appendChild(col);
-            });
-            if(colorPaletteModalEl) {
-                bootstrap.Modal.getOrCreateInstance(colorPaletteModalEl).show();
-            }
-        }
-
-        // 2. Handle Product Toggle (Prebuilt vs Custom Design)
-        const productRadios = document.querySelectorAll('input[name="ProductMode"]');
-        const prebuiltSection = document.getElementById('prebuiltSection');
-        const newDesignSection = document.getElementById('newDesignSection');
-
-        productRadios.forEach(radio => {
-        radio.addEventListener('change', function () {
-        if (this.value === 'Prebuilt') {
-        prebuiltSection.style.display = 'block';
-        newDesignSection.style.display = 'none';
-        // Required attributes toggle
-        document.getElementById('CustomDesignName').removeAttribute('required');
-        document.getElementById('OrderQuantity').removeAttribute('required');
-        } else {
-        prebuiltSection.style.display = 'none';
-        newDesignSection.style.display = 'block';
-        // Required attributes toggle
-        document.getElementById('CustomDesignName').setAttribute('required', 'required');
-        document.getElementById('OrderQuantity').setAttribute('required', 'required');
-        }
-        });
-        });
-
-        // 3. Handle Material Source Toggle (InHouse vs CustomerProvided)
-        const materialRadios = document.querySelectorAll('input[name="MaterialSource"]');
-        const customerMaterialSection = document.getElementById('customerMaterialSection');
-
-        materialRadios.forEach(radio => {
-        radio.addEventListener('change', function () {
-        if (this.value === 'CustomerProvided') {
-        customerMaterialSection.style.display = 'block';
-        } else {
-        customerMaterialSection.style.display = 'none';
-        document.getElementById('MaterialReceived').value = 'No';
-        document.getElementById('MaterialQuantity').value = '';
-        document.getElementById('IsMaterialEnough').value = 'PendingCheck';
-        }
-        });
-        });
-
-        // Carousel Navigation Logic
-        const carousel = document.getElementById('dynamicProductsSection');
-        const prevBtn = document.getElementById('prevProductBtn');
-        const nextBtn = document.getElementById('nextProductBtn');
-
-        function updateCarouselButtons() {
-            if (!carousel) return;
-            // Use small thresholds for rounding errors on high-DPI displays
-            const isAtStart = carousel.scrollLeft <= 2;
-            const isAtEnd = Math.ceil(carousel.scrollLeft + carousel.clientWidth) >= carousel.scrollWidth - 2;
-
-            prevBtn.style.display = isAtStart ? 'none' : 'flex';
-            nextBtn.style.display = isAtEnd ? 'none' : 'flex';
-        }
-
-        prevBtn.addEventListener('click', () => {
-            const cardWidth = carousel.clientWidth; // Scroll by the visible area
-            carousel.scrollBy({ left: -cardWidth, behavior: 'smooth' });
-        });
-        nextBtn.addEventListener('click', () => {
-            const cardWidth = carousel.clientWidth;
-            carousel.scrollBy({ left: cardWidth, behavior: 'smooth' });
-        });
-
-        // Listen for user scrolling
-        carousel.addEventListener('scroll', updateCarouselButtons);
-        // Recalculate on window resize
-        window.addEventListener('resize', updateCarouselButtons);
-
-        // 4. Dynamic Product Builder Logic
-        let productIndex = 0;
-        const sizeMultipliers = { "XS": 0.8, "S": 0.9, "M": 1.0, "L": 1.1, "XL": 1.2, "XXL": 1.3 };
-
-        function createProductBlock() {
-        const pIdx = productIndex++;
-        const block = document.createElement('div');
-        block.className = 'product-block';
-        block.dataset.index = pIdx;
-
-        let dropdownItems = `
-            <li class="px-2 py-2 bg-white border-bottom">
-                <input type="text" class="form-control form-control-sm product-search-input" placeholder="Search products..." onclick="event.stopPropagation()">
-            </li>
-        `;
-        if (window.products && Array.isArray(window.products)) {
-        window.products.forEach(p => {
-        const imgSrc = p.imagePath || '/images/products/place-holder.png';
-        dropdownItems += `
-            <li>
-                <a class="dropdown-item d-flex align-items-center product-dropdown-item" href="#" data-id="${p.productId}">
-                    <img src="${imgSrc}" style="width: 40px; height: 40px; object-fit: contain; margin-right: 15px; border-radius: 4px; border: 1px solid #eee;">
-                    <span class="product-dropdown-name" style="font-weight: 500; white-space: normal;">${p.name}</span>
-                </a>
-            </li>
-        `;
-        });
-        }
-
-        block.innerHTML = `
-        <div style="display:flex; justify-content: space-between; align-items:center;">
-        <h5 style="margin:0; font-size:1.1rem;">Product ${pIdx + 1}</h5>
-        <button type="button" class="btn btn-sm btn-outline-danger remove-product-btn" title="Remove Product">X</button>
-        </div>
-        <div class="form-group" style="margin-top:15px; margin-bottom:15px;">
-            <div class="d-flex align-items-center gap-3">
-                <div class="selected-product-image-container" style="display:none; position: relative;">
-                    <img class="selected-product-image" src="" alt="Selected Product" style="width: 60px; height: 60px; object-fit: contain; border: 1px solid #ddd; border-radius: 6px; cursor: zoom-in; background: #fff; transition: transform 0.2s ease;">
-                </div>
-                <div class="dropdown flex-grow-1">
-                    <button class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between custom-product-toggle" type="button" data-bs-toggle="dropdown" data-bs-boundary="window" aria-expanded="false" style="background: #fff; text-align: left; min-height: 44px;">
-                        <span class="selected-product-text text-muted">-- Select Product --</span>
-                    </button>
-                    <ul class="dropdown-menu shadow-sm" style="max-height: 300px; overflow-y: auto; width: 100%; max-width: 320px;">
-                        ${dropdownItems}
-                    </ul>
-                    <input type="hidden" class="product-select" name="Products[${pIdx}].ProductId" required>
-                </div>
-            </div>
-        </div>
-        <button type="button" class="btn btn-sm btn-outline-secondary add-color-btn" style="display:none; margin-bottom:10px;">+ Add Color</button>
-        <div class="colors-container"></div>
-        <div style="margin-top:15px; font-size:1.1em; padding-top: 10px; border-top: 1px solid #eee;">Total Qty: <strong class="product-total-qty">0</strong></div>
-        `;
-
-        document.getElementById('dynamicProductsSection').prepend(block);
-        carousel.scrollTo({ left: 0, behavior: 'smooth' });
-        setTimeout(updateCarouselButtons, 50); // Give layout a brief moment to update before calculating
-
-        // Manually initialize dropdown to break out of overflow:hidden parent
-        const dropdownToggle = block.querySelector('.custom-product-toggle');
-        new bootstrap.Dropdown(dropdownToggle, {
-            popperConfig(defaultBsPopperConfig) {
-                return { ...defaultBsPopperConfig, strategy: 'fixed' };
-            }
-        });
-
-        const prodInput = block.querySelector('.product-select');
-        const toggleText = block.querySelector('.selected-product-text');
-        const imageContainer = block.querySelector('.selected-product-image-container');
-        const imageEl = block.querySelector('.selected-product-image');
-        const addColorBtn = block.querySelector('.add-color-btn');
-        const colorsContainer = block.querySelector('.colors-container');
-
-        const searchInput = block.querySelector('.product-search-input');
-        const dropdownItemsNodes = block.querySelectorAll('.product-dropdown-item');
+    <script>
+        // Data injected from backend
+        const backendFabrics = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Fabrics, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
         
-        searchInput.addEventListener('input', function() {
-            const term = this.value.toLowerCase();
-            dropdownItemsNodes.forEach(item => {
-                const name = item.querySelector('.product-dropdown-name').innerText.toLowerCase();
-                if (name.includes(term)) {
-                    item.parentElement.style.display = 'block';
-                } else {
-                    item.parentElement.style.display = 'none';
-                }
-            });
-        });
-
-        dropdownItemsNodes.forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                const prodId = this.getAttribute('data-id');
-                const prodName = this.querySelector('span').innerText;
-                
-                toggleText.innerText = prodName;
-                toggleText.classList.remove('text-muted');
-                prodInput.value = prodId;
-
-                colorsContainer.innerHTML = '';
-                block.querySelector('.product-total-qty').textContent = '0';
-                
-                if (prodId) {
-                    addColorBtn.style.display = 'inline-block';
-                    addColorBlock(block, prodId);
-                    
-                    const selectedProd = window.products.find(p => p.productId === prodId);
-                    if (selectedProd && selectedProd.imagePath) {
-                        const frontImg = selectedProd.imagePath;
-                        let backImg = frontImg;
-                        if (frontImg.includes('front')) {
-                            backImg = frontImg.replace('front', 'back');
-                        }
-                        
-                        imageEl.src = frontImg;
-                        imageContainer.style.display = 'block';
-                        
-                        imageEl.onmouseover = () => imageEl.src = backImg;
-                        imageEl.onmouseout = () => imageEl.src = frontImg;
-                        imageEl.onclick = () => {
-                            const enlargedImg = document.getElementById('enlargedProductImage');
-                            enlargedImg.src = frontImg;
-                            enlargedImg.onmouseover = () => enlargedImg.src = backImg;
-                            enlargedImg.onmouseout = () => enlargedImg.src = frontImg;
-                            bootstrap.Modal.getOrCreateInstance(document.getElementById('productImageModal')).show();
-                        };
-                    } else {
-                        imageContainer.style.display = 'none';
-                    }
-                } else {
-                    addColorBtn.style.display = 'none';
-                    imageContainer.style.display = 'none';
-                }
-                recalculateGlobalTotals();
-            });
-        });
-
-        addColorBtn.addEventListener('click', () => {
-        if (prodInput.value) addColorBlock(block, prodInput.value);
-        });
-
-        block.querySelector('.remove-product-btn').addEventListener('click', () => {
-        block.remove();
-        recalculateGlobalTotals();
-        setTimeout(updateCarouselButtons, 50);
-        });
-        }
-
-        function addColorBlock(productBlock, productId) {
-        const product = window.products.find(p => p.productId === productId);
-        if (!product) return;
-
-        const colorsContainer = productBlock.querySelector('.colors-container');
-        const cIdx = colorsContainer.children.length;
-        const pIdx = productBlock.dataset.index;
-
-        const cBlock = document.createElement('div');
-        cBlock.className = 'color-block';
-
-        let colorOptions = '<option value="">-- Select Color --</option>';
-        product.colors.forEach(c => {
-        colorOptions += `<option value="${c}">${c}</option>`;
-        });
-
-        cBlock.innerHTML = `
-        <div style="display:flex; justify-content: space-between; align-items:center;">
-        <div class="form-group" style="flex:1; margin-right:10px; margin-bottom:0;">
-        <input type="text" class="form-control color-select-display" placeholder="Click to select palette..." readonly required style="cursor: pointer; background-color: #fff; text-align: center; font-weight: bold;">
-        <input type="hidden" class="color-select-value color-select" name="Products[${pIdx}].Colors[${cIdx}].ColorName" required>
-        </div>
-        <button type="button" class="btn btn-sm btn-outline-danger remove-color-btn" title="Remove Color">X</button>
-        </div>
-        <button type="button" class="btn btn-sm btn-outline-info add-size-btn" style="display:none; margin-top:10px; margin-bottom:10px; width: 100%;">+ Add Size</button>
-        <div class="sizes-container"></div>
-        `;
-
-        colorsContainer.prepend(cBlock);
-
-        const colorSelectDisplay = cBlock.querySelector('.color-select-display');
-        const colorSelectValue = cBlock.querySelector('.color-select-value');
-        const addSizeBtn = cBlock.querySelector('.add-size-btn');
-        const sizesContainer = cBlock.querySelector('.sizes-container');
-
-        const handleOpenModal = function () {
-        currentActiveColorInput = colorSelectValue;
-        currentActiveColorDisplay = colorSelectDisplay;
-        openColorModal();
+        let state = {
+            products: [] // Array of { tempId, productId, fabrics: [], deliveryDates: [] }
         };
-
-        colorSelectDisplay.addEventListener('click', handleOpenModal);
-
-        colorSelectValue.addEventListener('change', function () {
-        sizesContainer.innerHTML = '';
-        if (this.value) {
-        addSizeBtn.style.display = 'inline-block';
-        addSizeRow(cBlock, product, pIdx, cIdx);
-        } else {
-        addSizeBtn.style.display = 'none';
-        }
-        recalculateProductQty(productBlock);
-        recalculateGlobalTotals();
+        let pCounter = 0;
+        let activeFabricCb = null;
+        
+        const sizeMultipliers = { "XS": 0.8, "S": 0.9, "M": 1.0, "L": 1.1, "XL": 1.2, "XXL": 1.3 };
+        const dummyFabricRatePerMeter = 150; // Used to calculate size rates
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            initFabricModal();
+            addProductRow(); // Add one empty row initially
         });
 
-        addSizeBtn.addEventListener('click', () => {
-        if (colorSelectValue.value) addSizeRow(cBlock, product, pIdx, cIdx);
-        });
+        function goToStep(step) {
+            // Validation before moving next
+            if (step === 2) {
+                if (!document.getElementById("CustomerId").value) {
+                    alert("Please select a customer first.");
+                    return;
+                }
+            } else if (step === 3) {
+                // Must have at least one product
+                let validProdCount = 0;
+                document.querySelectorAll(".product-select").forEach(sel => {
+                    if (sel.value) validProdCount++;
+                });
+                if (validProdCount === 0) {
+                    alert("Please select at least one product.");
+                    return;
+                }
+                buildStep3();
+                recalculateGlobalTotals();
+            } else if (step === 4) {
+                buildStep4();
+            }
 
-        cBlock.querySelector('.remove-color-btn').addEventListener('click', () => {
-        cBlock.remove();
-        recalculateProductQty(productBlock);
-        recalculateGlobalTotals();
-        });
-        }
-
-        function addSizeRow(colorBlock, product, pIdx, cIdx) {
-        const sizesContainer = colorBlock.querySelector('.sizes-container');
-        const sIdx = sizesContainer.children.length;
-
-        const sRow = document.createElement('div');
-        sRow.className = 'size-row';
-
-        let sizeOptions = '<option value="">Size</option>';
-        product.sizes.forEach(s => {
-        sizeOptions += `<option value="${s}">${s}</option>`;
-        });
-
-        sRow.innerHTML = `
-        <select class="form-control size-select" style="flex:1; padding: 0.25rem 0.5rem;" name="Products[${pIdx}].Colors[${cIdx}].Sizes[${sIdx}].Size" required>
-        ${sizeOptions}
-        </select>
-        <input type="number" class="form-control qty-input" style="flex:1; padding: 0.25rem 0.5rem;" name="Products[${pIdx}].Colors[${cIdx}].Sizes[${sIdx}].Quantity" placeholder="Qty" min="1" required />
-        <button type="button" class="btn btn-sm btn-outline-danger remove-size-btn" title="Remove Size">X</button>
-        `;
-
-        sizesContainer.prepend(sRow);
-
-        sRow.querySelector('.size-select').addEventListener('change', () => {
-        recalculateProductQty(colorBlock.closest('.product-block'));
-        recalculateGlobalTotals();
-        });
-        sRow.querySelector('.qty-input').addEventListener('input', () => {
-        recalculateProductQty(colorBlock.closest('.product-block'));
-        recalculateGlobalTotals();
-        });
-        sRow.querySelector('.remove-size-btn').addEventListener('click', () => {
-        sRow.remove();
-        recalculateProductQty(colorBlock.closest('.product-block'));
-        recalculateGlobalTotals();
-        });
+            document.querySelectorAll(".wizard-step").forEach(el => el.classList.remove("active"));
+            document.querySelectorAll(".step-bullet").forEach(el => el.classList.remove("active"));
+            
+            document.getElementById("step-" + step).classList.add("active");
+            for(let i=1; i<=step; i++) {
+                document.getElementById("indicator-" + i).classList.add("active");
+            }
         }
 
-        function recalculateProductQty(productBlock) {
-        let totalQty = 0;
-        const sizeRows = productBlock.querySelectorAll('.size-row');
-        sizeRows.forEach(sRow => {
-        const size = sRow.querySelector('.size-select').value;
-        const qty = parseInt(sRow.querySelector('.qty-input').value) || 0;
-        if (size && qty > 0) {
-        totalQty += qty;
+        function getProductById(id) {
+            return window.products.find(p => p.productId === id);
         }
-        });
-        productBlock.querySelector('.product-total-qty').textContent = totalQty;
+
+        // --- Step 2: Product Row Logic ---
+        function addProductRow() {
+            const container = document.getElementById("selectedProductsRows");
+            const tempId = "p_" + pCounter++;
+            const row = document.createElement("div");
+            row.className = "product-row";
+            row.id = tempId;
+            
+            let optionsList = `
+                <li class="px-2 py-2 bg-white border-bottom">
+                    <input type="text" class="form-control form-control-sm prod-search" placeholder="Search..." onclick="event.stopPropagation()">
+                </li>
+            `;
+            if (window.products) {
+                window.products.forEach(p => {
+                    const imgStr = p.imagePath || '/images/products/place-holder.png';
+                    optionsList += `
+                    <li class="prod-item-li">
+                        <a class="dropdown-item d-flex align-items-center prod-item" href="#" data-id="${p.productId}" data-name="${p.name}" data-img="${imgStr}">
+                            <img src="${imgStr}" style="width: 30px; height: 30px; object-fit: contain; margin-right: 10px; border: 1px solid #eee;">
+                            <span>${p.name}</span>
+                        </a>
+                    </li>`;
+                });
+            }
+
+            row.innerHTML = `
+                <img class="prod-img" src="/images/products/place-holder.png" style="width: 50px; height: 50px; border-radius: 4px; object-fit: contain; border: 1px solid #ddd;" />
+                <div style="flex: 1; position: relative;">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between custom-dd-toggle" type="button" data-bs-toggle="dropdown" style="background: #fff; text-align: left; min-height: 40px;">
+                            <span class="selected-text text-muted">-- Select a Product --</span>
+                        </button>
+                        <ul class="dropdown-menu shadow-sm w-100" style="max-height: 250px; overflow-y: auto;">
+                            ${optionsList}
+                        </ul>
+                    </div>
+                    <input type="hidden" class="product-select" data-tempid="${tempId}" required>
+                </div>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeProductRow('${tempId}')">X</button>
+            `;
+            
+            container.appendChild(row);
+
+            // Wire events
+            const searchInput = row.querySelector('.prod-search');
+            const listItems = row.querySelectorAll('.prod-item-li');
+            searchInput.addEventListener('input', function() {
+                const term = this.value.toLowerCase();
+                listItems.forEach(li => {
+                    const text = li.innerText.toLowerCase();
+                    li.style.display = text.includes(term) ? 'block' : 'none';
+                });
+            });
+
+            const prodItems = row.querySelectorAll('.prod-item');
+            const hiddenInput = row.querySelector('.product-select');
+            const btnText = row.querySelector('.selected-text');
+            const mainImg = row.querySelector('.prod-img');
+            
+            // Re-initialize Bootstrap dropdown to make it works if not bound natively
+            new bootstrap.Dropdown(row.querySelector('.custom-dd-toggle'));
+
+            prodItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const id = this.getAttribute('data-id');
+                    const name = this.getAttribute('data-name');
+                    const img = this.getAttribute('data-img');
+
+                    hiddenInput.value = id;
+                    btnText.innerText = name;
+                    btnText.classList.remove('text-muted');
+                    mainImg.src = img;
+                    
+                    // Close dropdown
+                    const bsDropdown = bootstrap.Dropdown.getInstance(row.querySelector('.custom-dd-toggle'));
+                    if (bsDropdown) bsDropdown.hide();
+                });
+            });
+        }
+        
+        function removeProductRow(tempId) {
+            const row = document.getElementById(tempId);
+            if (row) row.remove();
+        }
+
+        // --- Step 3: Material & Size Logic ---
+        function buildStep3() {
+            const container = document.getElementById("materialsSizesContainer");
+            container.innerHTML = "";
+            
+            // Sync state with selected products
+            state.products = [];
+            document.querySelectorAll(".product-select").forEach(sel => {
+                if (sel.value) {
+                    state.products.push({
+                        tempId: sel.dataset.tempid,
+                        productId: sel.value,
+                        fabrics: []
+                    });
+                }
+            });
+            
+            state.products.forEach((pState, idx) => {
+                const prod = getProductById(pState.productId);
+                if (!prod) return;
+                
+                const block = document.createElement("div");
+                block.className = "product-config-block";
+                block.dataset.productid = prod.productId;
+                block.innerHTML = `
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="${prod.imagePath || '/images/products/place-holder.png'}" style="width: 40px; height: 40px; border-radius: 4px; border: 1px solid #ddd; margin-right: 15px;" />
+                        <h5 style="margin: 0;">${prod.name}</h5>
+                    </div>
+                    <div id="fabrics_${pState.tempId}"></div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addFabricBlock('${pState.tempId}', ${idx})">+ Add Fabric</button>
+                `;
+                container.appendChild(block);
+                
+                // Auto add one fabric block
+                addFabricBlock(pState.tempId, idx);
+            });
+        }
+
+        let fCounter = 0;
+        function addFabricBlock(tempId, pIdx) {
+            const container = document.getElementById("fabrics_" + tempId);
+            const pState = state.products.find(p => p.tempId === tempId);
+            const prod = getProductById(pState.productId);
+            const fid = "f_" + fCounter++;
+            
+            pState.fabrics.push({ fid: fid, fabricId: null });
+            
+            const fBlock = document.createElement("div");
+            fBlock.className = "fabric-row";
+            fBlock.id = fid;
+            
+            // Size Table HTML
+            let thHtml = "";
+            let qtyHtml = "";
+            let rateHtml = "";
+            
+            // Get BOM requirement per unit to calculate rate
+            let qtyPerUnit = 1.5; // fallback
+            if (window.bomData) {
+                const bom = window.bomData.find(b => b.productId === prod.productId && b.materialId === "MAT-001");
+                if (bom) qtyPerUnit = bom.qtyPerUnit;
+            }
+            
+            prod.sizes.forEach((size, sIdx) => {
+                thHtml += `<th>${size}</th>`;
+                qtyHtml += `<td><input type="number" name="Products[${pIdx}].Fabrics[${fCounter}].Sizes[${sIdx}].Quantity" class="form-control form-control-sm size-input qty-val" data-size="${size}" min="0" placeholder="0" oninput="recalculateGlobalTotals()"></td>`;
+                
+                let multiplier = sizeMultipliers[size] || 1.0;
+                let rate = Math.round(dummyFabricRatePerMeter * qtyPerUnit * multiplier);
+                rateHtml += `<td>Rs. ${rate}</td>`;
+            });
+
+            fBlock.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                    <img src="" class="fabric-sample" id="img_${fid}" style="display:none;" />
+                    <button type="button" class="btn btn-outline-info btn-sm" onclick="openFabricSelector('${fid}', '${tempId}')">Select Fabric</button>
+                    <span id="name_${fid}" style="font-weight: 500;">No fabric selected</span>
+                    <button type="button" class="btn btn-sm btn-outline-danger ms-auto" onclick="removeFabricBlock('${tempId}', '${fid}')">X</button>
+                </div>
+                
+                <div class="size-table-container" id="sizes_${fid}" style="display:none;">
+                    <table class="size-table">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                ${thHtml}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Qty</th>
+                                ${qtyHtml}
+                            </tr>
+                            <tr class="rate-row">
+                                <th>Unit Rate</th>
+                                ${rateHtml}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <input type="hidden" name="Products[${pIdx}].Fabrics[${fCounter}].FabricId" id="hid_${fid}" /> 
+            `;
+            
+            container.appendChild(fBlock);
+        }
+        
+        function removeFabricBlock(tempId, fid) {
+            const row = document.getElementById(fid);
+            if (row) row.remove();
+            const pState = state.products.find(p => p.tempId === tempId);
+            if (pState) {
+                pState.fabrics = pState.fabrics.filter(f => f.fid !== fid);
+            }
+            recalculateGlobalTotals();
         }
 
         function recalculateGlobalTotals() {
-        let aggregatedMaterials = {}; 
+            let aggregatedMaterials = {};
 
-        const productBlocks = document.querySelectorAll('.product-block');
-        productBlocks.forEach(pBlock => {
-        const prodSelect = pBlock.querySelector('.product-select');
-        if (!prodSelect || !prodSelect.value) return;
+            const productBlocks = document.querySelectorAll('.product-config-block');
+            productBlocks.forEach(pBlock => {
+                const prodId = pBlock.dataset.productid;
+                if (!prodId) return;
 
-        const colorBlocks = pBlock.querySelectorAll('.color-block');
-        colorBlocks.forEach(cBlock => {
-        const colorName = cBlock.querySelector('.color-select').value;
-        if (!colorName) return;
+                const fabricRows = pBlock.querySelectorAll('.fabric-row');
+                fabricRows.forEach(fBlock => {
+                    const fid = fBlock.id;
+                    const fabricInput = document.getElementById("hid_" + fid);
+                    const fabricId = fabricInput ? fabricInput.value : null;
+                    const fabricName = document.getElementById("name_" + fid) ? document.getElementById("name_" + fid).innerText : "";
+                    if (!fabricId) return;
 
-        let sizeCounts = {};
-        const sizeRows = cBlock.querySelectorAll('.size-row');
-        sizeRows.forEach(sRow => {
-        const size = sRow.querySelector('.size-select').value;
-        const qty = parseInt(sRow.querySelector('.qty-input').value) || 0;
-        if (size && qty > 0) {
-        sizeCounts[size] = (sizeCounts[size] || 0) + qty;
+                    let sizeCounts = {};
+                    const sizeInputs = fBlock.querySelectorAll('.qty-val');
+                    sizeInputs.forEach(input => {
+                        const size = input.dataset.size;
+                        const qty = parseInt(input.value) || 0;
+                        if (size && qty > 0) {
+                            sizeCounts[size] = (sizeCounts[size] || 0) + qty;
+                        }
+                    });
+
+                    if (Object.keys(sizeCounts).length > 0 && window.bomData && window.materials) {
+                        let boms = window.bomData.filter(b => b.productId === prodId);
+                        boms.forEach(bom => {
+                            let mat = window.materials.find(m => m.materialId === bom.materialId);
+                            if (mat) {
+                                let matName = mat.name;
+                                let isColorSpecific = (mat.type === "Fabric" || mat.type === "Thread" || mat.type === "Accessory");
+                                if (isColorSpecific && matName.includes("Dyed") && fabricName) {
+                                    matName = matName.replace("Dyed", fabricName);
+                                }
+
+                                let totalReq = 0;
+                                for (let size in sizeCounts) {
+                                    let multiplier = sizeMultipliers[size] || 1.0;
+                                    let count = sizeCounts[size];
+                                    let req = count * bom.qtyPerUnit * multiplier;
+                                    req = req + (req * ((bom.wastagePercent || 0) / 100));
+                                    totalReq += req;
+                                }
+
+                                let key = matName;
+                                if (!aggregatedMaterials[key]) {
+                                    aggregatedMaterials[key] = {
+                                        materialId: mat.materialId,
+                                        name: matName,
+                                        unit: mat.unit,
+                                        required: 0
+                                    };
+                                }
+                                aggregatedMaterials[key].required += totalReq;
+                            }
+                        });
+                    }
+                });
+            });
+
+            const centralBOM = document.getElementById('centralMaterialBOM');
+            let keys = Object.keys(aggregatedMaterials);
+            if (keys.length > 0) {
+                let tableHtml = `
+                <h4 style="margin-top:0; margin-bottom:15px; color:#2e7d32;">Consolidated Material Requirements</h4>
+                <div class="table-responsive">
+                <table class="table table-bordered table-sm" style="background: #fff; margin-bottom: 0;">
+                <thead style="background: #f1f1f1;">
+                <tr>
+                <th>Material Name</th>
+                <th>Unit</th>
+                <th>Calculated Req.</th>
+                <th>Final Qty (To Source)</th>
+                </tr>
+                </thead>
+                <tbody>
+                `;
+
+                let mIdx = 0;
+                keys.forEach(key => {
+                    let mat = aggregatedMaterials[key];
+                    tableHtml += `
+                    <tr>
+                    <td style="vertical-align: middle;">
+                    ${mat.name}
+                    <input type="hidden" name="OrderMaterials[${mIdx}].MaterialName" value="${mat.name}" />
+                    <input type="hidden" name="OrderMaterials[${mIdx}].MaterialId" value="${mat.materialId}" />
+                    </td>
+                    <td style="vertical-align: middle;">${mat.unit}</td>
+                    <td style="vertical-align: middle;">${mat.required.toFixed(2)}</td>
+                    <td>
+                    <input type="number" step="0.01" class="form-control form-control-sm" name="OrderMaterials[${mIdx}].Quantity" value="${mat.required.toFixed(2)}" style="width: 120px;" required />
+                    </td>
+                    </tr>
+                    `;
+                    mIdx++;
+                });
+
+                tableHtml += `
+                </tbody>
+                </table>
+                </div>
+                `;
+
+                centralBOM.innerHTML = tableHtml;
+                centralBOM.style.display = 'block';
+            } else {
+                centralBOM.style.display = 'none';
+                centralBOM.innerHTML = '';
+            }
         }
-        });
 
-        if (Object.keys(sizeCounts).length > 0 && window.bomData && window.materials) {
-        let boms = window.bomData.filter(b => b.productId === prodSelect.value);
-        boms.forEach(bom => {
-        let mat = window.materials.find(m => m.materialId === bom.materialId);
-        if (mat) {
-        let matName = mat.name;
-        let isColorSpecific = (mat.type === "Fabric" || mat.type === "Thread" || mat.type === "Accessory");
-        if (isColorSpecific && matName.includes("Dyed") && colorName) {
-        matName = matName.replace("Dyed", colorName);
+        // --- Step 4: Delivery Dates Logic ---
+        function buildStep4() {
+            const container = document.getElementById("multipleDeliveryContainer");
+            container.innerHTML = "";
+            
+            state.products.forEach((pState, pIdx) => {
+                const prod = getProductById(pState.productId);
+                if (!prod) return;
+                
+                const block = document.createElement("div");
+                block.className = "product-config-block";
+                block.innerHTML = `
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="${prod.imagePath || '/images/products/place-holder.png'}" style="width: 40px; height: 40px; border-radius: 4px; border: 1px solid #ddd; margin-right: 15px;" />
+                        <h5 style="margin: 0;">${prod.name} Delivery Schedule</h5>
+                    </div>
+                    <div id="delDates_${pState.tempId}"></div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addDeliveryDateRow('${pState.tempId}', ${pIdx})">+ Add Date</button>
+                `;
+                container.appendChild(block);
+                
+                addDeliveryDateRow(pState.tempId, pIdx); // auto add one
+            });
+            
+            toggleDeliveryMode();
+        }
+        
+        function addDeliveryDateRow(tempId, pIdx) {
+            const container = document.getElementById("delDates_" + tempId);
+            const rIdx = container.children.length;
+            const row = document.createElement("div");
+            row.className = "delivery-date-row";
+            row.innerHTML = `
+                <input type="date" name="Products[${pIdx}].DeliveryDates[${rIdx}].Date" class="form-control form-control-sm" style="width: 150px;">
+                <input type="number" name="Products[${pIdx}].DeliveryDates[${rIdx}].Quantity" class="form-control form-control-sm" placeholder="Qty" style="width: 100px;" min="1">
+                <input type="text" name="Products[${pIdx}].DeliveryDates[${rIdx}].Note" class="form-control form-control-sm" placeholder="Destination / Note" style="flex:1;">
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()">X</button>
+            `;
+            container.appendChild(row);
         }
 
-        let totalReq = 0;
-        for (let size in sizeCounts) {
-        let multiplier = sizeMultipliers[size] || 1.0;
-        let count = sizeCounts[size];
-        let req = count * bom.qtyPerUnit * multiplier;
-        req = req + (req * ((bom.wastagePercent || 0) / 100));
-        totalReq += req;
+        function toggleDeliveryMode() {
+            const mode = document.querySelector('input[name="DeliveryType"]:checked').value;
+            const globalInput = document.getElementById('globalDateInput');
+            if (mode === 'Single') {
+                document.getElementById('singleDeliveryContainer').style.display = 'block';
+                document.getElementById('multipleDeliveryContainer').style.display = 'none';
+                globalInput.setAttribute('required', 'required');
+            } else {
+                document.getElementById('singleDeliveryContainer').style.display = 'none';
+                document.getElementById('multipleDeliveryContainer').style.display = 'block';
+                globalInput.removeAttribute('required');
+            }
         }
 
-        let key = matName;
-        if (!aggregatedMaterials[key]) {
-        aggregatedMaterials[key] = {
-        materialId: mat.materialId,
-        name: matName,
-        unit: mat.unit,
-        required: 0
-        };
+        // --- Fabric Modal Logic ---
+        function initFabricModal() {
+            const grid = document.getElementById("fabricGrid");
+            backendFabrics.forEach(f => {
+                const col = document.createElement("div");
+                col.className = "col-md-4 col-sm-6 mb-3 fabric-col";
+                col.innerHTML = `
+                    <div class="fabric-item" onclick="selectFabric('${f.id}', '${f.name}', '${f.imageUrl}')">  
+                        <img src="${f.imageUrl}" onerror="this.src='/images/products/place-holder.png';" />    
+                        <strong>${f.name}</strong><br/>
+                        <small class="text-muted">${f.id}</small>
+                    </div>
+                `;
+                grid.appendChild(col);
+            });
+
+            document.getElementById("fabricSearch").addEventListener("input", function() {
+                const term = this.value.toLowerCase();
+                document.querySelectorAll(".fabric-col").forEach(col => {
+                    const text = col.innerText.toLowerCase();
+                    col.style.display = text.includes(term) ? "block" : "none";
+                });
+            });
         }
-        aggregatedMaterials[key].required += totalReq;
+        
+        function openFabricSelector(fid, tempId) {
+            activeFabricCb = function(id, name, img) {
+                const pState = state.products.find(p => p.tempId === tempId);
+                const fState = pState.fabrics.find(f => f.fid === fid);
+                if (fState) fState.fabricId = id;
+
+                const imgEl = document.getElementById("img_" + fid);
+                imgEl.src = img;
+                imgEl.style.display = "block";
+
+                document.getElementById("name_" + fid).innerText = name;
+                document.getElementById("hid_" + fid).value = id;
+                
+                document.getElementById("sizes_" + fid).style.display = "block";
+
+                bootstrap.Modal.getInstance(document.getElementById("fabricModal")).hide();
+                
+                recalculateGlobalTotals();
+            };
+            bootstrap.Modal.getOrCreateInstance(document.getElementById("fabricModal")).show();
         }
-        });
-        }
-        });
-        });
-
-        const centralBOM = document.getElementById('centralMaterialBOM');
-
-        let keys = Object.keys(aggregatedMaterials);
-        if (keys.length > 0) {
-        let tableHtml = `
-        <h4 style="margin-top:0; margin-bottom:15px; color:#2e7d32;">Consolidated Material Requirements</h4>
-        <div class="table-responsive">
-        <table class="table table-bordered table-sm" style="background: #fff; margin-bottom: 0;">
-        <thead style="background: #f1f1f1;">
-        <tr>
-        <th>Material Name</th>
-        <th>Unit</th>
-        <th>Calculated Req.</th>
-        <th>Final Qty (To Source)</th>
-        </tr>
-        </thead>
-        <tbody>
-        `;
-
-        let mIdx = 0;
-        keys.forEach(key => {
-        let mat = aggregatedMaterials[key];
-        tableHtml += `
-        <tr>
-        <td style="vertical-align: middle;">
-        ${mat.name}
-        <input type="hidden" name="OrderMaterials[${mIdx}].MaterialName" value="${mat.name}" />
-        <input type="hidden" name="OrderMaterials[${mIdx}].MaterialId" value="${mat.materialId}" />
-        </td>
-        <td style="vertical-align: middle;">${mat.unit}</td>
-        <td style="vertical-align: middle;">${mat.required.toFixed(2)}</td>
-        <td>
-        <input type="number" step="0.01" class="form-control form-control-sm" name="OrderMaterials[${mIdx}].Quantity" value="${mat.required.toFixed(2)}" style="width: 120px;" required />
-        </td>
-        </tr>
-        `;
-        mIdx++;
-        });
-
-        tableHtml += `
-        </tbody>
-        </table>
-        </div>
-        `;
-
-        centralBOM.innerHTML = tableHtml;
-        centralBOM.style.display = 'block';
-        } else {
-        centralBOM.style.display = 'none';
-        centralBOM.innerHTML = '';
-        }
+        
+        function selectFabric(id, name, img) {
+            if (activeFabricCb) activeFabricCb(id, name, img);
         }
 
-        // Initialize with one empty product block
-        createProductBlock();
-
-        document.getElementById('addProductBtn').addEventListener('click', createProductBlock);
-
-        });
-      </script>
-    }
+    </script>
+}

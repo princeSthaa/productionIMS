@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (data.length === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="8" class="empty-cell text-center" style="padding: 30px; color: var(--muted);">
+                    <td colspan="8" class="empty-cell text-center" style="padding: 30px; color: var(--muted);"> 
                         No customers found matching the selected filters.
                     </td>
                 </tr>`;
@@ -43,12 +43,12 @@ document.addEventListener("DOMContentLoaded", function() {
         data.forEach(customer => {
             // Determine status color class
             let statusClass = "text-muted";
-            if (customer.status === "Active") statusClass = "material-ok"; // Uses your existing green class
+            if (customer.status === "Active") statusClass = "material-ok"; // Uses your existing green class    
             if (customer.status === "Blacklisted") statusClass = "material-shortage"; // Uses your existing red class
 
             const row = document.createElement("tr");
             row.style.cursor = "pointer";
-            // Allow clicking anywhere on the row (except on the action buttons themselves) to view the profile
+            // Allow clicking anywhere on the row (except on the action buttons themselves) to view the profile 
             row.onclick = (e) => {
                 if (!e.target.closest('.text-right')) {
                     window.location.href = `/CRM/Details/${customer.id}`;
@@ -69,13 +69,57 @@ document.addEventListener("DOMContentLoaded", function() {
                 <td>${customer.orders}</td>
                 <td><span class="${statusClass}">${customer.status}</span></td>
                 <td class="text-right">
-                    <div style="display: flex; flex-direction: column; gap: 5px; align-items: flex-end;">
-                        <a href="/CRM/Edit/${customer.id}" class="btn btn-sm btn-light" title="Edit Info">Edit</a>
+                    <div style="display: flex; flex-direction: column; gap: 5px; align-items: flex-end;">       
+                        <button type="button" class="btn btn-sm btn-light edit-customer-btn" data-id="${customer.id}" title="Edit Info">Edit</button>
                         <a href="/CRM/Order/CreateOrder?customerId=${customer.id}" class="btn btn-sm btn-primary" title="Take Order">+ Order</a>
                     </div>
                 </td>
             `;
             tableBody.appendChild(row);
+        });
+
+        // Attach event listeners for the edit buttons
+        document.querySelectorAll('.edit-customer-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation(); // prevent row click
+                const customerId = this.getAttribute('data-id');
+                openEditModal(customerId);
+            });
+        });
+    }
+
+    // Modal Edit Logic
+    function openEditModal(customerId) {
+        const customer = mockCustomers.find(c => c.id === customerId);
+        if (!customer) return;
+
+        document.getElementById('editCustomerId').value = customer.id;
+        document.getElementById('editCustomerName').value = customer.name;
+        document.getElementById('editCustomerContact').value = customer.phone + ' / ' + customer.email;
+        document.getElementById('editCustomerStatus').value = customer.status;
+
+        const editModal = new bootstrap.Modal(document.getElementById('editCustomerModal'));
+        editModal.show();
+    }
+
+    const saveCustomerBtn = document.getElementById('saveCustomerBtn');
+    if (saveCustomerBtn) {
+        saveCustomerBtn.addEventListener('click', function() {
+            const customerId = document.getElementById('editCustomerId').value;
+            const newStatus = document.getElementById('editCustomerStatus').value;
+
+            const customer = mockCustomers.find(c => c.id === customerId);
+            if (customer) {
+                customer.status = newStatus;
+
+                // Hide modal
+                const editModalEl = document.getElementById('editCustomerModal');
+                const modalInstance = bootstrap.Modal.getInstance(editModalEl);
+                modalInstance.hide();
+
+                // Re-render table
+                applyFilters();
+            }
         });
     }
 
