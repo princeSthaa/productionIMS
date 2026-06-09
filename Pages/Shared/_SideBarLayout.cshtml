@@ -129,7 +129,7 @@ string)>();
     <nav class="sidebar-nav">
       @foreach (var link in sidebarLinks)
       {
-        <a href="@link.Url" class="@IsActive(link.Url)">
+        <a asp-page="@link.Url" class="@IsActive(link.Url)">
           <span class="material-symbols-outlined">@link.Icon</span> @link.Name
         </a>
       }
