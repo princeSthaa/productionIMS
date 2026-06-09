@@ -9,6 +9,7 @@ public class FabricViewModel
   public string Id { get; set; } = string.Empty;
   public string Name { get; set; } = string.Empty;
   public string ImageUrl { get; set; } = string.Empty;
+  public string Category { get; set; } = string.Empty;
 }
 
 public class CustomerViewModel
@@ -53,11 +54,14 @@ public class CreateOrder : CRMBasePageModel
     // Dummy data from backend
     Fabrics = new List<FabricViewModel>
     {
-        new FabricViewModel { Id = "FAB-001", Name = "Sunset Orange Cotton", ImageUrl = "/images/fabrics/FAB-001.jpg"},
-        new FabricViewModel { Id = "FAB-002", Name = "Lime Green Linen", ImageUrl = "/images/fabrics/FAB-002.png"},
-        new FabricViewModel { Id = "FAB-003", Name = "Royal Blue Silk", ImageUrl = "/images/fabrics/FAB-003.png"},
-        new FabricViewModel { Id = "FAB-004", Name = "Sandy Brown Wool", ImageUrl = "/images/fabrics/FAB-004.png"},
-        new FabricViewModel { Id = "FAB-005", Name = "Violet Velvet", ImageUrl = "/images/fabrics/FAB-005.png"} 
+        new FabricViewModel { Id = "FAB-001", Name = "Sunset Orange Cotton", ImageUrl = "/images/fabrics/FAB-001.jpg", Category = "Cotton" },
+        new FabricViewModel { Id = "FAB-002", Name = "Lime Green Linen", ImageUrl = "/images/fabrics/FAB-002.png", Category = "Linen" },
+        new FabricViewModel { Id = "FAB-003", Name = "Royal Blue Silk", ImageUrl = "/images/fabrics/FAB-003.png", Category = "Silk" },
+        new FabricViewModel { Id = "FAB-004", Name = "Sandy Brown Wool", ImageUrl = "/images/fabrics/FAB-004.png", Category = "Wool" },
+        new FabricViewModel { Id = "FAB-005", Name = "Violet Velvet", ImageUrl = "/images/fabrics/FAB-005.png", Category = "Velvet" },
+        new FabricViewModel { Id = "FAB-006", Name = "Classic White Cotton", ImageUrl = "/images/fabrics/FAB-002.png", Category = "Cotton" },
+        new FabricViewModel { Id = "FAB-007", Name = "Ocean Blue Cotton", ImageUrl = "/images/fabrics/FAB-003.png", Category = "Cotton" },
+        new FabricViewModel { Id = "FAB-008", Name = "Navy Linen", ImageUrl = "/images/fabrics/FAB-004.png", Category = "Linen" }
     };
   }
 }

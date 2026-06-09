@@ -292,17 +292,31 @@
         </div>
       </div>
 
-      <!-- Fabric Modal -->
+      <!-- Fabric Selection Modal -->
       <div class="modal fade" id="fabricModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Select Fabric</h5>
+              <h5 class="modal-title" id="fabricModalTitle">Select Fabric Category</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
-              <input type="text" id="fabricSearch" class="form-control mb-3" placeholder="Search fabrics...">
-              <div class="row" id="fabricGrid"></div>
+              
+              <!-- Category View -->
+              <div id="fabricCategoryView">
+                <input type="text" id="fabricCategorySearch" class="form-control mb-3" placeholder="Search categories...">
+                <div class="row" id="fabricCategoryGrid"></div>
+              </div>
+
+              <!-- Item View -->
+              <div id="fabricItemView" style="display: none;">
+                <div class="d-flex mb-3 gap-2 align-items-center">
+                   <button type="button" class="btn btn-sm btn-outline-secondary" onclick="showFabricCategories()">&larr; Back</button>
+                   <input type="text" id="fabricSearch" class="form-control" placeholder="Search fabrics...">
+                </div>
+                <div class="row" id="fabricGrid"></div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -737,54 +751,121 @@
           }
 
           // --- Fabric Modal Logic ---
+          let fabricCategories = {};
           function initFabricModal() {
-          const grid = document.getElementById("fabricGrid");
-          backendFabrics.forEach(f => {
-          const col = document.createElement("div");
-          col.className = "col-md-4 col-sm-6 mb-3 fabric-col";
-          col.innerHTML = `
-          <div class="fabric-item" onclick="selectFabric('${f.id}', '${f.name}', '${f.imageUrl}')">
-          <img src="${f.imageUrl}" onerror="this.src='/images/products/place-holder.png';" />
-          <strong>${f.name}</strong><br/>
-          <small class="text-muted">${f.id}</small>
-          </div>
-          `;
-          grid.appendChild(col);
-          });
+              // Group fabrics by category
+              backendFabrics.forEach(f => {
+                  let cat = f.category || 'Other';
+                  if (!fabricCategories[cat]) {
+                      fabricCategories[cat] = [];
+                  }
+                  fabricCategories[cat].push(f);
+              });
 
-          document.getElementById("fabricSearch").addEventListener("input", function () {
-          const term = this.value.toLowerCase();
-          document.querySelectorAll(".fabric-col").forEach(col => {
-          const text = col.innerText.toLowerCase();
-          col.style.display = text.includes(term) ? "block" : "none";
-          });
-          });
+              // Init Category Modal
+              const catGrid = document.getElementById("fabricCategoryGrid");
+              Object.keys(fabricCategories).forEach(cat => {
+                  const catFabrics = fabricCategories[cat];
+                  const col = document.createElement("div");
+                  col.className = "col-md-4 col-sm-6 mb-4 fabric-cat-col";
+                  
+                  let imagesHtml = '';
+                  const sampleFabrics = catFabrics.slice(0, 4);
+                  sampleFabrics.forEach(sf => {
+                      imagesHtml += `<img src="${sf.imageUrl}" onerror="this.src='/images/products/place-holder.png';" style="flex: 1; height: 100px; object-fit: cover; min-width: 0;" />`;
+                  });
+                  
+                  col.innerHTML = `
+                  <div class="border rounded" style="cursor: pointer; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);" 
+                       onclick="openFabricModalForCategory('${cat}')"
+                       onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.1)'" 
+                       onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.05)'">
+                      <div class="d-flex" style="width: 100%; background: #eee;">
+                          ${imagesHtml}
+                      </div>
+                      <div class="p-3 text-center bg-white border-top">
+                          <strong style="font-size: 1.1em; color: #333;">${cat}</strong><br/>
+                          <small class="text-muted">${catFabrics.length} fabric options</small>
+                      </div>
+                  </div>
+                  `;
+                  catGrid.appendChild(col);
+              });
+
+              document.getElementById("fabricCategorySearch").addEventListener("input", function () {
+                  const term = this.value.toLowerCase();
+                  document.querySelectorAll(".fabric-cat-col").forEach(col => {
+                      const text = col.innerText.toLowerCase();
+                      col.style.display = text.includes(term) ? "block" : "none";
+                  });
+              });
+
+              document.getElementById("fabricSearch").addEventListener("input", function () {
+                  const term = this.value.toLowerCase();
+                  document.querySelectorAll(".fabric-col").forEach(col => {
+                      const text = col.innerText.toLowerCase();
+                      col.style.display = text.includes(term) ? "block" : "none";
+                  });
+              });
           }
 
           function openFabricSelector(fid, tempId) {
-          activeFabricCb = function (id, name, img) {
-          const pState = state.products.find(p => p.tempId === tempId);
-          const fState = pState.fabrics.find(f => f.fid === fid);
-          if (fState) fState.fabricId = id;
+              activeFabricCb = function (id, name, img) {
+                  const pState = state.products.find(p => p.tempId === tempId);
+                  const fState = pState.fabrics.find(f => f.fid === fid);
+                  if (fState) fState.fabricId = id;
 
-          const imgEl = document.getElementById("img_" + fid);
-          imgEl.src = img;
-          imgEl.style.display = "block";
+                  const imgEl = document.getElementById("img_" + fid);
+                  imgEl.src = img;
+                  imgEl.style.display = "block";
 
-          document.getElementById("name_" + fid).innerText = name;
-          document.getElementById("hid_" + fid).value = id;
+                  document.getElementById("name_" + fid).innerText = name;
+                  document.getElementById("hid_" + fid).value = id;
 
-          document.getElementById("sizes_" + fid).style.display = "block";
+                  document.getElementById("sizes_" + fid).style.display = "block";
 
-          bootstrap.Modal.getInstance(document.getElementById("fabricModal")).hide();
+                  bootstrap.Modal.getInstance(document.getElementById("fabricModal")).hide();
 
-          recalculateGlobalTotals();
-          };
-          bootstrap.Modal.getOrCreateInstance(document.getElementById("fabricModal")).show();
+                  recalculateGlobalTotals();
+              };
+              
+              showFabricCategories();
+              bootstrap.Modal.getOrCreateInstance(document.getElementById("fabricModal")).show();
+          }
+
+          function showFabricCategories() {
+              document.getElementById("fabricModalTitle").innerText = "Select Fabric Category";
+              document.getElementById("fabricCategoryView").style.display = "block";
+              document.getElementById("fabricItemView").style.display = "none";
+          }
+
+          function openFabricModalForCategory(category) {
+              document.getElementById("fabricModalTitle").innerText = "Select Fabric - " + category;
+              document.getElementById("fabricCategoryView").style.display = "none";
+              document.getElementById("fabricItemView").style.display = "block";
+
+              const grid = document.getElementById("fabricGrid");
+              grid.innerHTML = "";
+              const fabrics = fabricCategories[category] || [];
+              fabrics.forEach(f => {
+                  const col = document.createElement("div");
+                  col.className = "col-md-4 col-sm-6 mb-3 fabric-col";
+                  col.innerHTML = `
+                  <div class="fabric-item" onclick="selectFabric('${f.id}', '${f.name}', '${f.imageUrl}')">
+                  <img src="${f.imageUrl}" onerror="this.src='/images/products/place-holder.png';" />
+                  <strong>${f.name}</strong><br/>
+                  <small class="text-muted">${f.id}</small>
+                  </div>
+                  `;
+                  grid.appendChild(col);
+              });
+              
+              document.getElementById("fabricSearch").value = "";
+              document.getElementById("fabricSearch").dispatchEvent(new Event("input"));
           }
 
           function selectFabric(id, name, img) {
-          if (activeFabricCb) activeFabricCb(id, name, img);
+              if (activeFabricCb) activeFabricCb(id, name, img);
           }
 
         </script>
